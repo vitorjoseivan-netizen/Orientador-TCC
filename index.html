@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orientador de TCC — MVP (SPA Hash Routes)</title>
+  <style>
+    :root{
+      --bg:#f6f7f9; --card:#fff; --text:#111827; --muted:#374151;
+      --line:#e5e7eb; --primary:#111; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--text); }
+    header.topbar{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 16px; background:#fff; border-bottom:1px solid var(--line);
+      position:sticky; top:0; z-index:10;
+    }
+    .brand{ font-weight:800; cursor:pointer; }
+    nav a{ margin-left:12px; color:var(--text); text-decoration:none; font-size:14px; }
+    nav a:hover{ text-decoration:underline; }
+    main.container{ max-width:980px; margin:18px auto; padding:0 16px 60px; }
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:14px;
+      padding:14px; margin:12px 0;
+    }
+    .h1{ font-size:22px; font-weight:800; margin:0 0 8px; }
+    .p{ margin:0 0 10px; color:var(--muted); line-height:1.45; }
+    .row{ display:flex; gap:12px; flex-wrap:wrap; }
+    .col{ flex:1; min-width:260px; }
+    label{ display:block; font-size:13px; color:var(--muted); margin:10px 0 6px; }
+    input, select, textarea{
+      width:100%; padding:10px; border-radius:10px;
+      border:1px solid #d1d5db; background:#fff;
+    }
+    textarea{ min-height:110px; resize:vertical; }
+    .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button{
+      padding:10px 12px; border-radius:12px; border:1px solid #d1d5db;
+      background:#fff; cursor:pointer;
+    }
+    button.primary{ background:var(--primary); color:#fff; border-color:var(--primary); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .badge{
+      display:inline-block; padding:4px 8px; border-radius:999px;
+      background:#eef2ff; border:1px solid #c7d2fe; font-size:12px;
+    }
+    .badge.ok{ background:#f0fdf4; border-color:#86efac; }
+    .badge.warn{ background:#fffbeb; border-color:#fcd34d; }
+    hr{ border:none; border-top:1px solid var(--line); margin:12px 0; }
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background:#111; color:#fff; padding:10px 12px; border-radius:12px;
+      display:none; z-index:9999; max-width:92vw;
+    }
+    .toast.show{ display:block; }
+    .steps{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+    .step{
+      padding:6px 10px; border-radius:999px; border:1px solid var(--line);
+      background:#fff; font-size:12px;
+    }
+    .step.done{ border-color:#86efac; background:#f0fdf4; }
+    .step.active{ border-color:#c7d2fe; background:#eef2ff; }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+    .tab{
+      padding:8px 10px; border-radius:999px; border:1px solid var(--line);
+      background:#fff; cursor:pointer; font-size:12px;
+    }
+    .tab.active{ border-color:var(--primary); }
+    .mono{ white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .small{ font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand" title="Clique para resetar o MVP">Orientador de TCC</div>
+    <nav>
+      <a href="#/home">Home</a>
+      <a href="#/project">Projeto</a>
+      <a href="#/intro">Introdução</a>
+      <a href="#/review">Revisão</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div id="steps"></div>
+    <div id="app"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---------- State ----------
+    const KEY = "orientador_tcc_spa_hash_v1";
+
+    function defaultState(){
+      return {
+        user: { course:"", area:"Humanas", citationStyle:"ABNT", simpleMode:true },
+        project: {
+          title: "TCC - Tema provisório",
+          themeRaw: "",
+          themeRefined: { axis:"", intent:"", scopeType:"", scopeValue:"" },
+          researchProblem: { factor:"", object:"", context:"", question:"" },
+          generalObjective: { verb:"Investigar", object:"", context:"", text:"" }
+        },
+        blocks: {
+          intro: { context:"", problem:"", objective:"", structure:"" },
+          just: { social:"", academic:"", viability:"" }
+        },
+        progress: {
+          theme:"todo",
+          problem:"todo",
+          generalObjective:"todo",
+          introduction:"todo",
+          justification:"todo"
+        },
+        ui: { introTab: "context" }
+      };
+    }
+
+    function loadState(){
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return defaultState();
+      try { return JSON.parse(raw); } catch { return defaultState(); }
+    }
+    function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+
+    let state = loadState();
+
+    // ---------- UI helpers ----------
+    const appEl = document.getElementById("app");
+    const stepsEl = document.getElementById("steps");
+    const toastEl = document.getElementById("toast");
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 2200);
+    }
+
+    function setState(mutator){
+      mutator(state);
+      saveState(state);
+      render();
+    }
+
+    function navigate(path){
+      const normalized = path.startsWith("/") ? path : "/" + path;
+      location.hash = "#" + normalized;
+    }
+
+    function getRoute(){
+      const h = location.hash || "#/onboarding";
+      const path = h.replace("#", "");
+      return path; // "/home"
+    }
+
+    function badgeFor(status){
+      if(status === "done") return `<span class="badge ok">✔ concluído</span>`;
+      return `<span class="badge warn">⏳ pendente</span>`;
+    }
+
+    function renderSteps(activeKey){
+      const items = [
+        ["Tema", "theme"],
+        ["Problema", "problem"],
+        ["Obj. Geral", "generalObjective"],
+        ["Introdução", "introduction"],
+        ["Justificativa", "justification"]
+      ];
+      stepsEl.innerHTML = `
+        <div class="steps">
+          ${items.map(([label, key])=>{
+            const cls = [
+              "step",
+              state.progress[key] === "done" ? "done" : "",
+              activeKey === key ? "active" : ""
+            ].join(" ").trim();
+            return `<span class="${cls}">${label}</span>`;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function guard(cond, fallbackRoute, message){
+      if(cond) return true;
+      if(message) toast(message);
+      navigate(fallbackRoute);
+      return false;
+    }
+
+    function escapeHtml(s){
+      return (s ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    // ---------- Screens ----------
+    function screenOnboarding(){
+      renderSteps(null);
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Seu TCC, passo a passo</div>
+          <p class="p">Sem “academiquês” desnecessário. Com explicações simples do porquê.</p>
+          <hr/>
+          <div class="card" style="background:#fafafa;">
+            <strong>Integridade acadêmica</strong>
+            <p class="p">O sistema não faz o TCC por você. Ele orienta e ensina.</p>
+          </div>
+          <div class="btnbar">
+            <button class="primary" id="startBtn">Começar</button>
+          </div>
+          <p class="small">Dica: clique no nome “Orientador de TCC” no topo para resetar o MVP.</p>
+        </div>
+      `;
+      document.getElementById("startBtn").onclick = () => navigate("/profile");
+    }
+
+    function screenProfile(){
+      renderSteps("theme");
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Perfil</div>
+          <p class="p">Personalize a orientação para seu curso e área.</p>
+
+          <div class="row">
+            <div class="col">
+              <label>Curso (opcional)</label>
+              <input id="course" placeholder="Ex.: Administração" value="${escapeHtml(state.user.course)}" />
+            </div>
+            <div class="col">
+              <label>Área (obrigatória)</label>
+              <select id="area">
+                ${["Humanas","Saúde","Exatas","Tecnológicas"].map(v =>
+                  `<option ${state.user.area===v?"selected":""}>${v}</option>`
+                ).join("")}
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Norma</label>
+              <select id="citation">
+                ${["ABNT","APA","Vancouver"].map(v =>
+                  `<option ${state.user.citationStyle===v?"selected":""}>${v}</option>`
+                ).join("")}
+              </select>
+            </div>
+            <div class="col">
+              <label>Modo simples</label>
+              <select id="simpleMode">
+                <option value="true" ${state.user.simpleMode?"selected":""}>Ligado (recomendado)</option>
+                <option value="false" ${!state.user.simpleMode?"selected":""}>Desligado</option>
+              </select>
+              <div class="small">Respostas mais curtas e diretas.</div>
+            </div>
+          </div>
+
+          <div class="btnbar">
+            <button class="primary" id="continueBtn">Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/onboarding");
+
+      document.getElementById("continueBtn").onclick = () => {
+        const area = document.getElementById("area").value;
+        if(!area) return toast("Selecione uma área.");
+
+        setState(s => {
+          s.user.course = document.getElementById("course").value.trim();
+          s.user.area = area;
+          s.user.citationStyle = document.getElementById("citation").value;
+          s.user.simpleMode = document.getElementById("simpleMode").value === "true";
+        });
+        navigate("/project");
+      };
+    }
+
+    function screenProject(){
+      renderSteps("theme");
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Seu Projeto</div>
+          <p class="p">Defina um nome e escreva seu tema do seu jeito.</p>
+
+          <label>Nome do projeto</label>
+          <input id="title" value="${escapeHtml(state.project.title)}" />
+
+          <label>Tema (linguagem livre)</label>
+          <textarea id="themeRaw" placeholder="Ex.: Quero pesquisar...">${escapeHtml(state.project.themeRaw)}</textarea>
+
+          <div class="btnbar">
+            <button class="primary" id="saveBtn">Salvar e continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/profile");
+
+      document.getElementById("saveBtn").onclick = () => {
+        const theme = document.getElementById("themeRaw").value.trim();
+        if(!theme) return toast("Escreva ao menos 1 frase sobre o tema.");
+
+        setState(s => {
+          s.project.title = document.getElementById("title").value.trim() || "TCC - Tema provisório";
+          s.project.themeRaw = theme;
+          s.progress.theme = "done";
+        });
+        navigate("/funil");
+      };
+    }
+
+    function screenFunil(){
+      if(!guard(state.progress.theme==="done" && !!state.project.themeRaw.trim(), "/project", "Defina o tema antes.")) return;
+
+      renderSteps("theme");
+      const tr = state.project.themeRefined;
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Funil de Tema</div>
+          <p class="p">Vamos dar foco ao seu tema para virar um TCC pesquisável.</p>
+
+          <div class="card" style="background:#fafafa;">
+            <div class="p"><strong>Seu tema</strong></div>
+            <div class="p">${escapeHtml(state.project.themeRaw)}</div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Seu estudo é mais sobre…</label>
+              <select id="axis">
+                <option value="">Selecione</option>
+                ${["Impacto social","Políticas públicas / gestão","Aspectos técnicos / científicos","Educação / formação"]
+                  .map(v=>`<option ${tr.axis===v?"selected":""}>${v}</option>`).join("")}
+              </select>
+            </div>
+            <div class="col">
+              <label>Você quer principalmente…</label>
+              <select id="intent">
+                <option value="">Selecione</option>
+                ${["Explicar causas","Avaliar efeitos","Comparar","Propor solução","Mapear cenário"]
+                  .map(v=>`<option ${tr.intent===v?"selected":""}>${v}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Tipo de recorte</label>
+              <select id="scopeType">
+                <option value="">Selecione</option>
+                ${["Local","Público","Período","Instituição","Outro"]
+                  .map(v=>`<option ${tr.scopeType===v?"selected":""}>${v}</option>`).join("")}
+              </select>
+            </div>
+            <div class="col">
+              <label>Valor do recorte</label>
+              <input id="scopeValue" placeholder="Ex.: Fortaleza-CE / 2023–2025 / Universidade X"
+                value="${escapeHtml(tr.scopeValue)}" />
+            </div>
+          </div>
+
+          <div class="btnbar">
+            <button class="primary" id="nextBtn">Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/project");
+
+      document.getElementById("nextBtn").onclick = () => {
+        const axis = document.getElementById("axis").value;
+        const intent = document.getElementById("intent").value;
+        const scopeType = document.getElementById("scopeType").value;
+        const scopeValue = document.getElementById("scopeValue").value.trim();
+        if(!axis || !intent || !scopeType || !scopeValue) return toast("Preencha eixo, intenção e recorte.");
+
+        setState(s => { s.project.themeRefined = { axis, intent, scopeType, scopeValue }; });
+        navigate("/problem");
+      };
+    }
+
+    function screenProblem(){
+      if(!guard(!!state.project.themeRaw.trim(), "/project", "Defina o tema antes.")) return;
+
+      renderSteps("problem");
+      const rp = state.project.researchProblem;
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Problema de pesquisa</div>
+          <p class="p">Modelo: “Em que medida ___ influencia ___ no contexto de ___?”</p>
+
+          <div class="row">
+            <div class="col">
+              <label>Fator (causa/variável)</label>
+              <input id="factor" value="${escapeHtml(rp.factor)}" placeholder="Ex.: uso de redes sociais" />
+            </div>
+            <div class="col">
+              <label>Objeto/Efeito</label>
+              <input id="object" value="${escapeHtml(rp.object)}" placeholder="Ex.: desempenho acadêmico" />
+            </div>
+          </div>
+
+          <label>Contexto (recorte)</label>
+          <input id="context" value="${escapeHtml(rp.context)}" placeholder="Ex.: alunos de graduação em Fortaleza-CE" />
+
+          <div class="btnbar">
+            <button class="primary" id="genBtn">Gerar e salvar</button>
+            <button id="nextBtn" ${rp.question?.trim() ? "" : "disabled"}>Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+
+          <hr/>
+          <div class="card" style="background:#fafafa;">
+            <div class="badge">Pergunta</div>
+            <div class="p" id="qView">${escapeHtml(rp.question || "—")}</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/funil");
+
+      document.getElementById("genBtn").onclick = () => {
+        const factor = document.getElementById("factor").value.trim();
+        const object = document.getElementById("object").value.trim();
+        const context = document.getElementById("context").value.trim();
+        if(!factor || !object || !context) return toast("Preencha fator, objeto e contexto.");
+
+        const question = `Em que medida ${factor} influencia ${object} no contexto de ${context}?`;
+        setState(s => {
+          s.project.researchProblem = { factor, object, context, question };
+          s.progress.problem = "done";
+        });
+
+        document.getElementById("qView").textContent = question;
+        document.getElementById("nextBtn").disabled = false;
+        toast("Problema salvo.");
+      };
+
+      document.getElementById("nextBtn").onclick = () => navigate("/objective");
+    }
+
+    function screenObjective(){
+      if(!guard(state.progress.problem==="done" && !!state.project.researchProblem.question.trim(), "/problem", "Salve o problema antes.")) return;
+
+      renderSteps("generalObjective");
+      const go = state.project.generalObjective;
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Objetivo geral</div>
+          <p class="p">Modelo: Verbo + objeto + contexto.</p>
+
+          <div class="row">
+            <div class="col">
+              <label>Verbo</label>
+              <select id="verb">
+                ${["Investigar","Analisar","Avaliar","Compreender"].map(v =>
+                  `<option ${go.verb===v?"selected":""}>${v}</option>`
+                ).join("")}
+              </select>
+            </div>
+            <div class="col">
+              <label>Objeto do estudo</label>
+              <input id="obj" value="${escapeHtml(go.object)}" placeholder="Ex.: relação entre X e Y" />
+            </div>
+          </div>
+
+          <label>Contexto</label>
+          <input id="ctx" value="${escapeHtml(go.context)}" placeholder="Ex.: alunos de graduação em Fortaleza-CE" />
+
+          <div class="btnbar">
+            <button class="primary" id="genBtn">Gerar e salvar</button>
+            <button id="nextBtn" ${go.text?.trim() ? "" : "disabled"}>Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+
+          <hr/>
+          <div class="card" style="background:#fafafa;">
+            <div class="badge">Objetivo</div>
+            <div class="p" id="oView">${escapeHtml(go.text || "—")}</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/problem");
+
+      document.getElementById("genBtn").onclick = () => {
+        const verb = document.getElementById("verb").value;
+        const object = document.getElementById("obj").value.trim();
+        const context = document.getElementById("ctx").value.trim();
+        if(!object || !context) return toast("Preencha objeto e contexto.");
+
+        const text = `${verb} ${object} no contexto de ${context}.`;
+        setState(s => {
+          s.project.generalObjective = { verb, object, context, text };
+          s.progress.generalObjective = "done";
+        });
+
+        document.getElementById("oView").textContent = text;
+        document.getElementById("nextBtn").disabled = false;
+        toast("Objetivo salvo.");
+      };
+
+      document.getElementById("nextBtn").onclick = () => navigate("/intro");
+    }
+
+    function screenIntro(){
+      if(!guard(state.progress.generalObjective==="done", "/objective", "Conclua o objetivo geral antes.")) return;
+
+      renderSteps("introduction");
+      const intro = state.blocks.intro;
+      const activeTab = state.ui.introTab || "context";
+
+      const tabBtn = (key, label) => `
+        <button class="tab ${activeTab===key?'active':''}" data-tab="${key}">${label}</button>
+      `;
+
+      const tabContent = () => {
+        if(activeTab === "context") return `
+          <label>1) Contexto (2–4 frases)</label>
+          <textarea id="tContext">${escapeHtml(intro.context)}</textarea>
+          <div class="small">Explique o cenário geral, sem entrar ainda na pergunta de pesquisa.</div>
+        `;
+        if(activeTab === "problem") return `
+          <label>2) Problema (1–2 frases)</label>
+          <textarea id="tProblem">${escapeHtml(intro.problem)}</textarea>
+          <div class="btnbar">
+            <button id="insertProblem">Inserir problema formulado</button>
+          </div>
+        `;
+        if(activeTab === "objective") return `
+          <label>3) Objetivo (1–2 frases)</label>
+          <textarea id="tObjective">${escapeHtml(intro.objective)}</textarea>
+          <div class="btnbar">
+            <button id="insertObjective">Inserir objetivo geral</button>
+          </div>
+        `;
+        return `
+          <label>4) Estrutura do trabalho (3–5 frases)</label>
+          <textarea id="tStructure" placeholder="Ex.: Este trabalho está estruturado em...">${escapeHtml(intro.structure)}</textarea>
+          <div class="small">Diga como os capítulos se organizam (Introdução, Referencial, Metodologia, etc.).</div>
+        `;
+      };
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Introdução (4 blocos)</div>
+          <p class="p">Escreva por partes. No MVP, o foco é estruturar e salvar (a melhoria por IA entra depois).</p>
+
+          <div class="tabs">
+            ${tabBtn("context","Contexto")}
+            ${tabBtn("problem","Problema")}
+            ${tabBtn("objective","Objetivo")}
+            ${tabBtn("structure","Estrutura")}
+          </div>
+
+          <div class="card" style="background:#fafafa;">
+            ${tabContent()}
+          </div>
+
+          <div class="btnbar">
+            <button class="primary" id="saveBtn">Salvar Introdução</button>
+            <button id="nextBtn" ${state.progress.introduction==="done" ? "" : "disabled"}>Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+
+          <hr/>
+          <div class="small">Status: ${badgeFor(state.progress.introduction)}</div>
+        </div>
+      `;
+
+      document.querySelectorAll("[data-tab]").forEach(btn=>{
+        btn.onclick = () => {
+          const key = btn.getAttribute("data-tab");
+          setState(s => { s.ui.introTab = key; });
+        };
+      });
+
+      const insProb = document.getElementById("insertProblem");
+      if(insProb){
+        insProb.onclick = () => {
+          const q = state.project.researchProblem.question?.trim();
+          if(!q) return toast("Não há problema salvo.");
+          document.getElementById("tProblem").value = `Este estudo parte do seguinte problema de pesquisa: ${q}`;
+        };
+      }
+
+      const insObj = document.getElementById("insertObjective");
+      if(insObj){
+        insObj.onclick = () => {
+          const t = state.project.generalObjective.text?.trim();
+          if(!t) return toast("Não há objetivo salvo.");
+          document.getElementById("tObjective").value = `Diante disso, o objetivo geral deste trabalho é ${t.replace(/\.$/, "")}.`;
+        };
+      }
+
+      document.getElementById("backBtn").onclick = () => navigate("/objective");
+
+      function readTabValues(){
+        const current = state.ui.introTab || "context";
+        if(current==="context") return { key:"context", value:(document.getElementById("tContext")?.value ?? "").trim() };
+        if(current==="problem") return { key:"problem", value:(document.getElementById("tProblem")?.value ?? "").trim() };
+        if(current==="objective") return { key:"objective", value:(document.getElementById("tObjective")?.value ?? "").trim() };
+        return { key:"structure", value:(document.getElementById("tStructure")?.value ?? "").trim() };
+      }
+
+      document.getElementById("saveBtn").onclick = () => {
+        const { key, value } = readTabValues();
+        setState(s => { s.blocks.intro[key] = value; });
+
+        const b = state.blocks.intro;
+        const all = {
+          context: (key==="context"? value : b.context).trim(),
+          problem: (key==="problem"? value : b.problem).trim(),
+          objective: (key==="objective"? value : b.objective).trim(),
+          structure: (key==="structure"? value : b.structure).trim()
+        };
+
+        if(!all.context || !all.problem || !all.objective || !all.structure){
+          toast("Preencha os 4 blocos (Contexto, Problema, Objetivo e Estrutura).");
+          return;
+        }
+
+        setState(s => { s.progress.introduction = "done"; });
+        document.getElementById("nextBtn").disabled = false;
+        toast("Introdução salva.");
+      };
+
+      document.getElementById("nextBtn").onclick = () => navigate("/just");
+    }
+
+    function screenJust(){
+      if(!guard(state.progress.introduction==="done", "/intro", "Conclua a introdução antes.")) return;
+
+      renderSteps("justification");
+      const just = state.blocks.just;
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Justificativa (3 blocos)</div>
+          <p class="p">Responda: por que seu TCC importa? Evite exageros e não invente dados.</p>
+
+          <label>1) Relevância social</label>
+          <textarea id="jSocial">${escapeHtml(just.social)}</textarea>
+
+          <label>2) Relevância acadêmica</label>
+          <textarea id="jAcademic">${escapeHtml(just.academic)}</textarea>
+
+          <label>3) Viabilidade</label>
+          <textarea id="jViability">${escapeHtml(just.viability)}</textarea>
+
+          <div class="btnbar">
+            <button class="primary" id="saveBtn">Salvar Justificativa</button>
+            <button id="nextBtn" ${state.progress.justification==="done" ? "" : "disabled"}>Continuar</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+
+          <hr/>
+          <div class="small">Status: ${badgeFor(state.progress.justification)}</div>
+        </div>
+      `;
+
+      document.getElementById("backBtn").onclick = () => navigate("/intro");
+
+      document.getElementById("saveBtn").onclick = () => {
+        const social = document.getElementById("jSocial").value.trim();
+        const academic = document.getElementById("jAcademic").value.trim();
+        const viability = document.getElementById("jViability").value.trim();
+        if(!social || !academic || !viability) return toast("Preencha os 3 blocos da justificativa.");
+
+        setState(s => {
+          s.blocks.just = { social, academic, viability };
+          s.progress.justification = "done";
+        });
+        document.getElementById("nextBtn").disabled = false;
+        toast("Justificativa salva.");
+      };
+
+      document.getElementById("nextBtn").onclick = () => navigate("/review");
+    }
+
+    function screenReview(){
+      renderSteps(null);
+
+      const intro = [
+        state.blocks.intro.context,
+        state.blocks.intro.problem,
+        state.blocks.intro.objective,
+        state.blocks.intro.structure
+      ].filter(Boolean).join("\n\n");
+
+      const just = [
+        state.blocks.just.social,
+        state.blocks.just.academic,
+        state.blocks.just.viability
+      ].filter(Boolean).join("\n\n");
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">Revisão</div>
+          <p class="p">Aqui está a versão montada. Revise e personalize: você é o autor.</p>
+
+          <div class="card" style="background:#fafafa;">
+            <div class="badge">Introdução</div>
+            <div class="mono">${escapeHtml(intro || "Introdução ainda não concluída.")}</div>
+          </div>
+
+          <div class="card" style="background:#fafafa;">
+            <div class="badge">Justificativa</div>
+            <div class="mono">${escapeHtml(just || "Justificativa ainda não concluída.")}</div>
+          </div>
+
+          <div class="btnbar">
+            <button class="primary" id="copyIntro">Copiar Introdução</button>
+            <button class="primary" id="copyJust">Copiar Justificativa</button>
+            <button id="copyAll">Copiar Tudo</button>
+            <button id="backBtn">Voltar</button>
+          </div>
+        </div>
+      `;
+
+      async function copy(text){
+        if(!text?.trim()) return toast("Nada para copiar.");
+        try { await navigator.clipboard.writeText(text); toast("Copiado."); }
+        catch { toast("Falha ao copiar. Seu navegador pode bloquear."); }
+      }
+
+      document.getElementById("copyIntro").onclick = () => copy(intro);
+      document.getElementById("copyJust").onclick = () => copy(just);
+      document.getElementById("copyAll").onclick = () => copy((intro||"") + "\n\n" + (just||""));
+      document.getElementById("backBtn").onclick = () => navigate("/home");
+    }
+
+    function screenHome(){
+      renderSteps(null);
+      const p = state.progress;
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="h1">${escapeHtml(state.project.title || "Seu TCC")}</div>
+          <p class="p"><strong>Tema:</strong> ${escapeHtml(state.project.themeRaw || "(a definir)")}</p>
+
+          <div class="card" style="background:#fafafa;">
+            <div class="p"><strong>Progresso</strong></div>
+            <div class="p">Tema: ${badgeFor(p.theme)}</div>
+            <div class="p">Problema: ${badgeFor(p.problem)}</div>
+            <div class="p">Objetivo geral: ${badgeFor(p.generalObjective)}</div>
+            <div class="p">Introdução: ${badgeFor(p.introduction)}</div>
+            <div class="p">Justificativa: ${badgeFor(p.justification)}</div>
+          </div>
+
+          <div class="btnbar">
+            <button class="primary" id="continueBtn">Continuar</button>
+            <button id="reviewBtn">Ir para Revisão</button>
+            <button id="resetBtn">Resetar MVP</button>
+          </div>
+
+          <p class="small">Links diretos: <span class="badge">#/project</span> <span class="badge">#/intro</span> <span class="badge">#/review</span></p>
+        </div>
+      `;
+
+      function nextRoute(){
+        if(state.progress.theme !== "done") return "/project";
+        if(state.progress.problem !== "done") return "/problem";
+        if(state.progress.generalObjective !== "done") return "/objective";
+        if(state.progress.introduction !== "done") return "/intro";
+        if(state.progress.justification !== "done") return "/just";
+        return "/review";
+      }
+
+      document.getElementById("continueBtn").onclick = () => navigate(nextRoute());
+      document.getElementById("reviewBtn").onclick = () => navigate("/review");
+      document.getElementById("resetBtn").onclick = () => {
+        if(confirm("Resetar seu progresso?")){
+          state = defaultState(); saveState(state);
+          navigate("/onboarding");
+        }
+      };
+    }
+
+    // ---------- Router ----------
+    const routes = {
+      "/onboarding": screenOnboarding,
+      "/profile": screenProfile,
+      "/project": screenProject,
+      "/funil": screenFunil,
+      "/problem": screenProblem,
+      "/objective": screenObjective,
+      "/intro": screenIntro,
+      "/just": screenJust,
+      "/review": screenReview,
+      "/home": screenHome
+    };
+
+    function render(){
+      state = loadState();
+      const route = getRoute();
+      const fn = routes[route] || screenOnboarding;
+      fn();
+    }
+
+    window.addEventListener("hashchange", render);
+
+    document.getElementById("brand").onclick = () => {
+      if(confirm("Resetar seu progresso do MVP?")){
+        state = defaultState();
+        saveState(state);
+        navigate("/onboarding");
+      }
+    };
+
+    // Boot
+    if(!location.hash) location.hash = "#/onboarding";
+    render();
+  </script>
+</body>
+</html>
