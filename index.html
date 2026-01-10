@@ -1,9 +1,3 @@
-<!-- =========================
-PARTE 1/6 — index.html
-Estrutura + HEAD + CSS + Layout (SPA)
-Cole este bloco no SEU index.html (início do arquivo).
-Depois eu envio a PARTE 2/6.
-========================= -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -466,15 +460,6 @@ Depois eu envio a PARTE 2/6.
   </div>
 
   <script>
-/* =========================
-PARTE 1 termina aqui.
-NÃO feche a tag </script> nem </body> nem </html>.
-A PARTE 2 continuará a partir daqui.
-========================= */
-/* ============================
-   PARTE 2/6 — JS Base (Estado, Rotas, Menu, Render)
-   Cole direto após a Parte 1 (continuação do <script>).
-============================ */
 
 /* ========= CONFIG ========= */
 const AI_ENDPOINT_DEFAULT = "SEU_ENDPOINT_AQUI"; // placeholder (você disse OK)
@@ -771,15 +756,6 @@ window.addEventListener("hashchange", render);
   render();
 })();
 
-/* ============================
-   PARTE 2 termina aqui.
-   A PARTE 3 vai completar: Settings, telas textuais, IA e lógica.
-============================ */
-     /* ============================
-   PARTE 3/6 — Telas Textuais + Metadados + Motor do Orientador
-   Cole logo após a PARTE 2.
-============================ */
-
 /* ========= HELPERS ========= */
 function field(stepId){ 
   state.steps[stepId] = state.steps[stepId] || { fields:{ text:"" }, generated:{} };
@@ -944,8 +920,7 @@ render = function(){
     bindSettings();
     return;
   }
-
-  const hints = {
+    const hints = {
     tema:"Defina um recorte claro e específico.",
     problema:"Transforme sua dúvida em pergunta científica.",
     objetivos:"Comece com verbos no infinitivo.",
@@ -973,14 +948,6 @@ render = function(){
   screen.innerHTML = `<div class="card"><p class="small">A Parte 4 completará PDFs, Figuras, Tabelas e Siglas.</p></div>`;
 };
 
-/* ============================
-   PARTE 3 termina aqui.
-   A PARTE 4 adicionará: PDF Hub, Figuras, Tabelas e Siglas.
-============================ */
-/* ============================
-   PARTE 4/6 — PDF Hub + Figuras + Tabelas + Siglas (detecção)
-   Cole logo após a PARTE 3.
-============================ */
 
 /* ========= PDF HUB ========= */
 function renderPdfHub(){
@@ -1432,14 +1399,6 @@ render = function(){
   screen.innerHTML = `<div class="card"><p class="small">A Parte 5 adicionará: Ficha catalográfica (form), Exportação Word ABNT completa e Sumário.</p></div>`;
 };
 
-/* ============================
-   PARTE 4 termina aqui.
-   A PARTE 5 vai adicionar: ficha catalográfica (form), exportação DOCX ABNT completa.
-============================ */
-     /* ============================
-   PARTE 5/6 — Ficha Catalográfica (form) + Exportação Word (DOCX) ABNT
-   Cole logo após a PARTE 4.
-============================ */
 
 /* ========= FICHA CATALOGRÁFICA (FORM) ========= */
 function renderFichaCatalografica(){
@@ -1970,22 +1929,6 @@ render = function(){
   screen.innerHTML = `<div class="card"><p class="small">A Parte 6 finalizará o arquivo (fechamento do script/HTML) e adicionará pequenos ajustes finais.</p></div>`;
 };
 
-/* ============================
-   PARTE 5 termina aqui.
-   A PARTE 6 vai fechar </script></body></html> e aplicar ajustes finais.
-============================ */
-/* ============================
-   PARTE 6/6 — Ajustes finais + Fechamento do arquivo
-   Cole logo após a PARTE 5.
-============================ */
-
-/* ========= AJUSTES IMPORTANTES =========
-1) Garantir que o botão Exportar Word funcione mesmo após re-render.
-2) Aviso se AI_ENDPOINT_DEFAULT não foi configurado.
-3) Pequenos utilitários e fallback seguro.
-======================================== */
-
-// Reforça o bind do botão Exportar (fica na sidebar e não é re-renderizado, mas garantimos)
 (function bindExportSafely(){
   const btn = document.getElementById("btnExportDocx");
   if(btn){
