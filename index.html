@@ -1,406 +1,2038 @@
+<!-- =========================
+PARTE 1/6 — index.html
+Estrutura + HEAD + CSS + Layout (SPA)
+Cole este bloco no SEU index.html (início do arquivo).
+Depois eu envio a PARTE 2/6.
+========================= -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Orientador TCC Digital - Dashboard</title>
+  <title>Orientador de TCC Digital</title>
+
+  <!-- Fonte -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+  <!-- DOCX (exportação Word) -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+
+  <!-- PDF.js (leitura de PDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
+
   <style>
-    :root {
-      --primary: #003366;
-      --secondary: #f4f7f9;
-      --accent: #ffcc00;
-      --success: #28a745;
-      --text: #333;
-      --white: #ffffff;
-      --info: #03a9f4;
-      --warn: #b45309;
+    :root{
+      --primary:#003366;
+      --secondary:#f4f7f9;
+      --accent:#ffcc00;
+      --success:#28a745;
+      --text:#222;
+      --muted:#666;
+      --white:#fff;
+      --card:#ffffff;
+      --border:#e6e6e6;
+      --shadow:0 6px 18px rgba(0,0,0,0.06);
+      --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--secondary);
+      color:var(--text);
+      height:100vh;
+      overflow:hidden;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--secondary);
-      color: var(--text);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
+    /* Layout */
+    .app{
+      display:flex;
+      height:100vh;
+      overflow:hidden;
     }
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 280px;
-      background: var(--primary);
-      color: var(--white);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    /* Sidebar */
+    .sidebar{
+      width:300px;
+      background:var(--primary);
+      color:var(--white);
+      padding:18px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      box-shadow: 6px 0 18px rgba(0,0,0,0.08);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.12);
+    }
+    .brand h1{
+      font-size:1.05rem;
+      color:var(--accent);
+      letter-spacing:0.2px;
+      line-height:1.2;
+    }
+    .brand small{opacity:.75;font-size:.78rem}
+    .sidebar .meta{
+      padding:10px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:.86rem;
+      opacity:.95;
+    }
+    .toggle input{transform:scale(1.1)}
+    .btn{
+      appearance:none;
+      border:1px solid transparent;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+      user-select:none;
+      width:100%;
+      text-align:center;
+    }
+    .btn.primary{background:var(--accent); color:#1c2b3a;}
+    .btn.primary:hover{filter:brightness(.96)}
+    .btn.ghost{
+      background:rgba(255,255,255,0.06);
+      border-color:rgba(255,255,255,0.14);
+      color:#fff;
+    }
+    .btn.ghost:hover{background:rgba(255,255,255,0.10)}
+    .menu{
+      overflow:auto;
+      padding-right:6px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .menu h3{
+      font-size:.82rem;
+      letter-spacing:.4px;
+      opacity:.85;
+      padding:10px 10px 4px;
+      text-transform:uppercase;
+    }
+    .menu-item{
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      transition:.2s;
+      font-size:.92rem;
+    }
+    .menu-item:hover{background:rgba(255,255,255,0.10)}
+    .menu-item.active{
+      background:var(--accent);
+      border-color:rgba(0,0,0,0.06);
+      color:#1c2b3a;
+      font-weight:800;
+    }
+    .pill{
+      font-size:.72rem;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.18);
+      opacity:.92;
+      white-space:nowrap;
+    }
+    .menu-item.active .pill{
+      border-color:rgba(0,0,0,0.10);
+      opacity:1;
+    }
+    .footer{
+      margin-top:auto;
+      padding:8px 10px 4px;
+      font-size:.78rem;
+      opacity:.75;
+      border-top:1px solid rgba(255,255,255,0.12);
     }
 
-    .sidebar h2 {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      text-align: center;
-      color: var(--accent);
+    /* Main */
+    .main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    header{
+      background:var(--white);
+      border-bottom:1px solid var(--border);
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .head-left{
+      display:flex;
+      align-items:flex-start;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .head-left h2{
+      font-size:1.05rem;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .head-left p{font-size:.86rem;color:var(--muted)}
+    .head-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
-    .menu-item {
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      background: rgba(255,255,255,0.05);
-      user-select: none;
+    .thermo{
+      width:260px;
+      max-width:45vw;
+    }
+    .label-progress{font-size:.80rem;color:var(--muted)}
+    .progress-bg{
+      margin-top:6px;
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background:#eee;
+      overflow:hidden;
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--success));
+      border-radius:999px;
+      transition:width .35s ease;
     }
 
-    .menu-item:hover { background: rgba(255,255,255,0.15); }
-    .menu-item.active { background: var(--accent); color: var(--primary); font-weight: 700; }
-
-    /* MAIN CONTENT */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
+    .content{
+      overflow:auto;
+      padding:16px;
+    }
+    .container{
+      max-width:980px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h3{
+      font-size:1rem;
+      margin-bottom:10px;
+    }
+    .small{font-size:.86rem;color:var(--muted)}
+    label{
+      display:block;
+      font-size:.86rem;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:600;
+    }
+    input[type="text"], input[type="url"], textarea, select{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      outline:none;
+      font-size:.96rem;
+      background:#fff;
+    }
+    textarea{resize:vertical; min-height:140px; line-height:1.5}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+    .btnbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .primary{
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      padding:11px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+      transition:.2s;
+    }
+    .primary:hover{filter:brightness(1.06)}
+    .ghost{
+      background:#f6f8fa;
+      border:1px solid var(--border);
+      padding:11px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .ghost:hover{background:#f0f4f8}
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      white-space:pre-wrap;
+      line-height:1.45;
+      font-size:.90rem;
+      padding:12px;
+      border-radius:12px;
+      border:1px dashed var(--border);
+      background:#fbfcfe;
+      color:#1a1a1a;
     }
 
-    header {
-      background: var(--white);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-      gap: 20px;
-      flex-wrap: wrap;
+    .chat{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .bubble{
+      border-radius:16px;
+      padding:14px;
+      box-shadow:var(--shadow);
+      border:1px solid var(--border);
+      max-width:100%;
+    }
+    .bubble.ai{
+      background:#fff;
+      border-left:5px solid var(--accent);
+    }
+    .bubble.user{
+      background:#e8f4ff;
+      border-right:5px solid #03a9f4;
     }
 
-    header h1 { font-size: 1.4rem; }
-    header p { margin-top: 6px; color: #555; }
-
-    .thermometer-container { width: 320px; }
-    .label-progress { font-size: 0.85rem; margin-bottom: 6px; display: block; }
-    .progress-bg { background: #eee; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; }
-    .progress-fill {
-      background: linear-gradient(90deg, var(--accent), var(--success));
-      height: 100%;
-      width: 0%;
-      border-radius: 10px;
-      transition: width 0.4s ease;
+    .warn{
+      background:#fff3cd;
+      border:1px solid #ffeeba;
+      padding:12px;
+      border-radius:12px;
+      color:#6a4b00;
+      font-size:.90rem;
     }
 
-    /* CHAT AREA */
-    .chat-area {
-      padding: 40px;
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    /* Mobile sidebar */
+    .topbar-mobile{
+      display:none;
+      background:var(--primary);
+      color:#fff;
+      padding:10px 12px;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .hamb{
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .mobile-title{
+      font-weight:800;
+      font-size:.92rem;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .sidebar-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.35);
+      z-index:50;
     }
 
-    .bubble {
-      max-width: 80%;
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 10px;
-      line-height: 1.6;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-
-    .bubble-ai { background: var(--white); border-left: 5px solid var(--accent); align-self: flex-start; }
-    .bubble-user {
-      background: #e1f5fe;
-      border-right: 5px solid var(--info);
-      margin-left: auto;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 15px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      font-size: 1rem;
-      resize: none;
-      margin-bottom: 15px;
-      outline: none;
-      font-family: inherit;
-    }
-    textarea:focus { border-color: #aac7ff; box-shadow: 0 0 0 4px rgba(0, 85, 170, 0.10); }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.3s;
-    }
-    .btn-primary:hover { background: #0055aa; }
-
-    .suggestion-box {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 15px;
-      display: none;
-    }
-
-    .hint {
-      font-size: 0.85rem;
-      margin-top: 10px;
-      color: #444;
-      opacity: 0.9;
-    }
-
-    .warn {
-      color: var(--warn);
-      font-weight: 700;
+    @media (max-width: 820px){
+      body{overflow:auto}
+      .app{height:auto; overflow:visible}
+      .topbar-mobile{display:flex}
+      .sidebar{
+        position:fixed;
+        z-index:60;
+        top:0; left:0;
+        height:100vh;
+        transform:translateX(-105%);
+        transition:transform .25s ease;
+      }
+      .sidebar.open{transform:translateX(0)}
+      .sidebar-overlay.show{display:block}
+      header{position:sticky; top:0; z-index:10}
+      .thermo{width:100%; max-width:320px}
+      .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
 
 <body>
-  <div class="sidebar">
-    <h2>📚 Orientador Digital</h2>
-
-    <div class="menu-item active" data-step="tema">1. Escolha do Tema</div>
-    <div class="menu-item" data-step="problema">2. Problema de Pesquisa</div>
-    <div class="menu-item" data-step="objetivo">3. Objetivos</div>
-    <div class="menu-item" data-step="justificativa">4. Justificativa</div>
-
-    <div style="margin-top: auto; padding-top: 20px; font-size: 0.8rem; text-align: center; opacity: 0.7;">
-      Projeto Licenciatura Computação
-    </div>
+  <div class="topbar-mobile">
+    <button class="hamb" id="btnOpenSidebar">Menu</button>
+    <div class="mobile-title" id="mobileTitle">Orientador de TCC Digital</div>
   </div>
 
-  <div class="main-content">
-    <header>
-      <div>
-        <h1 id="step-title">Fase 1: Tema</h1>
-        <p id="step-desc">Definição do objeto de estudo</p>
+  <div class="sidebar-overlay" id="overlay"></div>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div>
+          <h1>Orientador de TCC Digital</h1>
+          <small>TCC — ABNT — Site (SPA)</small>
+        </div>
+        <button class="btn ghost" id="btnCloseSidebar" style="width:auto;padding:9px 10px;">Fechar</button>
       </div>
 
-      <div class="thermometer-container">
-        <span class="label-progress">Progresso do TCC: <strong id="perc">25%</strong></span>
-        <div class="progress-bg">
-          <div id="bar" class="progress-fill" style="width: 25%;"></div>
+      <div class="meta">
+        <div class="toggle">
+          <input type="checkbox" id="evidenceMode">
+          <label for="evidenceMode" style="margin:0;color:#fff;font-weight:700;">Modo Evidência</label>
+        </div>
+
+        <div class="row">
+          <button class="btn ghost" id="btnOpenSettings">Metadados</button>
+          <button class="btn primary" id="btnExportDocx">Exportar Word</button>
+        </div>
+
+        <div class="row">
+          <button class="btn ghost" id="btnPdfHub">PDFs (extrair texto)</button>
         </div>
       </div>
-    </header>
 
-    <div class="chat-area">
-      <div class="bubble bubble-ai">
-        <strong>💡 Dica do Orientador:</strong>
-        <p id="ai-advice">Seja específico! Um tema bem delimitado é meio caminho andado para o sucesso do TCC.</p>
+      <nav class="menu" id="menu"></nav>
+
+      <div class="footer">
+        Salva automaticamente no navegador (localStorage).
       </div>
+    </aside>
 
-      <div class="bubble bubble-user">
-        <textarea id="user-input" rows="4" placeholder="Digite sua ideia aqui..."></textarea>
-        <button class="btn-primary" id="btn-process">Formalizar e Validar</button>
-
-        <div id="suggestion" class="suggestion-box" aria-live="polite">
-          <strong>✨ Sugestão Acadêmica:</strong>
-          <p id="suggestion-text"></p>
-          <div class="hint" id="hint"></div>
+    <main class="main">
+      <header>
+        <div class="head-left">
+          <h2 id="stepTitle">—</h2>
+          <p id="stepDesc">—</p>
         </div>
-      </div>
-    </div>
+        <div class="head-right">
+          <div class="thermo">
+            <div class="label-progress">Progresso do TCC: <strong id="perc">0%</strong></div>
+            <div class="progress-bg"><div class="progress-fill" id="bar"></div></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="container" id="screen"></div>
+      </section>
+    </main>
   </div>
 
   <script>
-    // ====== Config ======
-    const STORAGE_KEY = "orientador_tcc_dashboard_step_v1";
+/* =========================
+PARTE 1 termina aqui.
+NÃO feche a tag </script> nem </body> nem </html>.
+A PARTE 2 continuará a partir daqui.
+========================= */
+/* ============================
+   PARTE 2/6 — JS Base (Estado, Rotas, Menu, Render)
+   Cole direto após a Parte 1 (continuação do <script>).
+============================ */
 
-    const steps = {
-      tema: {
-        title: "Fase 1: Tema",
-        desc: "Definição do objeto de estudo",
-        advice: "Seja específico! Em vez de 'Tecnologia na Educação', tente 'O uso do Scratch no Ensino Fundamental I'.",
-        perc: 25
+/* ========= CONFIG ========= */
+const AI_ENDPOINT_DEFAULT = "SEU_ENDPOINT_AQUI"; // placeholder (você disse OK)
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
+}
+
+/* ========= STATE ========= */
+function defaultState(){
+  const year = String(new Date().getFullYear());
+  return {
+    ui: { active: "tema" },
+    meta: {
+      evidence_mode: false,
+      sources: "",
+      title: "Trabalho de Conclusão de Curso (TCC)",
+      subtitle: "",
+      author: "",
+      institution: "",
+      course: "",
+      advisor: "",
+      city: "",
+      year,
+      catalog: {
+        autor: "",
+        titulo: "",
+        subtitulo: "",
+        ano: year,
+        local: "",
+        paginas: "",
+        tipo: "Trabalho de Conclusão de Curso",
+        instituicao: "",
+        curso: "",
+        orientador: "",
+        assuntos: ["", "", "", "", ""],
+        cdd: "",
+        cdu: ""
       },
-      problema: {
-        title: "Fase 2: Problema",
-        desc: "Qual a sua pergunta de pesquisa?",
-        advice: "Transforme sua dúvida em pergunta. Comece com 'De que maneira...' ou 'Como...'.",
-        perc: 50
-      },
-      objetivo: {
-        title: "Fase 3: Objetivos",
-        desc: "O que você fará para responder ao problema?",
-        advice: "Regra de ouro: comece com verbo no infinitivo (Analisar, Identificar, Desenvolver...).",
-        perc: 75
-      },
-      justificativa: {
-        title: "Fase 4: Justificativa",
-        desc: "Por que este trabalho é importante?",
-        advice: "Mostre relevância social, acadêmica e profissional. Evite generalizações sem evidências.",
-        perc: 100
+      pdf_contexts_cache: []
+    },
+    steps: {
+      // Config
+      settings: { done:false, fields:{}, generated:{} },
+      pdfhub: { done:false, fields:{}, generated:{} },
+
+      // Pré-textuais
+      ficha_catalografica: { done:false, fields:{}, generated:{} },
+      folha_aprovacao: { done:false, fields:{ text:"" }, generated:{} },
+      dedicatoria: { done:false, fields:{ text:"" }, generated:{} },
+      agradecimentos: { done:false, fields:{ text:"" }, generated:{} },
+      epigrafe: { done:false, fields:{ text:"" }, generated:{} },
+      figuras: { done:false, generated:{ items:[] } },
+      tabelas: { done:false, generated:{ items:[] } },
+      siglas: { done:false, generated:{ items:[] } },
+      resumo_pt: { done:false, fields:{ text:"" }, generated:{}, combined_context:"" },
+      abstract_en: { done:false, fields:{ text:"" }, generated:{} },
+
+      // Textuais (núcleo)
+      tema: { done:false, fields:{ text:"" }, generated:{} },
+      problema: { done:false, fields:{ text:"" }, generated:{} },
+      objetivos: { done:false, fields:{ text:"" }, generated:{} },
+      justificativa: { done:false, fields:{ text:"" }, generated:{} },
+      fundamentacao: { done:false, fields:{ text:"" }, generated:{}, combined_context:"" },
+      metodologia: { done:false, fields:{ text:"" }, generated:{} },
+      cronograma: { done:false, fields:{ text:"" }, generated:{} },
+      conclusao: { done:false, fields:{ text:"" }, generated:{}, combined_context:"" },
+      referencias: { done:false, fields:{ text:"" }, generated:{} },
+
+      // Pós-textuais
+      apendices: { done:false, fields:{ text:"" }, generated:{} },
+      anexos: { done:false, fields:{ text:"" }, generated:{} }
+    }
+  };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem("orientador_tcc_state");
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    // merge superficial para evitar quebrar quando atualizar versões
+    return {
+      ...base,
+      ...parsed,
+      ui: { ...base.ui, ...(parsed.ui||{}) },
+      meta: { ...base.meta, ...(parsed.meta||{}) },
+      steps: { ...base.steps, ...(parsed.steps||{}) }
+    };
+  }catch{
+    return defaultState();
+  }
+}
+
+function saveState(){
+  localStorage.setItem("orientador_tcc_state", JSON.stringify(state));
+}
+
+let state = loadState();
+
+/* ========= STEPS / ROUTES ========= */
+const STEP_DEFS = [
+  { id:"settings", title:"Metadados do TCC", desc:"Dados para capa/rosto e exportação", group:"Configuração" },
+  { id:"pdfhub", title:"PDFs (extrair páginas)", desc:"Anexar PDFs e extrair trechos por páginas", group:"Configuração" },
+
+  { id:"ficha_catalografica", title:"Ficha Catalográfica (rascunho)", desc:"Preencha e gere a ficha (validar com biblioteca)", group:"Pré-textuais" },
+  { id:"folha_aprovacao", title:"Folha de Aprovação (modelo)", desc:"Modelo para banca (assinaturas)", group:"Pré-textuais" },
+  { id:"dedicatoria", title:"Dedicatória", desc:"Texto breve e formal", group:"Pré-textuais" },
+  { id:"agradecimentos", title:"Agradecimentos", desc:"Texto formal", group:"Pré-textuais" },
+  { id:"epigrafe", title:"Epígrafe (opcional)", desc:"Citação + autoria", group:"Pré-textuais" },
+  { id:"figuras", title:"Lista de Figuras", desc:"Cadastre figuras e páginas", group:"Pré-textuais" },
+  { id:"tabelas", title:"Lista de Tabelas", desc:"Cadastre tabelas e páginas", group:"Pré-textuais" },
+  { id:"siglas", title:"Lista de Siglas", desc:"Detectar siglas e preencher significados", group:"Pré-textuais" },
+  { id:"resumo_pt", title:"Resumo (ABNT)", desc:"150–500 palavras + palavras-chave", group:"Pré-textuais" },
+  { id:"abstract_en", title:"Abstract (EN)", desc:"150–500 palavras + keywords", group:"Pré-textuais" },
+
+  { id:"tema", title:"Tema", desc:"Definição do objeto de estudo", group:"Textuais" },
+  { id:"problema", title:"Problema de Pesquisa", desc:"Pergunta de pesquisa clara", group:"Textuais" },
+  { id:"objetivos", title:"Objetivos", desc:"Geral e específicos (verbo no infinitivo)", group:"Textuais" },
+  { id:"justificativa", title:"Justificativa", desc:"Relevância social, acadêmica e prática", group:"Textuais" },
+  { id:"fundamentacao", title:"Fundamentação Teórica", desc:"Base conceitual e autores", group:"Textuais" },
+  { id:"metodologia", title:"Metodologia", desc:"Como o estudo será conduzido", group:"Textuais" },
+  { id:"cronograma", title:"Cronograma", desc:"Plano temporal de execução", group:"Textuais" },
+  { id:"conclusao", title:"Considerações Finais", desc:"Síntese, limitações e trabalhos futuros", group:"Textuais" },
+
+  { id:"referencias", title:"Referências", desc:"Lista ABNT (NBR 6023) / Fontes", group:"Pós-textuais" },
+  { id:"apendices", title:"Apêndices", desc:"Materiais produzidos por você", group:"Pós-textuais" },
+  { id:"anexos", title:"Anexos", desc:"Documentos de terceiros", group:"Pós-textuais" }
+];
+
+function go(id){ location.hash = "#/" + id; }
+
+function currentRoute(){
+  const h = (location.hash || "").replace("#/","");
+  const id = h.trim() || "tema";
+  return STEP_DEFS.some(s=>s.id===id) ? id : "tema";
+}
+
+/* ========= PROGRESS ========= */
+function stepProgress(){
+  const core = ["tema","problema","objetivos","justificativa","fundamentacao","metodologia","cronograma","conclusao","referencias"];
+  const done = core.filter(id=>{
+    const s = state.steps[id];
+    const t = s?.fields?.text;
+    return typeof t==="string" && t.trim().length>0;
+  }).length;
+  return Math.round((done / core.length) * 100);
+}
+
+/* ========= MENU ========= */
+function getDoneBadge(stepId){
+  const s = state.steps[stepId];
+  if(!s) return "—";
+  if(stepId==="figuras" || stepId==="tabelas"){
+    const n = s.generated?.items?.length || 0;
+    return n ? `${n} itens` : "vazio";
+  }
+  if(stepId==="siglas"){
+    const n = s.generated?.items?.length || 0;
+    return n ? `${n} siglas` : "vazio";
+  }
+  if(stepId==="pdfhub"){
+    const n = state.meta.pdf_contexts_cache?.length || 0;
+    return n ? `${n} PDFs` : "vazio";
+  }
+  if(s.fields && typeof s.fields.text==="string"){
+    return s.fields.text.trim() ? "ok" : "vazio";
+  }
+  return "vazio";
+}
+
+function renderMenu(){
+  const menu = document.getElementById("menu");
+  const groups = [...new Set(STEP_DEFS.map(s=>s.group))];
+  const active = state.ui.active;
+
+  let html = "";
+  for(const g of groups){
+    html += `<h3>${escapeHtml(g)}</h3>`;
+    for(const s of STEP_DEFS.filter(x=>x.group===g)){
+      const isActive = s.id===active;
+      html += `
+        <div class="menu-item ${isActive?'active':''}" data-step="${s.id}">
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            ${escapeHtml(s.title)}
+          </span>
+          <span class="pill">${escapeHtml(getDoneBadge(s.id))}</span>
+        </div>
+      `;
+    }
+  }
+  menu.innerHTML = html;
+
+  menu.querySelectorAll(".menu-item").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = el.getAttribute("data-step");
+      go(id);
+      closeSidebarMobile();
+    });
+  });
+}
+
+/* ========= HEADER ========= */
+function renderHeader(){
+  const def = STEP_DEFS.find(s=>s.id===state.ui.active);
+  document.getElementById("stepTitle").textContent = def ? def.title : "—";
+  document.getElementById("stepDesc").textContent = def ? def.desc : "—";
+  document.getElementById("mobileTitle").textContent = def ? def.title : "Orientador de TCC Digital";
+
+  const pct = Math.min(100, Math.max(0, stepProgress()));
+  document.getElementById("perc").textContent = pct + "%";
+  document.getElementById("bar").style.width = pct + "%";
+}
+
+/* ========= BASIC SCREENS (placeholders; partes 3–6 completam) ========= */
+function render(){
+  state.ui.active = currentRoute();
+  saveState();
+
+  renderMenu();
+  renderHeader();
+
+  const screen = document.getElementById("screen");
+  const id = state.ui.active;
+
+  // Placeholders mínimos (para não quebrar antes de colar as próximas partes)
+  if(id==="settings"){
+    screen.innerHTML = `
+      <div class="card"><h3>Metadados do TCC</h3><p class="small">A Parte 3 completa esta tela.</p></div>
+    `;
+    return;
+  }
+  if(id==="pdfhub"){
+    screen.innerHTML = `
+      <div class="card"><h3>PDFs (extrair páginas)</h3><p class="small">A Parte 4 completa esta tela.</p></div>
+    `;
+    return;
+  }
+
+  screen.innerHTML = `
+    <div class="card">
+      <h3>${escapeHtml(STEP_DEFS.find(s=>s.id===id)?.title || "Etapa")}</h3>
+      <p class="small">A Parte 3 completa as telas e a IA.</p>
+    </div>
+  `;
+}
+
+/* ========= UTILS ========= */
+function escapeHtml(s){
+  return String(s||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+/* ========= MOBILE SIDEBAR ========= */
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+document.getElementById("btnOpenSidebar")?.addEventListener("click", ()=>{
+  sidebar.classList.add("open");
+  overlay.classList.add("show");
+});
+
+document.getElementById("btnCloseSidebar")?.addEventListener("click", closeSidebarMobile);
+overlay?.addEventListener("click", closeSidebarMobile);
+
+function closeSidebarMobile(){
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+}
+
+/* ========= TOP BUTTONS ========= */
+document.getElementById("btnOpenSettings")?.addEventListener("click", ()=> go("settings"));
+document.getElementById("btnPdfHub")?.addEventListener("click", ()=> go("pdfhub"));
+
+const evidenceMode = document.getElementById("evidenceMode");
+if(evidenceMode){
+  evidenceMode.checked = !!state.meta.evidence_mode;
+  evidenceMode.addEventListener("change", ()=>{
+    state.meta.evidence_mode = !!evidenceMode.checked;
+    saveState();
+  });
+}
+
+/* ========= INIT ========= */
+window.addEventListener("hashchange", render);
+
+(function init(){
+  if(!location.hash) location.hash = "#/tema";
+  render();
+})();
+
+/* ============================
+   PARTE 2 termina aqui.
+   A PARTE 3 vai completar: Settings, telas textuais, IA e lógica.
+============================ */
+     /* ============================
+   PARTE 3/6 — Telas Textuais + Metadados + Motor do Orientador
+   Cole logo após a PARTE 2.
+============================ */
+
+/* ========= HELPERS ========= */
+function field(stepId){ 
+  state.steps[stepId] = state.steps[stepId] || { fields:{ text:"" }, generated:{} };
+  state.steps[stepId].fields = state.steps[stepId].fields || { text:"" };
+  return state.steps[stepId].fields;
+}
+function setText(stepId, v){
+  field(stepId).text = v;
+  state.steps[stepId].done = !!v.trim();
+  saveState();
+  renderHeader();
+  renderMenu();
+}
+
+/* ========= SETTINGS (METADADOS) ========= */
+function renderSettings(){
+  const m = state.meta;
+  return `
+  <div class="card">
+    <h3>Metadados do TCC</h3>
+    <div class="grid">
+      <div>
+        <label>Título</label>
+        <input id="m_title" type="text" value="${escapeHtml(m.title||"")}" />
+      </div>
+      <div>
+        <label>Subtítulo</label>
+        <input id="m_subtitle" type="text" value="${escapeHtml(m.subtitle||"")}" />
+      </div>
+      <div>
+        <label>Autor</label>
+        <input id="m_author" type="text" value="${escapeHtml(m.author||"")}" />
+      </div>
+      <div>
+        <label>Instituição</label>
+        <input id="m_inst" type="text" value="${escapeHtml(m.institution||"")}" />
+      </div>
+      <div>
+        <label>Curso</label>
+        <input id="m_course" type="text" value="${escapeHtml(m.course||"")}" />
+      </div>
+      <div>
+        <label>Orientador</label>
+        <input id="m_adv" type="text" value="${escapeHtml(m.advisor||"")}" />
+      </div>
+      <div>
+        <label>Cidade</label>
+        <input id="m_city" type="text" value="${escapeHtml(m.city||"")}" />
+      </div>
+      <div>
+        <label>Ano</label>
+        <input id="m_year" type="text" value="${escapeHtml(m.year||"")}" />
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Minhas Fontes (uma por linha)</label>
+      <textarea id="m_sources" placeholder="Cole links, DOI ou referências brutas...">${escapeHtml(m.sources||"")}</textarea>
+      <div class="small">As fontes serão enviadas para a IA para gerar citações ABNT com precisão.</div>
+    </div>
+
+    <div class="btnbar" style="margin-top:10px">
+      <button class="primary" id="btnSaveMeta">Salvar</button>
+    </div>
+  </div>
+  `;
+}
+
+function bindSettings(){
+  const g = id => document.getElementById(id);
+  g("btnSaveMeta")?.addEventListener("click", ()=>{
+    state.meta.title = g("m_title").value.trim();
+    state.meta.subtitle = g("m_subtitle").value.trim();
+    state.meta.author = g("m_author").value.trim();
+    state.meta.institution = g("m_inst").value.trim();
+    state.meta.course = g("m_course").value.trim();
+    state.meta.advisor = g("m_adv").value.trim();
+    state.meta.city = g("m_city").value.trim();
+    state.meta.year = g("m_year").value.trim();
+    state.meta.sources = g("m_sources").value.trim();
+    saveState();
+    alert("Metadados salvos.");
+  });
+}
+
+/* ========= TELAS TEXTUAIS ========= */
+function renderTextual(stepId, hint){
+  const f = field(stepId);
+  return `
+  <div class="card">
+    <div class="chat">
+      <div class="bubble ai">
+        <strong>Orientador:</strong>
+        <p class="small">${escapeHtml(hint)}</p>
+      </div>
+
+      <div class="bubble user">
+        <label>Escreva do seu jeito:</label>
+        <textarea id="txt_${stepId}" placeholder="Digite aqui...">${escapeHtml(f.text||"")}</textarea>
+        <div class="btnbar" style="margin-top:10px">
+          <button class="primary" data-ai="${stepId}">Orientar com IA</button>
+          <button class="ghost" data-save="${stepId}">Salvar</button>
+        </div>
+        <div id="out_${stepId}" class="mono" style="margin-top:10px;display:none"></div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function bindTextual(stepId){
+  const ta = document.getElementById(`txt_${stepId}`);
+  const out = document.getElementById(`out_${stepId}`);
+  document.querySelector(`[data-save="${stepId}"]`)?.addEventListener("click", ()=>{
+    setText(stepId, ta.value);
+    alert("Salvo.");
+  });
+  document.querySelector(`[data-ai="${stepId}"]`)?.addEventListener("click", async ()=>{
+    out.style.display = "block";
+    out.textContent = "Consultando o Orientador...";
+    const payload = {
+      step: stepId,
+      text: ta.value,
+      norm: "ABNT",
+      tone: "simples_claro",
+      evidence: !!state.meta.evidence_mode,
+      provided_sources: state.meta.sources || "",
+      project: {
+        title: state.meta.title,
+        course: state.meta.course,
+        area: "Geral"
       }
     };
-
-    // ====== DOM ======
-    const menuItems = Array.from(document.querySelectorAll(".menu-item"));
-    const stepTitleEl = document.getElementById("step-title");
-    const stepDescEl = document.getElementById("step-desc");
-    const aiAdviceEl = document.getElementById("ai-advice");
-    const percEl = document.getElementById("perc");
-    const barEl = document.getElementById("bar");
-    const inputEl = document.getElementById("user-input");
-    const suggestionBoxEl = document.getElementById("suggestion");
-    const suggestionTextEl = document.getElementById("suggestion-text");
-    const hintEl = document.getElementById("hint");
-    const btnProcess = document.getElementById("btn-process");
-
-    // ====== Helpers ======
-    function setActiveMenu(stepKey){
-      menuItems.forEach(el => {
-        const isActive = el.dataset.step === stepKey;
-        el.classList.toggle("active", isActive);
+    try{
+      const r = await fetch(AI_ENDPOINT_DEFAULT, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
       });
+      const j = await r.json();
+      const t = j?.text || j?.output || "(Resposta vazia)";
+      out.textContent = t;
+    }catch(e){
+      out.textContent = "Endpoint de IA não configurado.\nUse este texto como base e continue escrevendo.";
     }
+  });
+}
 
-    function setProgress(percent){
-      const p = Math.max(0, Math.min(100, Number(percent) || 0));
-      barEl.style.width = p + "%";
-      percEl.innerText = p + "%";
+/* ========= INTEGRAR AO RENDER ========= */
+const _render = render;
+render = function(){
+  state.ui.active = currentRoute();
+  saveState();
+  renderMenu();
+  renderHeader();
+
+  const screen = document.getElementById("screen");
+  const id = state.ui.active;
+
+  if(id==="settings"){
+    screen.innerHTML = renderSettings();
+    bindSettings();
+    return;
+  }
+
+  const hints = {
+    tema:"Defina um recorte claro e específico.",
+    problema:"Transforme sua dúvida em pergunta científica.",
+    objetivos:"Comece com verbos no infinitivo.",
+    justificativa:"Explique por que seu estudo é relevante.",
+    fundamentacao:"Indique autores e conceitos.",
+    metodologia:"Descreva como a pesquisa será feita.",
+    cronograma:"Planeje as etapas no tempo.",
+    conclusao:"Sintetize resultados esperados.",
+    referencias:"Cole ou gere suas referências ABNT.",
+    dedicatoria:"Texto breve e formal.",
+    agradecimentos:"Agradeça de forma objetiva.",
+    resumo_pt:"150–500 palavras + palavras-chave.",
+    abstract_en:"Resumo em inglês.",
+    epigrafe:"Citação com autoria.",
+    apendices:"Materiais produzidos por você.",
+    anexos:"Documentos de terceiros."
+  };
+
+  if(hints[id]){
+    screen.innerHTML = renderTextual(id, hints[id]);
+    bindTextual(id);
+    return;
+  }
+
+  screen.innerHTML = `<div class="card"><p class="small">A Parte 4 completará PDFs, Figuras, Tabelas e Siglas.</p></div>`;
+};
+
+/* ============================
+   PARTE 3 termina aqui.
+   A PARTE 4 adicionará: PDF Hub, Figuras, Tabelas e Siglas.
+============================ */
+/* ============================
+   PARTE 4/6 — PDF Hub + Figuras + Tabelas + Siglas (detecção)
+   Cole logo após a PARTE 3.
+============================ */
+
+/* ========= PDF HUB ========= */
+function renderPdfHub(){
+  const cached = state.meta.pdf_contexts_cache || [];
+  const list = cached.map((x, idx)=>`
+    <div class="card" style="padding:12px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <div style="min-width:0">
+          <strong>${escapeHtml(x.name || ("PDF "+(idx+1)))}</strong>
+          <div class="small">Páginas extraídas: ${escapeHtml(String(x.pages||""))}</div>
+        </div>
+        <div class="btnbar">
+          <button class="ghost" data-pdfview="${idx}">Ver</button>
+          <button class="ghost" data-pdfdel="${idx}">Remover</button>
+        </div>
+      </div>
+      <div class="mono" style="margin-top:10px;display:none" id="pdftext_${idx}"></div>
+    </div>
+  `).join("");
+
+  return `
+  <div class="card">
+    <h3>PDFs (extrair texto por páginas)</h3>
+    <p class="small">
+      Anexe um PDF, escolha páginas e extraia o texto. Esse texto vira “contexto” para a IA sugerir citações e fundamentação.
+      <br><strong>Observação:</strong> PDF digital funciona melhor. PDF escaneado pode não ter texto embutido.
+    </p>
+
+    <div class="grid" style="margin-top:10px">
+      <div>
+        <label>Anexar PDF</label>
+        <input type="file" id="pdfFile" accept="application/pdf" />
+        <div class="small">O arquivo é lido localmente no seu navegador.</div>
+      </div>
+      <div>
+        <label>Páginas</label>
+        <input type="text" id="pdfPages" placeholder="Ex.: 1-3, 5, 10-12" />
+        <div class="small">Use números (1 = primeira página).</div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>Nome do PDF (opcional)</label>
+      <input type="text" id="pdfName" placeholder="Ex.: Artigo Silva 2022" />
+    </div>
+
+    <div class="btnbar" style="margin-top:10px">
+      <button class="primary" id="btnExtractPdf">Extrair texto</button>
+      <button class="ghost" id="btnClearPdfs">Limpar todos</button>
+    </div>
+
+    <div id="pdfStatus" class="warn" style="margin-top:10px;display:none"></div>
+  </div>
+
+  ${list || `<div class="card"><p class="small">Nenhum PDF extraído ainda.</p></div>`}
+  `;
+}
+
+function parsePageRanges(input){
+  // "1-3,5,10-12" -> [1,2,3,5,10,11,12]
+  const s = String(input||"").trim();
+  if(!s) return [];
+  const parts = s.split(",").map(x=>x.trim()).filter(Boolean);
+  const out = new Set();
+  for(const p of parts){
+    if(/^\d+$/.test(p)){
+      out.add(parseInt(p,10));
+      continue;
     }
-
-    function currentStepKey(){
-      const active = document.querySelector(".menu-item.active");
-      return active ? active.dataset.step : "tema";
+    if(/^\d+\s*-\s*\d+$/.test(p)){
+      const [a,b] = p.split("-").map(x=>parseInt(x.trim(),10));
+      const start = Math.min(a,b), end = Math.max(a,b);
+      for(let i=start;i<=end;i++) out.add(i);
+      continue;
     }
+  }
+  return [...out].sort((a,b)=>a-b);
+}
 
-    function normalize(s){
-      return (s || "")
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
-        .trim();
+async function extractPdfTextByPages(file, pages1based){
+  const ab = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: ab });
+  const pdf = await loadingTask.promise;
+  const total = pdf.numPages;
+
+  const pages = pages1based
+    .map(n=>Math.max(1, Math.min(total, n)))
+    .filter((v,i,a)=>a.indexOf(v)===i);
+
+  let combined = "";
+  for(const p of pages){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const strings = content.items.map(it=>it.str).filter(Boolean);
+    const text = strings.join(" ").replace(/\s+/g," ").trim();
+    combined += `\n\n[PDF p.${p}]\n${text}`;
+  }
+  return { combined: combined.trim(), pages, total };
+}
+
+function bindPdfHub(){
+  const status = document.getElementById("pdfStatus");
+  const showStatus = (msg)=>{
+    status.style.display="block";
+    status.textContent=msg;
+  };
+  const hideStatus = ()=> status.style.display="none";
+
+  document.getElementById("btnExtractPdf")?.addEventListener("click", async ()=>{
+    hideStatus();
+    const file = document.getElementById("pdfFile")?.files?.[0];
+    const pagesStr = document.getElementById("pdfPages")?.value || "";
+    const name = document.getElementById("pdfName")?.value?.trim() || (file?.name || "PDF");
+
+    if(!file){
+      showStatus("Selecione um PDF.");
+      return;
     }
-
-    function firstWord(text){
-      // pega a primeira “palavra” real (ignora espaços e pontuação inicial)
-      const m = (text || "").trim().match(/^[^\p{L}]*(\p{L}+)/u);
-      return m ? m[1] : "";
+    const pages = parsePageRanges(pagesStr);
+    if(!pages.length){
+      showStatus("Informe as páginas (ex.: 1-3, 5).");
+      return;
     }
-
-    // ====== Core ======
-    function changeStep(stepKey, { persist=true } = {}){
-      const cfg = steps[stepKey];
-      if(!cfg) return;
-
-      setActiveMenu(stepKey);
-      stepTitleEl.innerText = cfg.title;
-      stepDescEl.innerText = cfg.desc;
-      aiAdviceEl.innerText = cfg.advice;
-      setProgress(cfg.perc);
-
-      inputEl.value = "";
-      suggestionBoxEl.style.display = "none";
-      suggestionTextEl.innerText = "";
-      hintEl.innerText = "";
-
-      inputEl.focus();
-
-      if(persist){
-        try { localStorage.setItem(STORAGE_KEY, stepKey); } catch {}
-      }
+    try{
+      showStatus("Extraindo texto... (aguarde)");
+      const res = await extractPdfTextByPages(file, pages);
+      state.meta.pdf_contexts_cache = state.meta.pdf_contexts_cache || [];
+      state.meta.pdf_contexts_cache.unshift({
+        name,
+        pages: pagesStr,
+        extracted_at: new Date().toISOString(),
+        text: res.combined
+      });
+      saveState();
+      render(); // re-render list
+    }catch(e){
+      showStatus("Falha ao extrair. Se o PDF for escaneado, pode não conter texto selecionável.");
     }
+  });
 
-    function academicTransform(text){
-      let out = text;
-
-      // substituições com limites de palavra (menos agressivo)
-      out = out.replace(/\beu acho que\b/gi, "Depreende-se que");
-      out = out.replace(/\bmuito bom\b/gi, "significativo");
-      out = out.replace(/\bajuda\b/gi, "contribui para");
-
-      return out;
+  document.getElementById("btnClearPdfs")?.addEventListener("click", ()=>{
+    if(confirm("Remover todos os PDFs extraídos?")){
+      state.meta.pdf_contexts_cache = [];
+      saveState();
+      render();
     }
+  });
 
-    function validateObjectiveVerb(text){
-      // valida que começa com verbo no infinitivo (lista mínima MVP)
-      const verbs = ["analisar","identificar","desenvolver","verificar","compreender","propor","avaliar","investigar","examinar","descrever"];
-      const fw = normalize(firstWord(text)).toLowerCase();
-
-      if(!fw) return { ok:false, msg:"Digite um objetivo para validar." };
-
-      // aceita se a primeira palavra for um dos verbos previstos
-      if(verbs.includes(fw)) return { ok:true };
-
-      return {
-        ok:false,
-        msg: `Seu objetivo deve começar com um verbo no infinitivo. Ex.: “Analisar ...”, “Identificar ...”, “Desenvolver ...”.`
-      };
-    }
-
-    function processText(){
-      const raw = inputEl.value || "";
-      const text = raw.trim();
-
-      if(!text){
-        suggestionBoxEl.style.display = "block";
-        suggestionTextEl.innerHTML = `<span class="warn">⚠️</span> Escreva sua ideia antes de formalizar.`;
-        hintEl.innerText = "";
-        inputEl.focus();
-        return;
-      }
-
-      const stepKey = currentStepKey();
-      let output = text;
-      let hint = "";
-
-      // Regra especial: objetivos precisam iniciar com verbo
-      if(stepKey === "objetivo"){
-        const v = validateObjectiveVerb(text);
-        if(!v.ok){
-          // sugere uma reescrita simples preservando o conteúdo
-          output = `⚠️ ${v.msg}\nSugestão: “Analisar ${text.charAt(0).toLowerCase() + text.slice(1)}”`;
-          hint = "Motivo: objetivos acadêmicos são expressos como ação (verbo no infinitivo) + objeto + contexto.";
-        }
-      }
-
-      // Tradução acadêmica simples
-      output = academicTransform(output);
-
-      suggestionBoxEl.style.display = "block";
-      suggestionTextEl.innerText = output;
-      hintEl.innerText = hint || "Dica: revise para manter coerência com seu tema e sua pergunta de pesquisa.";
-    }
-
-    // ====== Events ======
-    menuItems.forEach(el => {
-      el.addEventListener("click", () => changeStep(el.dataset.step));
+  // Ver / remover
+  (state.meta.pdf_contexts_cache||[]).forEach((_, idx)=>{
+    document.querySelector(`[data-pdfview="${idx}"]`)?.addEventListener("click", ()=>{
+      const box = document.getElementById(`pdftext_${idx}`);
+      const item = state.meta.pdf_contexts_cache[idx];
+      if(!box || !item) return;
+      const isHidden = box.style.display==="none";
+      box.style.display = isHidden ? "block" : "none";
+      box.textContent = item.text || "(sem texto)";
     });
-
-    btnProcess.addEventListener("click", processText);
-
-    // Enter para processar (Ctrl+Enter), sem quebrar a digitação normal
-    inputEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
-        e.preventDefault();
-        processText();
+    document.querySelector(`[data-pdfdel="${idx}"]`)?.addEventListener("click", ()=>{
+      if(confirm("Remover este PDF extraído?")){
+        state.meta.pdf_contexts_cache.splice(idx,1);
+        saveState();
+        render();
       }
     });
+  });
+}
 
-    // ====== Boot ======
-    (function init(){
-      // restaura última etapa se existir
-      let saved = "tema";
-      try { saved = localStorage.getItem(STORAGE_KEY) || "tema"; } catch {}
-      if(!steps[saved]) saved = "tema";
-      changeStep(saved, { persist:false });
-    })();
+/* ========= FIGURAS / TABELAS ========= */
+function renderListItems(type){
+  const stepId = type==="fig" ? "figuras" : "tabelas";
+  const label = type==="fig" ? "Figura" : "Tabela";
+  const items = (state.steps[stepId]?.generated?.items) || [];
+  const rows = items.map((it,i)=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">${i+1}</td>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">${escapeHtml(it.titulo||"")}</td>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">${escapeHtml(it.pagina||"")}</td>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">
+        <button class="ghost" data-delitem="${stepId}:${i}">Remover</button>
+      </td>
+    </tr>
+  `).join("");
+
+  return `
+  <div class="card">
+    <h3>Lista de ${label}s</h3>
+    <div class="grid">
+      <div>
+        <label>Título</label>
+        <input id="${stepId}_titulo" type="text" placeholder="Ex.: Fluxo do Orientador Digital" />
+      </div>
+      <div>
+        <label>Página</label>
+        <input id="${stepId}_pagina" type="text" placeholder="Ex.: 12" />
+      </div>
+    </div>
+    <div class="btnbar" style="margin-top:10px">
+      <button class="primary" data-additem="${stepId}">Adicionar</button>
+      <button class="ghost" data-clearitems="${stepId}">Limpar lista</button>
+    </div>
+
+    <div style="margin-top:12px;overflow:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">#</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Título</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Página</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows || `<tr><td colspan="4" class="small" style="padding:10px">Nenhum item ainda.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
+function bindListItems(stepId){
+  const ensure = ()=>{
+    state.steps[stepId] = state.steps[stepId] || { generated:{ items:[] } };
+    state.steps[stepId].generated = state.steps[stepId].generated || { items:[] };
+    state.steps[stepId].generated.items = state.steps[stepId].generated.items || [];
+  };
+  ensure();
+
+  document.querySelector(`[data-additem="${stepId}"]`)?.addEventListener("click", ()=>{
+    const titulo = document.getElementById(`${stepId}_titulo`)?.value?.trim() || "";
+    const pagina = document.getElementById(`${stepId}_pagina`)?.value?.trim() || "";
+    if(!titulo || !pagina){
+      alert("Preencha título e página.");
+      return;
+    }
+    state.steps[stepId].generated.items.push({ titulo, pagina });
+    saveState();
+    render();
+  });
+
+  document.querySelector(`[data-clearitems="${stepId}"]`)?.addEventListener("click", ()=>{
+    if(confirm("Limpar a lista?")){
+      state.steps[stepId].generated.items = [];
+      saveState();
+      render();
+    }
+  });
+
+  document.querySelectorAll(`[data-delitem^="${stepId}:"]`).forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [sid, idxStr] = btn.getAttribute("data-delitem").split(":");
+      const idx = parseInt(idxStr,10);
+      state.steps[sid].generated.items.splice(idx,1);
+      saveState();
+      render();
+    });
+  });
+}
+
+/* ========= SIGLAS (detectar) ========= */
+function detectSiglasFromText(text){
+  // Heurística: siglas 2–6 letras maiúsculas (com números), ex.: TCC, ABNT, IA, OCR, HTML, PDF
+  const re = /\b[A-Z]{2,6}\d?\b/g;
+  const found = new Set();
+  let m;
+  while((m = re.exec(text)) !== null){
+    found.add(m[0]);
+  }
+  const ignore = new Set(["HTML","CSS","PDF","TCC","ABNT","IA","OCR","URL","DOI"]); // você pode manter ou remover
+  // Nota: aqui eu não removo, apenas ordeno; o usuário pode preencher significados.
+  return [...found].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+}
+
+function collectAllTextForSiglas(){
+  const stepIds = Object.keys(state.steps);
+  let all = "";
+  for(const id of stepIds){
+    const t = state.steps[id]?.fields?.text;
+    if(typeof t === "string" && t.trim()){
+      all += "\n" + t;
+    }
+  }
+  // adicionar texto de PDFs
+  const pdfs = state.meta.pdf_contexts_cache || [];
+  for(const p of pdfs){
+    if(p?.text) all += "\n" + p.text;
+  }
+  return all;
+}
+
+function renderSiglas(){
+  const items = state.steps.siglas?.generated?.items || [];
+  const rows = items.map((it,i)=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid var(--border)"><strong>${escapeHtml(it.sigla||"")}</strong></td>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">
+        <input type="text" value="${escapeHtml(it.significado||"")}" data-siglaval="${i}" placeholder="Significado..." />
+      </td>
+      <td style="padding:8px;border-bottom:1px solid var(--border)">
+        <button class="ghost" data-sigdel="${i}">Remover</button>
+      </td>
+    </tr>
+  `).join("");
+
+  return `
+  <div class="card">
+    <h3>Lista de Siglas</h3>
+    <p class="small">Clique em “Detectar” para coletar siglas do seu texto e dos PDFs extraídos. Depois, preencha os significados.</p>
+
+    <div class="btnbar">
+      <button class="primary" id="btnDetectSiglas">Detectar siglas</button>
+      <button class="ghost" id="btnSaveSiglas">Salvar significados</button>
+      <button class="ghost" id="btnClearSiglas">Limpar lista</button>
+    </div>
+
+    <div style="margin-top:12px;overflow:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Sigla</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Significado</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows || `<tr><td colspan="3" class="small" style="padding:10px">Nenhuma sigla cadastrada.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
+function bindSiglas(){
+  // ensure
+  state.steps.siglas = state.steps.siglas || { generated:{ items:[] } };
+  state.steps.siglas.generated = state.steps.siglas.generated || { items:[] };
+  state.steps.siglas.generated.items = state.steps.siglas.generated.items || [];
+
+  document.getElementById("btnDetectSiglas")?.addEventListener("click", ()=>{
+    const all = collectAllTextForSiglas();
+    const sigs = detectSiglasFromText(all);
+    const existing = new Set(state.steps.siglas.generated.items.map(x=>x.sigla));
+    for(const s of sigs){
+      if(!existing.has(s)){
+        state.steps.siglas.generated.items.push({ sigla:s, significado:"" });
+      }
+    }
+    saveState();
+    render();
+  });
+
+  document.getElementById("btnSaveSiglas")?.addEventListener("click", ()=>{
+    document.querySelectorAll(`[data-siglaval]`).forEach(inp=>{
+      const idx = parseInt(inp.getAttribute("data-siglaval"),10);
+      state.steps.siglas.generated.items[idx].significado = inp.value.trim();
+    });
+    saveState();
+    alert("Siglas salvas.");
+  });
+
+  document.getElementById("btnClearSiglas")?.addEventListener("click", ()=>{
+    if(confirm("Limpar lista de siglas?")){
+      state.steps.siglas.generated.items = [];
+      saveState();
+      render();
+    }
+  });
+
+  document.querySelectorAll(`[data-sigdel]`).forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = parseInt(btn.getAttribute("data-sigdel"),10);
+      state.steps.siglas.generated.items.splice(idx,1);
+      saveState();
+      render();
+    });
+  });
+}
+
+/* ========= ENCAIXE NO RENDER (override novamente) ========= */
+const __render = render;
+render = function(){
+  state.ui.active = currentRoute();
+  saveState();
+  renderMenu();
+  renderHeader();
+
+  const screen = document.getElementById("screen");
+  const id = state.ui.active;
+
+  // Config
+  if(id==="settings"){
+    screen.innerHTML = renderSettings();
+    bindSettings();
+    return;
+  }
+  if(id==="pdfhub"){
+    screen.innerHTML = renderPdfHub();
+    bindPdfHub();
+    return;
+  }
+
+  // Listas
+  if(id==="figuras"){
+    screen.innerHTML = renderListItems("fig");
+    bindListItems("figuras");
+    return;
+  }
+  if(id==="tabelas"){
+    screen.innerHTML = renderListItems("tab");
+    bindListItems("tabelas");
+    return;
+  }
+  if(id==="siglas"){
+    screen.innerHTML = renderSiglas();
+    bindSiglas();
+    return;
+  }
+
+  // Telas textuais (Parte 3)
+  const hints = {
+    tema:"Defina um recorte claro e específico.",
+    problema:"Transforme sua dúvida em pergunta científica.",
+    objetivos:"Comece com verbos no infinitivo.",
+    justificativa:"Explique por que seu estudo é relevante.",
+    fundamentacao:"Indique autores e conceitos (a IA pode sugerir leituras).",
+    metodologia:"Descreva como a pesquisa será feita.",
+    cronograma:"Planeje as etapas no tempo.",
+    conclusao:"Sintetize resultados esperados e recomendações.",
+    referencias:"Cole suas referências ou gere com a IA.",
+    dedicatoria:"Texto breve e formal.",
+    agradecimentos:"Agradeça de forma objetiva.",
+    resumo_pt:"150–500 palavras + palavras-chave.",
+    abstract_en:"Resumo em inglês + keywords.",
+    epigrafe:"Citação com autoria.",
+    apendices:"Materiais produzidos por você.",
+    anexos:"Documentos de terceiros.",
+    folha_aprovacao:"Modelo — ajuste conforme a instituição.",
+    ficha_catalografica:"Rascunho — valide com bibliotecário."
+  };
+
+  if(hints[id]){
+    screen.innerHTML = renderTextual(id, hints[id]);
+    bindTextual(id);
+    return;
+  }
+
+  screen.innerHTML = `<div class="card"><p class="small">A Parte 5 adicionará: Ficha catalográfica (form), Exportação Word ABNT completa e Sumário.</p></div>`;
+};
+
+/* ============================
+   PARTE 4 termina aqui.
+   A PARTE 5 vai adicionar: ficha catalográfica (form), exportação DOCX ABNT completa.
+============================ */
+     /* ============================
+   PARTE 5/6 — Ficha Catalográfica (form) + Exportação Word (DOCX) ABNT
+   Cole logo após a PARTE 4.
+============================ */
+
+/* ========= FICHA CATALOGRÁFICA (FORM) ========= */
+function renderFichaCatalografica(){
+  const c = state.meta.catalog || {};
+  const assuntos = c.assuntos || ["","","","",""];
+  return `
+  <div class="card">
+    <h3>Ficha Catalográfica (rascunho)</h3>
+    <p class="small">
+      Isto é um rascunho para facilitar sua organização. A ficha final deve ser validada/emitida por bibliotecário(a) conforme normas da instituição.
+    </p>
+
+    <div class="grid" style="margin-top:10px">
+      <div>
+        <label>Autor (Sobrenome, Nome)</label>
+        <input id="fc_autor" type="text" value="${escapeHtml(c.autor||state.meta.author||"")}" placeholder="Ex.: Cordeiro, José Ivan Vitor" />
+      </div>
+      <div>
+        <label>Ano</label>
+        <input id="fc_ano" type="text" value="${escapeHtml(c.ano||state.meta.year||"")}" />
+      </div>
+
+      <div>
+        <label>Título</label>
+        <input id="fc_titulo" type="text" value="${escapeHtml(c.titulo||state.meta.title||"")}" />
+      </div>
+      <div>
+        <label>Subtítulo</label>
+        <input id="fc_subtitulo" type="text" value="${escapeHtml(c.subtitulo||state.meta.subtitle||"")}" />
+      </div>
+
+      <div>
+        <label>Local</label>
+        <input id="fc_local" type="text" value="${escapeHtml(c.local||state.meta.city||"")}" />
+      </div>
+      <div>
+        <label>Páginas (estimado)</label>
+        <input id="fc_paginas" type="text" value="${escapeHtml(c.paginas||"")}" placeholder="Ex.: 78 p." />
+      </div>
+
+      <div>
+        <label>Tipo</label>
+        <input id="fc_tipo" type="text" value="${escapeHtml(c.tipo||"Trabalho de Conclusão de Curso")}" />
+      </div>
+      <div>
+        <label>Instituição</label>
+        <input id="fc_instituicao" type="text" value="${escapeHtml(c.instituicao||state.meta.institution||"")}" />
+      </div>
+
+      <div>
+        <label>Curso</label>
+        <input id="fc_curso" type="text" value="${escapeHtml(c.curso||state.meta.course||"")}" />
+      </div>
+      <div>
+        <label>Orientador</label>
+        <input id="fc_orientador" type="text" value="${escapeHtml(c.orientador||state.meta.advisor||"")}" />
+      </div>
+
+      <div>
+        <label>CDD (opcional)</label>
+        <input id="fc_cdd" type="text" value="${escapeHtml(c.cdd||"")}" />
+      </div>
+      <div>
+        <label>CDU (opcional)</label>
+        <input id="fc_cdu" type="text" value="${escapeHtml(c.cdu||"")}" />
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Assuntos (1 a 5)</label>
+      <div class="grid">
+        ${assuntos.map((a,i)=>`
+          <div>
+            <input id="fc_ass_${i}" type="text" value="${escapeHtml(a||"")}" placeholder="Assunto ${i+1}" />
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="btnbar" style="margin-top:12px">
+      <button class="primary" id="btnSaveFicha">Salvar ficha</button>
+      <button class="ghost" id="btnPreviewFicha">Pré-visualizar</button>
+    </div>
+
+    <div class="mono" id="fichaPreview" style="margin-top:12px;display:none"></div>
+  </div>
+  `;
+}
+
+function bindFichaCatalografica(){
+  const g = id => document.getElementById(id);
+
+  function readFicha(){
+    const assuntos = [0,1,2,3,4].map(i=>g(`fc_ass_${i}`)?.value?.trim()||"").filter(Boolean);
+    return {
+      autor: g("fc_autor").value.trim(),
+      titulo: g("fc_titulo").value.trim(),
+      subtitulo: g("fc_subtitulo").value.trim(),
+      ano: g("fc_ano").value.trim(),
+      local: g("fc_local").value.trim(),
+      paginas: g("fc_paginas").value.trim(),
+      tipo: g("fc_tipo").value.trim(),
+      instituicao: g("fc_instituicao").value.trim(),
+      curso: g("fc_curso").value.trim(),
+      orientador: g("fc_orientador").value.trim(),
+      assuntos,
+      cdd: g("fc_cdd").value.trim(),
+      cdu: g("fc_cdu").value.trim()
+    };
+  }
+
+  function formatFichaText(c){
+    const tituloLinha = c.subtitulo ? `${c.titulo}: ${c.subtitulo}.` : `${c.titulo}.`;
+    const assuntosTxt = (c.assuntos||[]).filter(Boolean).map((a,i)=>`${i+1}. ${a}.`).join(" ");
+    const orient = c.orientador ? `Orientador: ${c.orientador}.` : "";
+    const cdd = c.cdd ? `CDD: ${c.cdd}.` : "";
+    const cdu = c.cdu ? `CDU: ${c.cdu}.` : "";
+    return [
+      `${c.autor}`,
+      `${tituloLinha} — ${c.local}, ${c.ano}.`,
+      `${c.paginas ? c.paginas + ". " : ""}${c.tipo}.`,
+      `${c.instituicao}${c.curso ? " — " + c.curso : ""}.`,
+      `${orient}`,
+      `${assuntosTxt}`,
+      `${cdd} ${cdu}`.trim()
+    ].filter(Boolean).join("\n");
+  }
+
+  g("btnSaveFicha")?.addEventListener("click", ()=>{
+    state.meta.catalog = readFicha();
+    saveState();
+    alert("Ficha salva.");
+  });
+
+  g("btnPreviewFicha")?.addEventListener("click", ()=>{
+    const c = readFicha();
+    const box = g("fichaPreview");
+    box.style.display="block";
+    box.textContent = formatFichaText(c);
+  });
+}
+
+/* ========= DOCX EXPORT (ABNT “robusto” – formato base) ========= */
+function getSectionText(stepId){
+  const t = state.steps[stepId]?.fields?.text;
+  return (typeof t==="string") ? t.trim() : "";
+}
+
+function normalizeParagraphs(text){
+  if(!text) return [];
+  return text
+    .split(/\n{2,}/g)
+    .map(p=>p.replace(/\s+/g," ").trim())
+    .filter(Boolean);
+}
+
+function buildReferencesFromSources(){
+  const raw = (state.meta.sources||"").trim();
+  if(!raw) return [];
+  // cada linha vira uma referência “bruta” (o usuário pode padronizar depois)
+  return raw.split("\n").map(x=>x.trim()).filter(Boolean);
+}
+
+function buildSiglasLines(){
+  const items = state.steps.siglas?.generated?.items || [];
+  return items
+    .filter(x=>x.sigla && x.significado)
+    .map(x=>`${x.sigla} – ${x.significado}`);
+}
+
+function buildListLines(stepId, prefixLabel){
+  const items = state.steps[stepId]?.generated?.items || [];
+  // Ex.: "Figura 1 – Título .... 12"
+  return items.map((it, idx)=>{
+    const n = idx+1;
+    const dots = " ".repeat(2);
+    return `${prefixLabel} ${n} – ${it.titulo}${dots}${it.pagina}`;
+  });
+}
+
+async function exportDocx(){
+  if(!window.docx || !window.docx.Document){
+    alert("Biblioteca DOCX não carregou. Verifique sua internet/CDN.");
+    return;
+  }
+
+  const {
+    Document, Packer, Paragraph, TextRun,
+    HeadingLevel, AlignmentType,
+    TableOfContents, PageBreak,
+    SectionType
+  } = window.docx;
+
+  // ABNT: margens comuns (3cm esq/sup, 2cm dir/inf). Em twips: 1cm ≈ 567
+  const cm = x => Math.round(x * 567);
+
+  const meta = state.meta;
+  const title = meta.title || "Trabalho de Conclusão de Curso (TCC)";
+  const subtitle = meta.subtitle || "";
+  const author = meta.author || "NOME DO AUTOR";
+  const inst = meta.institution || "NOME DA INSTITUIÇÃO";
+  const course = meta.course || "CURSO";
+  const advisor = meta.advisor || "NOME DO ORIENTADOR";
+  const city = meta.city || "CIDADE";
+  const year = meta.year || String(new Date().getFullYear());
+
+  // Conteúdos
+  const ded = getSectionText("dedicatoria");
+  const agra = getSectionText("agradecimentos");
+  const epi = getSectionText("epigrafe");
+  const resumo = getSectionText("resumo_pt");
+  const abstr = getSectionText("abstract_en");
+
+  const tema = getSectionText("tema");
+  const problema = getSectionText("problema");
+  const objetivos = getSectionText("objetivos");
+  const justificativa = getSectionText("justificativa");
+  const fund = getSectionText("fundamentacao");
+  const met = getSectionText("metodologia");
+  const cron = getSectionText("cronograma");
+  const conc = getSectionText("conclusao");
+
+  const refsText = getSectionText("referencias");
+  const refsFromSources = buildReferencesFromSources();
+  const referenciasFinal = [
+    ...normalizeParagraphs(refsText),
+    ...refsFromSources
+  ].filter(Boolean);
+
+  const listFig = buildListLines("figuras","Figura");
+  const listTab = buildListLines("tabelas","Tabela");
+  const listSig = buildSiglasLines();
+
+  // Ficha (rascunho)
+  const ficha = state.meta.catalog || {};
+  const fichaTxt = (()=>{
+    const subt = ficha.subtitulo ? `: ${ficha.subtitulo}` : "";
+    const assuntos = (ficha.assuntos||[]).filter(Boolean).map((a,i)=>`${i+1}. ${a}.`).join(" ");
+    const orient = ficha.orientador ? `Orientador: ${ficha.orientador}.` : "";
+    const cdd = ficha.cdd ? `CDD: ${ficha.cdd}.` : "";
+    const cdu = ficha.cdu ? `CDU: ${ficha.cdu}.` : "";
+    return [
+      ficha.autor || author,
+      `${(ficha.titulo || title)}${subt}. — ${(ficha.local||city)}, ${(ficha.ano||year)}.`,
+      `${ficha.paginas ? ficha.paginas + ". " : ""}${ficha.tipo || "Trabalho de Conclusão de Curso"}.`,
+      `${(ficha.instituicao||inst)}${(ficha.curso||course) ? " — " + (ficha.curso||course) : ""}.`,
+      orient,
+      assuntos,
+      `${cdd} ${cdu}`.trim()
+    ].filter(Boolean).join("\n");
+  })();
+
+  const basePara = (txt, opts={}) => new Paragraph({
+    spacing: { line: 360, after: 160 }, // ~1,5
+    ...opts,
+    children: [ new TextRun({ text: txt, font: "Times New Roman", size: 24 }) ]
+  });
+
+  const titleCenter = (txt) => new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { line: 360, after: 160 },
+    children: [ new TextRun({ text: txt, bold:true, font:"Times New Roman", size:24 }) ]
+  });
+
+  const h1 = (txt) => new Paragraph({
+    heading: HeadingLevel.HEADING_1,
+    spacing: { line: 360, before: 240, after: 160 },
+    children: [ new TextRun({ text: txt, font:"Times New Roman", size:24 }) ]
+  });
+
+  // Seções (1) Pré-textuais sem numeração de página visível (simplificado)
+  const childrenPre = [];
+
+  // CAPA
+  childrenPre.push(titleCenter(inst));
+  childrenPre.push(basePara(""));
+  childrenPre.push(basePara(""));
+  childrenPre.push(titleCenter(author));
+  childrenPre.push(basePara(""));
+  childrenPre.push(basePara(""));
+  childrenPre.push(basePara(""));
+  childrenPre.push(titleCenter(title));
+  if(subtitle) childrenPre.push(titleCenter(subtitle));
+  childrenPre.push(basePara(""));
+  childrenPre.push(basePara(""));
+  childrenPre.push(titleCenter(city));
+  childrenPre.push(titleCenter(year));
+  childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+
+  // FOLHA DE ROSTO (modelo simples)
+  childrenPre.push(titleCenter(author));
+  childrenPre.push(basePara(""));
+  childrenPre.push(titleCenter(title));
+  if(subtitle) childrenPre.push(titleCenter(subtitle));
+  childrenPre.push(basePara(""));
+  childrenPre.push(basePara(`Trabalho de Conclusão de Curso apresentado ao(à) ${inst}, como requisito parcial para obtenção de título no curso de ${course}.`));
+  childrenPre.push(basePara(`Orientador(a): ${advisor}`));
+  childrenPre.push(basePara(""));
+  childrenPre.push(titleCenter(city));
+  childrenPre.push(titleCenter(year));
+  childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+
+  // FICHA CATALOGRÁFICA (rascunho)
+  childrenPre.push(h1("FICHA CATALOGRÁFICA (RASCUNHO)"));
+  childrenPre.push(new Paragraph({
+    spacing:{ line: 360, after:160 },
+    children:[ new TextRun({ text: fichaTxt, font:"Times New Roman", size:24 }) ]
+  }));
+  childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+
+  // DEDICATÓRIA
+  if(ded){
+    childrenPre.push(h1("DEDICATÓRIA"));
+    normalizeParagraphs(ded).forEach(p=> childrenPre.push(basePara(p)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+
+  // AGRADECIMENTOS
+  if(agra){
+    childrenPre.push(h1("AGRADECIMENTOS"));
+    normalizeParagraphs(agra).forEach(p=> childrenPre.push(basePara(p)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+
+  // EPÍGRAFE
+  if(epi){
+    childrenPre.push(h1("EPÍGRAFE"));
+    normalizeParagraphs(epi).forEach(p=> childrenPre.push(basePara(p, { alignment: AlignmentType.RIGHT })));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+
+  // LISTA FIGURAS / TABELAS / SIGLAS (se houver)
+  if(listFig.length){
+    childrenPre.push(h1("LISTA DE FIGURAS"));
+    listFig.forEach(line=> childrenPre.push(basePara(line)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+  if(listTab.length){
+    childrenPre.push(h1("LISTA DE TABELAS"));
+    listTab.forEach(line=> childrenPre.push(basePara(line)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+  if(listSig.length){
+    childrenPre.push(h1("LISTA DE SIGLAS"));
+    listSig.forEach(line=> childrenPre.push(basePara(line)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+
+  // RESUMO / ABSTRACT
+  if(resumo){
+    childrenPre.push(h1("RESUMO"));
+    normalizeParagraphs(resumo).forEach(p=> childrenPre.push(basePara(p)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+  if(abstr){
+    childrenPre.push(h1("ABSTRACT"));
+    normalizeParagraphs(abstr).forEach(p=> childrenPre.push(basePara(p)));
+    childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+  }
+
+  // SUMÁRIO (TOC)
+  childrenPre.push(h1("SUMÁRIO"));
+  childrenPre.push(new TableOfContents("Sumário", {
+    hyperlink: true,
+    headingStyleRange: "1-3"
+  }));
+  childrenPre.push(new Paragraph({ children:[ new PageBreak() ] }));
+
+  // (2) Textuais
+  const childrenText = [];
+
+  childrenText.push(h1("1 INTRODUÇÃO"));
+  if(tema) normalizeParagraphs(tema).forEach(p=>childrenText.push(basePara(p)));
+  if(problema){
+    childrenText.push(h1("2 PROBLEMA DE PESQUISA"));
+    normalizeParagraphs(problema).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(objetivos){
+    childrenText.push(h1("3 OBJETIVOS"));
+    normalizeParagraphs(objetivos).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(justificativa){
+    childrenText.push(h1("4 JUSTIFICATIVA"));
+    normalizeParagraphs(justificativa).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(fund){
+    childrenText.push(h1("5 FUNDAMENTAÇÃO TEÓRICA"));
+    normalizeParagraphs(fund).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(met){
+    childrenText.push(h1("6 METODOLOGIA"));
+    normalizeParagraphs(met).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(cron){
+    childrenText.push(h1("7 CRONOGRAMA"));
+    normalizeParagraphs(cron).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(conc){
+    childrenText.push(h1("8 CONSIDERAÇÕES FINAIS"));
+    normalizeParagraphs(conc).forEach(p=>childrenText.push(basePara(p)));
+  }
+
+  // Referências
+  if(referenciasFinal.length){
+    childrenText.push(h1("REFERÊNCIAS"));
+    referenciasFinal.forEach(r=> childrenText.push(basePara(r)));
+  }
+
+  // (3) Pós-textuais
+  const ap = getSectionText("apendices");
+  const an = getSectionText("anexos");
+  if(ap){
+    childrenText.push(h1("APÊNDICES"));
+    normalizeParagraphs(ap).forEach(p=>childrenText.push(basePara(p)));
+  }
+  if(an){
+    childrenText.push(h1("ANEXOS"));
+    normalizeParagraphs(an).forEach(p=>childrenText.push(basePara(p)));
+  }
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {
+          type: SectionType.CONTINUOUS,
+          page: {
+            margin: {
+              top: cm(3), left: cm(3), right: cm(2), bottom: cm(2)
+            }
+          }
+        },
+        children: childrenPre
+      },
+      {
+        properties: {
+          page: {
+            margin: {
+              top: cm(3), left: cm(3), right: cm(2), bottom: cm(2)
+            }
+          }
+        },
+        children: childrenText
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Orientador_TCC_Digital.docx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ========= BOTÃO EXPORT ========= */
+document.getElementById("btnExportDocx")?.addEventListener("click", exportDocx);
+
+/* ========= ATUALIZAR RENDER PARA FICHA ========= */
+const ___render = render;
+render = function(){
+  state.ui.active = currentRoute();
+  saveState();
+  renderMenu();
+  renderHeader();
+
+  const screen = document.getElementById("screen");
+  const id = state.ui.active;
+
+  if(id==="settings"){
+    screen.innerHTML = renderSettings();
+    bindSettings();
+    return;
+  }
+  if(id==="pdfhub"){
+    screen.innerHTML = renderPdfHub();
+    bindPdfHub();
+    return;
+  }
+  if(id==="ficha_catalografica"){
+    screen.innerHTML = renderFichaCatalografica();
+    bindFichaCatalografica();
+    return;
+  }
+  if(id==="figuras"){
+    screen.innerHTML = renderListItems("fig");
+    bindListItems("figuras");
+    return;
+  }
+  if(id==="tabelas"){
+    screen.innerHTML = renderListItems("tab");
+    bindListItems("tabelas");
+    return;
+  }
+  if(id==="siglas"){
+    screen.innerHTML = renderSiglas();
+    bindSiglas();
+    return;
+  }
+
+  const hints = {
+    tema:"Defina um recorte claro e específico.",
+    problema:"Transforme sua dúvida em pergunta científica.",
+    objetivos:"Comece com verbos no infinitivo.",
+    justificativa:"Explique por que seu estudo é relevante.",
+    fundamentacao:"Indique autores e conceitos (a IA pode sugerir leituras).",
+    metodologia:"Descreva como a pesquisa será feita.",
+    cronograma:"Planeje as etapas no tempo.",
+    conclusao:"Sintetize resultados e recomendações.",
+    referencias:"Cole suas referências e/ou fontes.",
+    dedicatoria:"Texto breve e formal.",
+    agradecimentos:"Agradeça de forma objetiva.",
+    resumo_pt:"150–500 palavras + palavras-chave.",
+    abstract_en:"Resumo em inglês + keywords.",
+    epigrafe:"Citação com autoria.",
+    apendices:"Materiais produzidos por você.",
+    anexos:"Documentos de terceiros.",
+    folha_aprovacao:"Modelo — ajuste conforme a instituição."
+  };
+
+  if(hints[id]){
+    screen.innerHTML = renderTextual(id, hints[id]);
+    bindTextual(id);
+    return;
+  }
+
+  screen.innerHTML = `<div class="card"><p class="small">A Parte 6 finalizará o arquivo (fechamento do script/HTML) e adicionará pequenos ajustes finais.</p></div>`;
+};
+
+/* ============================
+   PARTE 5 termina aqui.
+   A PARTE 6 vai fechar </script></body></html> e aplicar ajustes finais.
+============================ */
+/* ============================
+   PARTE 6/6 — Ajustes finais + Fechamento do arquivo
+   Cole logo após a PARTE 5.
+============================ */
+
+/* ========= AJUSTES IMPORTANTES =========
+1) Garantir que o botão Exportar Word funcione mesmo após re-render.
+2) Aviso se AI_ENDPOINT_DEFAULT não foi configurado.
+3) Pequenos utilitários e fallback seguro.
+======================================== */
+
+// Reforça o bind do botão Exportar (fica na sidebar e não é re-renderizado, mas garantimos)
+(function bindExportSafely(){
+  const btn = document.getElementById("btnExportDocx");
+  if(btn){
+    btn.onclick = exportDocx;
+  }
+})();
+
+// Aviso se endpoint de IA ainda é placeholder
+(function warnAiEndpoint(){
+  // Se você ainda não colocou o endpoint real, a IA vai cair no catch.
+  // Este aviso é só para você lembrar.
+  const isPlaceholder = (AI_ENDPOINT_DEFAULT || "").includes("SEU_ENDPOINT_AQUI") || AI_ENDPOINT_DEFAULT === "SEU_ENDPOINT_AQUI";
+  if(isPlaceholder){
+    console.warn("[Orientador TCC] AI_ENDPOINT_DEFAULT está como placeholder. Configure seu endpoint para usar IA real.");
+  }
+})();
+
+// Botões de acesso rápido na sidebar (já existem, mas garantimos)
+(function bindSidebarShortcuts(){
+  const sBtn = document.getElementById("btnOpenSettings");
+  if(sBtn) sBtn.onclick = () => go("settings");
+
+  const pBtn = document.getElementById("btnPdfHub");
+  if(pBtn) pBtn.onclick = () => go("pdfhub");
+})();
+
+// Fallback: se algum step inexistente for chamado, volta ao tema
+(function normalizeHash(){
+  const id = currentRoute();
+  if(!STEP_DEFS.some(s=>s.id===id)){
+    location.hash = "#/tema";
+  }
+})();
+
+// INIT final (garante render ao carregar)
+window.addEventListener("load", ()=>{
+  try{
+    if(!location.hash) location.hash = "#/tema";
+    render();
+  }catch(e){
+    console.error("Falha ao iniciar app:", e);
+  }
+});
+
+/* ============================
+   FIM DO JAVASCRIPT
+============================ */
   </script>
 </body>
 </html>
