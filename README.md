@@ -1,20 +1,18 @@
-Orientador de TCC Digital
-​Sistema de assistência metodológica e letramento acadêmico para estruturação de projetos de pesquisa.
-​📌 Sobre o Projeto
-​O Orientador de TCC Digital é uma aplicação web desenvolvida para auxiliar estudantes na transição do pensamento informal para a escrita científica. A ferramenta atua como um guia procedimental, dividindo a complexidade de um Trabalho de Conclusão de Curso em etapas lógicas e validadas.
-​Diferente de ferramentas de automação total, este projeto foca na mediação pedagógica, fornecendo feedbacks imediatos que auxiliam o autor a compreender e aplicar as normas de redação e estrutura acadêmica.
-​🚀 Funcionalidades Principais
-​Fluxo Metodológico: Organização sequencial das fases críticas (Tema, Problema, Objetivos e Justificativa).
-​Termômetro de Progresso: Indicador visual que mensura o avanço do usuário dentro da estrutura do projeto.
-​Validação de Objetivos: Algoritmo que analisa a sintaxe do texto inserido, verificando a presença de verbos no infinitivo (conforme exigido em normas científicas).
-​Conversão de Linguagem: Processamento de termos para substituição de expressões coloquiais por conectivos acadêmicos formais.
-​Arquitetura Serverless: Processamento realizado inteiramente no lado do cliente (client-side), garantindo privacidade e velocidade.
-​🛠️ Tecnologias Utilizadas
-​HTML5: Estruturação semântica e acessibilidade.
-​CSS3: Design responsivo baseado em componentes de dashboard modernos.
-​JavaScript (ES6+): Lógica de processamento de texto, manipulação de estado e persistência via Web Storage.
-​GitHub Pages: Infraestrutura para deploy e integração contínua.
-​📚 Justificativa Técnica
-​A escolha por tecnologias puras (Vanilla JS) garante que a ferramenta seja extremamente leve e acessível, podendo ser executada em hardware com recursos limitados. A lógica de validação por regras busca oferecer transparência ao usuário, permitindo que ele aprenda a estrutura correta através do erro e da correção imediata sugerida pelo sistema.
+# 🎓 Orientador de TCC Digital
 
-Desenvolvido por: Vitor José Ivan
+Esta é uma ferramenta de apoio metodológico desenvolvida para auxiliar estudantes (foco em Administração) na construção de seus Trabalhos de Conclusão de Curso.
+
+## 🚀 Funcionalidades Principais
+- **Modo Evidência (RAG):** Carregue artigos em PDF e use-os como base real para as sugestões da IA.
+- **Exportação ABNT:** Gere um arquivo Word (.docx) já formatado com sumário, numeração e capas.
+- **Termômetro de Progresso:** Visualize em tempo real quanto falta para concluir seu TCC.
+- **Privacidade:** Seus dados são salvos localmente no seu navegador.
+
+## 🛠️ Tecnologias
+- **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
+- **Processamento de PDF:** [PDF.js](https://mozilla.github.io/pdf.js/)
+- **Geração de Documentos:** [Docx.js](https://docx.js.org/)
+- **Backend (IA):** Cloudflare Workers + Google Gemini API / OpenAI.
+
+## 🔗 Acesse Agora
+[CLIQUE AQUI PARA ACESSAR O SEU LINK DO GITHUB PAGES]
