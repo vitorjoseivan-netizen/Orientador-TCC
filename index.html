@@ -5,641 +5,1004 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orientador de TCC Digital</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PDF.js (leitura real de PDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
+
+  <!-- (Opcional) Exportar DOCX -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
   <style>
     :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --text:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --primary:#111827;
-      --primaryText:#ffffff;
-      --danger:#b91c1c;
-      --dangerBg:#fee2e2;
-      --ok:#065f46;
-      --okBg:#d1fae5;
+      --bg:#0b1020; --text:#e8eeff; --muted:#9fb0da;
+      --line:rgba(255,255,255,.10);
+      --accent:#7c5cff; --accent2:#33d69f; --danger:#ff5c7c; --warn:#ffd15c;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px; --radius2:22px;
     }
-
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.25), transparent 60%),
+        radial-gradient(900px 600px at 90% 15%, rgba(51,214,159,.18), transparent 55%),
+        var(--bg);
       color:var(--text);
-      background:var(--bg);
     }
-
-    header{
-      padding:18px 16px;
-      border-bottom:1px solid var(--border);
-      background:#fff;
-    }
-
-    header .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-
-    h1{
-      font-size:18px;
-      margin:0;
-      font-weight:700;
-    }
-
-    .sub{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:2px;
-    }
-
-    main{
-      max-width:1100px;
-      margin:0 auto;
-      padding:16px;
-      display:grid;
-      grid-template-columns: 320px 1fr;
-      gap:16px;
-    }
-
-    @media (max-width: 900px){
-      main{ grid-template-columns: 1fr; }
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:14px;
-      box-shadow: 0 1px 1px rgba(0,0,0,.03);
-    }
-
-    .steps{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      padding:8px;
-      border-radius:12px;
-      background:#fff;
-      border:1px solid var(--border);
-    }
-
-    .step{
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid transparent;
-      cursor:pointer;
-      user-select:none;
-    }
-
-    .step:hover{
-      background:#f9fafb;
-      border-color:var(--border);
-    }
-
-    .step.active{
-      background:#111827;
-      color:#fff;
-      border-color:#111827;
-    }
-
-    .step .num{
-      width:26px;height:26px;
-      border-radius:10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#f3f4f6;
-      color:#111827;
-      font-weight:700;
-      flex: 0 0 26px;
-    }
-
-    .step.active .num{
-      background:#ffffff;
-      color:#111827;
-    }
-
-    .step .meta{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
+    .app{display:grid; grid-template-columns: 340px 1fr; gap:18px; height:100vh; padding:18px;}
+    .sidebar,.main{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      overflow:hidden;
       min-width:0;
     }
+    .sidebar{display:flex;flex-direction:column}
+    .main{display:flex;flex-direction:column}
 
-    .step .title{
-      font-weight:700;
-      font-size:13px;
-      line-height:1.1;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+    .sb-top,.main-top{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px; border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      gap:12px;
     }
+    .brand{display:flex;flex-direction:column;gap:4px;min-width:0}
+    .brand h1{margin:0;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand small{color:var(--muted);font-size:12px}
 
-    .step .desc{
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border:1px solid var(--line);
+      border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.02);
+      user-select:none;flex:0 0 auto;
     }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 3px rgba(255,209,92,.15);}
+    .dot.ok{background:var(--accent2);box-shadow:0 0 0 3px rgba(51,214,159,.15);}
+    .dot.bad{background:var(--danger);box-shadow:0 0 0 3px rgba(255,92,124,.15);}
 
-    .step.active .desc{
-      color:#e5e7eb;
+    .sb-body{padding:14px;overflow:auto}
+    .section{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:12px;
+      margin-bottom:12px;
     }
-
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    label{
-      font-size:12px;
-      color:var(--muted);
-      display:block;
-      margin-bottom:6px;
-    }
-
-    select, input[type="text"], textarea{
-      width:100%;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
-    }
-    textarea{
-      min-height:220px;
-      resize:vertical;
-      line-height:1.4;
-    }
-    select:focus, input:focus, textarea:focus{
-      border-color:#9ca3af;
+    .section h3{
+      margin:0 0 10px;
+      font-size:12px;color:var(--muted);font-weight:700;
+      text-transform:uppercase;letter-spacing:.12em;
     }
 
     .btn{
-      border:1px solid var(--border);
-      background:#fff;
+      appearance:none;border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
       color:var(--text);
-      padding:10px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:13px;
+      padding:10px 12px;border-radius:12px;
+      cursor:pointer;font-weight:700;font-size:13px;
+      transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+      user-select:none;
     }
-    .btn:hover{ background:#f9fafb; }
+    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.20);}
+    .btn.primary{background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));border-color:rgba(124,92,255,.65);}
+    .btn.danger{background:rgba(255,92,124,.10);border-color:rgba(255,92,124,.35);color:#ffdbe2;}
+    .btn.ghost{background:transparent;}
 
-    .btn.primary{
-      background:var(--primary);
-      border-color:var(--primary);
-      color:var(--primaryText);
-    }
-    .btn.primary:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
+    .hint{color:var(--muted);font-size:12px;line-height:1.5}
+    input[type="file"]{display:none;}
 
-    .btn.danger{
-      background:var(--dangerBg);
-      border-color:#fecaca;
-      color:var(--danger);
+    .steps{display:flex;flex-direction:column;gap:6px;}
+    .step{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:10px;border-radius:14px;cursor:pointer;transition:.15s ease;
+      background:rgba(255,255,255,.02);border:1px solid transparent;
     }
+    .step:hover{border-color:rgba(124,92,255,.35);background:rgba(124,92,255,.08);}
+    .step.active{border-color:rgba(124,92,255,.55);background:rgba(124,92,255,.14);}
+    .badge{
+      width:24px;height:24px;border-radius:8px;
+      background:rgba(124,92,255,.22);border:1px solid rgba(124,92,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:800;flex:0 0 auto;
+    }
+    .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sub{font-size:12px;color:var(--muted)}
 
-    .pill{
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      color:var(--muted);
-      background:#fff;
+    .files{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;padding-right:4px;}
+    .file{
+      display:flex;flex-direction:column;gap:10px;
+      padding:10px;border:1px solid var(--line);border-radius:12px;
+      background:rgba(255,255,255,.02);
     }
-
-    .hint{
-      font-size:12px;
-      color:var(--muted);
-      padding:10px 12px;
-      border-radius:12px;
-      background:#f9fafb;
-      border:1px dashed var(--border);
-      margin-top:10px;
-    }
-
-    .alert{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid;
-      font-size:13px;
-      line-height:1.35;
-      white-space:pre-wrap;
-    }
-
-    .alert.ok{
-      background:var(--okBg);
-      border-color:#a7f3d0;
-      color:var(--ok);
-    }
-    .alert.bad{
-      background:var(--dangerBg);
-      border-color:#fecaca;
-      color:var(--danger);
-    }
-
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 700px){
-      .grid2{ grid-template-columns:1fr; }
-    }
-
+    .fileTop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;}
+    .fileName{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+    .fileMeta{font-size:12px;color:var(--muted)}
+    .fileBtns{display:flex;gap:8px;flex-wrap:wrap;}
     .small{
       font-size:12px;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:11px;
       color:var(--muted);
+      border:1px solid var(--line);
+      padding:2px 6px;border-radius:8px;
+      background:rgba(0,0,0,.18);
     }
 
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    .main-top .left{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .main-top h2{margin:0;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .main-top .desc{margin:0;color:var(--muted);font-size:12px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+
+    .switch{display:flex;align-items:center;gap:10px;user-select:none}
+    .switch input{
+      width:42px;height:24px;appearance:none;border-radius:999px;
+      background:rgba(255,255,255,.08);border:1px solid var(--line);
+      position:relative;cursor:pointer;outline:none;transition:.15s ease;
+    }
+    .switch input:checked{background:rgba(51,214,159,.25);border-color:rgba(51,214,159,.35);}
+    .switch input::after{
+      content:"";width:18px;height:18px;border-radius:50%;
+      background:rgba(255,255,255,.85);position:absolute;top:50%;left:4px;transform:translateY(-50%);transition:.15s ease;
+    }
+    .switch input:checked::after{left:20px;}
+    .switch label{font-size:12px;color:var(--text);font-weight:700}
+
+    .content{
+      display:grid;grid-template-rows:auto 1fr auto;
+      gap:12px;padding:14px;height:100%;overflow:hidden;
+    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+    .card{
+      border:1px solid var(--line);background:rgba(255,255,255,.02);
+      border-radius:var(--radius);padding:12px;min-width:0;min-height:0;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .card h3{
+      margin:0;font-size:12px;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.12em;font-weight:800;
+    }
+    textarea{
+      width:100%;min-height:250px;resize:vertical;
+      border-radius:14px;border:1px solid var(--line);
+      background:rgba(0,0,0,.18);color:var(--text);
+      padding:12px;font-size:13px;line-height:1.55;outline:none;
+    }
+    textarea:focus{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 3px rgba(124,92,255,.15);}
+    .log{
+      white-space:pre-wrap;word-break:break-word;
+      font-size:12px;line-height:1.45;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      border-radius:14px;padding:12px;overflow:auto;
+      min-height:250px;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+    .statusbar{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 14px;border-top:1px solid var(--line);background:rgba(255,255,255,.02);
+      font-size:12px;color:var(--muted);
+    }
+    .statusbar b{color:var(--text);}
+
+    .inline{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    }
+    .field{
+      display:flex;flex-direction:column;gap:6px;
+      min-width:140px;
+    }
+    .field label{font-size:12px;color:var(--muted);font-weight:700}
+    .field input{
+      width:160px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+      font-weight:700;
       font-size:12px;
+    }
+
+    @media (max-width: 980px){
+      .app{grid-template-columns:1fr;height:auto;}
+      .grid{grid-template-columns:1fr;}
+      .sidebar{order:2}
+      .main{order:1;min-height:70vh;}
+    }
+
+    @media print{
+      body{background:#fff;color:#000;}
+      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none!important;}
+      .main{border:none;box-shadow:none;}
+      .content{padding:0;}
+      .grid{grid-template-columns:1fr;}
+      textarea,.log{border:1px solid #ddd;background:#fff;color:#000;min-height:auto;}
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="wrap">
-      <div>
-        <h1>Orientador de TCC Digital</h1>
-        <div class="sub">Frontend (GitHub Pages) + Backend (Cloudflare Worker) • Endpoint: <span class="mono" id="endpointLabel"></span></div>
-      </div>
-
-      <div class="row">
-        <span class="pill" id="statusPill">Status: pronto</span>
-        <button class="btn" id="btnTestar">Testar /health</button>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <!-- Coluna esquerda: etapas -->
-    <section class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <strong>Etapas</strong>
-        <span class="small">Clique para navegar</span>
-      </div>
-
-      <div style="height:10px;"></div>
-
-      <div class="steps" id="steps"></div>
-
-      <div class="hint">
-        Dica: escreva primeiro no campo “Escreva do seu jeito”. Depois clique em <b>Orientar com IA</b>.
-        O sistema envia um <b>POST</b> para <span class="mono">/assist</span>.
-      </div>
-    </section>
-
-    <!-- Coluna direita: editor -->
-    <section class="card">
-      <div class="grid2">
-        <div>
-          <label for="stepSelect">Etapa atual</label>
-          <select id="stepSelect"></select>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="brand">
+          <h1>Orientador de TCC Digital</h1>
+          <small>PDF real (PDF.js) + Worker (POST /assist)</small>
         </div>
-
-        <div>
-          <label for="modoEvidencia">
-            <input type="checkbox" id="modoEvidencia" />
-            Modo Evidência (citar apenas fontes)
-          </label>
-          <div class="small">Se marcado, a IA deve fundamentar e citar as evidências fornecidas.</div>
+        <div class="pill">
+          <span id="svcDot" class="dot"></span>
+          <span id="svcText">verificando…</span>
         </div>
       </div>
 
-      <div style="height:12px;"></div>
+      <div class="sb-body">
+        <div class="section">
+          <h3>Etapas</h3>
+          <div class="steps" id="steps"></div>
+        </div>
 
-      <label for="textoAluno">Escreva do seu jeito</label>
-      <textarea id="textoAluno" placeholder="Digite aqui o seu texto (ex.: tema, problema, objetivos, etc.)"></textarea>
+        <div class="section">
+          <h3>Anexos (PDF) — leitura real</h3>
 
-      <div style="height:12px;"></div>
+          <div class="inline" style="margin-bottom:10px;">
+            <label class="btn" for="pdfInput">Anexar PDF</label>
+            <input id="pdfInput" type="file" accept="application/pdf" multiple />
+            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar PDFs</button>
+          </div>
 
-      <div class="row">
-        <button class="btn primary" id="btnIA">Orientar com IA</button>
-        <button class="btn" id="btnSalvar">Salvar</button>
-        <button class="btn" id="btnProxima">Próxima etapa</button>
-        <button class="btn danger" id="btnLimpar">Limpar etapa</button>
+          <div class="inline" style="margin-bottom:10px;">
+            <div class="field">
+              <label for="maxPages">Máx. páginas por PDF</label>
+              <input id="maxPages" type="number" min="1" max="200" value="30" />
+            </div>
+            <div class="field">
+              <label for="maxChars">Máx. caracteres por extração</label>
+              <input id="maxChars" type="number" min="5000" max="300000" value="60000" />
+            </div>
+          </div>
+
+          <div class="hint">
+            Dica: para extrair páginas específicas, use formato <span class="kbd">1-3, 7, 10-12</span>.
+            PDFs escaneados (imagem) podem extrair pouco ou nada — aí precisa de OCR.
+          </div>
+
+          <div class="files" id="pdfList"></div>
+        </div>
+
+        <div class="section">
+          <h3>Exportação</h3>
+          <div class="inline">
+            <button class="btn" id="exportPdfBtn" type="button">Exportar PDF</button>
+            <button class="btn" id="exportDocxBtn" type="button">Exportar DOCX</button>
+            <button class="btn ghost" id="resetAllBtn" type="button">Reset geral</button>
+          </div>
+          <div class="hint" style="margin-top:10px;">
+            PDF por impressão do navegador. DOCX gera um Word simples da etapa.
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-top">
+        <div class="left">
+          <h2 id="stepTitle">—</h2>
+          <p class="desc" id="stepDesc">—</p>
+        </div>
+
+        <div class="toolbar">
+          <div class="switch">
+            <input id="evidenceToggle" type="checkbox" />
+            <label for="evidenceToggle">Modo Evidência</label>
+          </div>
+          <button class="btn" id="saveBtn" type="button">Salvar</button>
+          <button class="btn primary" id="askBtn" type="button">Orientar com IA</button>
+          <button class="btn danger" id="clearStepBtn" type="button">Limpar etapa</button>
+        </div>
       </div>
 
-      <div id="alertBox" class="alert" style="display:none;"></div>
+      <div class="content">
+        <div class="grid">
+          <section class="card">
+            <h3>Seu texto</h3>
+            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa..."></textarea>
+            <div class="row">
+              <span class="hint">Último salvamento: <b id="lastSaved">—</b></span>
+              <span class="hint">Progresso: <b id="progress">0%</b></span>
+            </div>
+          </section>
 
-      <div style="height:14px;"></div>
+          <section class="card">
+            <h3>Evidências (auto do PDF ou colar manual)</h3>
+            <textarea id="evidenceText" placeholder="Aqui entram os trechos extraídos do PDF e/ou seus apontamentos..."></textarea>
+            <div class="hint">
+              Use os botões nos PDFs para extrair texto para este campo. No Modo Evidência, a IA deve se apoiar daqui.
+            </div>
+          </section>
+        </div>
 
-      <div class="card" style="padding:12px;background:#fafafa;">
-        <strong>Ferramentas</strong>
-        <div class="small" style="margin-top:6px;">
-          Endpoint do Worker (com <span class="mono">/assist</span>):
-          <div class="mono" id="endpointFull" style="margin-top:6px;"></div>
-        </div>
-        <div class="small" style="margin-top:8px;">
-          Observação: abrir o link no navegador mostra “Use POST em /assist”. Isso é normal. O site deve chamar via <b>fetch POST</b>.
-        </div>
+        <section class="card" style="min-height:0;">
+          <h3>Resposta da IA</h3>
+          <div id="aiOut" class="log">—</div>
+        </section>
       </div>
-    </section>
-  </main>
+
+      <div class="statusbar">
+        <span>Status: <b id="runtimeStatus">pronto</b></span>
+        <span>Endpoint: <b>/assist</b></span>
+      </div>
+    </main>
+  </div>
 
   <script>
-    /***************
-     * CONFIGURAÇÃO *
-     ***************/
-    // Troque aqui se mudar o Worker:
-    const WORKER_BASE = "https://orientador-tcc-api.vitorjoseivan.workers.dev";
-    const ENDPOINT_ASSIST = WORKER_BASE.replace(/\/+$/, "") + "/assist";
-    const ENDPOINT_HEALTH = WORKER_BASE.replace(/\/+$/, "") + "/health";
+    // PDF.js worker
+    // (mantém o pdf.js funcionando bem em produção)
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
+    }
 
-    // Chave local de armazenamento
-    const STORAGE_KEY = "orientador_tcc_v1";
-
-    // Etapas (você pode ajustar os textos)
-    const ETAPAS = [
-      { id:"tema",      title:"Tema / Introdução", desc:"Defina objeto e contexto" },
-      { id:"problema",  title:"Problema de Pesquisa", desc:"Pergunta central" },
-      { id:"objetivos", title:"Objetivos", desc:"Geral e específicos" },
-      { id:"just",      title:"Justificativa", desc:"Relevância do estudo" },
-      { id:"refer",     title:"Referencial Teórico", desc:"Base conceitual" },
-      { id:"metodo",    title:"Metodologia", desc:"Como você fará" },
-      { id:"crono",     title:"Cronograma", desc:"Planejamento" },
-      { id:"pretext",   title:"Elementos Pré-textuais", desc:"Resumo, etc." },
-      { id:"refs",      title:"Referências", desc:"Lista final" }
+    const STEPS = [
+      { id: "tema", title: "Tema / Introdução", desc: "Delimite o tema e contextualize o problema." },
+      { id: "problema", title: "Problema de Pesquisa", desc: "Formule a pergunta central e o recorte." },
+      { id: "objetivos", title: "Objetivos", desc: "Geral e específicos (com verbos no infinitivo)." },
+      { id: "justificativa", title: "Justificativa", desc: "Relevância acadêmica e social; por que vale pesquisar." },
+      { id: "referencial", title: "Referencial Teórico", desc: "Base conceitual (autores, conceitos, categorias)." },
+      { id: "metodologia", title: "Metodologia", desc: "Abordagem, tipo de pesquisa, técnicas e instrumentos." },
+      { id: "cronograma", title: "Cronograma", desc: "Planejamento por etapas e prazos." },
+      { id: "elementos", title: "Elementos Pré-textuais", desc: "Resumo, palavras-chave, abstract, etc." },
+      { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido." }
     ];
 
-    /**********************
-     * UTILITÁRIOS DE UI  *
-     **********************/
-    const $ = (id) => document.getElementById(id);
+    const STORE_KEY = "orientador_tcc_v3";
+    const STORE_ACTIVE = "orientador_active_step_v3";
+    const STORE_EVID = "orientador_evidence_v3";
+    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v3";
+    const STORE_PDFS = "orientador_pdfs_v3"; // guarda PDFs em base64 + metadados
 
-    function showAlert(type, msg){
-      const box = $("alertBox");
-      box.style.display = "block";
-      box.className = "alert " + (type === "ok" ? "ok" : "bad");
-      box.textContent = msg;
+    const stepsEl = document.getElementById("steps");
+    const stepTitleEl = document.getElementById("stepTitle");
+    const stepDescEl = document.getElementById("stepDesc");
+    const userTextEl = document.getElementById("userText");
+    const evidenceTextEl = document.getElementById("evidenceText");
+    const aiOutEl = document.getElementById("aiOut");
+    const lastSavedEl = document.getElementById("lastSaved");
+    const progressEl = document.getElementById("progress");
+    const runtimeStatusEl = document.getElementById("runtimeStatus");
+
+    const pdfInputEl = document.getElementById("pdfInput");
+    const pdfListEl = document.getElementById("pdfList");
+    const clearPdfsBtn = document.getElementById("clearPdfsBtn");
+    const maxPagesEl = document.getElementById("maxPages");
+    const maxCharsEl = document.getElementById("maxChars");
+
+    const saveBtn = document.getElementById("saveBtn");
+    const askBtn = document.getElementById("askBtn");
+    const clearStepBtn = document.getElementById("clearStepBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const exportPdfBtn = document.getElementById("exportPdfBtn");
+    const exportDocxBtn = document.getElementById("exportDocxBtn");
+
+    const evidenceToggleEl = document.getElementById("evidenceToggle");
+    const svcDot = document.getElementById("svcDot");
+    const svcText = document.getElementById("svcText");
+
+    let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
+
+    function loadStore(){
+      try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch { return {}; }
+    }
+    function saveStore(data){
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      lastSavedEl.textContent = new Date().toLocaleString();
+      updateProgress();
+    }
+    function setSvc(type, text){
+      svcText.textContent = text;
+      svcDot.classList.remove("ok","bad");
+      if(type === "ok") svcDot.classList.add("ok");
+      if(type === "bad") svcDot.classList.add("bad");
     }
 
-    function hideAlert(){
-      const box = $("alertBox");
-      box.style.display = "none";
-      box.textContent = "";
+    function loadPdfs(){
+      try { return JSON.parse(localStorage.getItem(STORE_PDFS) || "[]"); } catch { return []; }
+    }
+    function savePdfs(list){
+      localStorage.setItem(STORE_PDFS, JSON.stringify(list));
+      renderPdfs();
     }
 
-    function setStatus(text){
-      $("statusPill").textContent = "Status: " + text;
-    }
-
-    /***********************
-     * PERSISTÊNCIA LOCAL  *
-     ***********************/
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return { currentStepId: ETAPAS[0].id, texts: {}, modoEvidencia:false };
-        const parsed = JSON.parse(raw);
-        return {
-          currentStepId: parsed.currentStepId || ETAPAS[0].id,
-          texts: parsed.texts || {},
-          modoEvidencia: !!parsed.modoEvidencia
-        };
-      }catch{
-        return { currentStepId: ETAPAS[0].id, texts: {}, modoEvidencia:false };
-      }
-    }
-
-    function saveState(state){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    let state = loadState();
-
-    /***********************
-     * RENDER / NAVEGAÇÃO  *
-     ***********************/
     function renderSteps(){
-      const wrap = $("steps");
-      wrap.innerHTML = "";
-
-      ETAPAS.forEach((e, idx) => {
-        const div = document.createElement("div");
-        div.className = "step" + (state.currentStepId === e.id ? " active" : "");
-        div.onclick = () => selectStep(e.id);
-
-        const num = document.createElement("div");
-        num.className = "num";
-        num.textContent = String(idx + 1);
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-
-        const t = document.createElement("div");
-        t.className = "title";
-        t.textContent = e.title;
-
-        const d = document.createElement("div");
-        d.className = "desc";
-        d.textContent = e.desc;
-
-        meta.appendChild(t);
-        meta.appendChild(d);
-
-        div.appendChild(num);
-        div.appendChild(meta);
-
-        wrap.appendChild(div);
+      stepsEl.innerHTML = "";
+      const store = loadStore();
+      STEPS.forEach((s, idx) => {
+        const filled = (store[s.id] || "").trim().length > 0;
+        const el = document.createElement("div");
+        el.className = "step" + (s.id === activeStep ? " active" : "");
+        el.innerHTML = `
+          <div class="badge">${idx+1}</div>
+          <div class="meta">
+            <div class="title">${escapeHtml(s.title)}</div>
+            <div class="sub">${filled ? "Preenchida" : "Vazia"}</div>
+          </div>
+        `;
+        el.addEventListener("click", () => {
+          activeStep = s.id;
+          localStorage.setItem(STORE_ACTIVE, activeStep);
+          openStep(activeStep);
+          renderSteps();
+        });
+        stepsEl.appendChild(el);
       });
+      updateProgress();
     }
 
-    function renderSelect(){
-      const sel = $("stepSelect");
-      sel.innerHTML = "";
-      ETAPAS.forEach(e => {
-        const opt = document.createElement("option");
-        opt.value = e.id;
-        opt.textContent = e.title;
-        sel.appendChild(opt);
-      });
-      sel.value = state.currentStepId;
+    function openStep(stepId){
+      const s = STEPS.find(x => x.id === stepId) || STEPS[0];
+      const store = loadStore();
+      stepTitleEl.textContent = s.title;
+      stepDescEl.textContent = s.desc;
+      userTextEl.value = store[stepId] || "";
+      evidenceTextEl.value = localStorage.getItem(STORE_EVID) || "";
+      evidenceToggleEl.checked = (localStorage.getItem(STORE_EVID_TOGGLE) === "true");
+      aiOutEl.textContent = "—";
     }
 
-    function renderEditor(){
-      $("textoAluno").value = state.texts[state.currentStepId] || "";
-      $("modoEvidencia").checked = state.modoEvidencia;
-      $("stepSelect").value = state.currentStepId;
+    function updateProgress(){
+      const store = loadStore();
+      const total = STEPS.length;
+      let done = 0;
+      for(const s of STEPS){
+        if((store[s.id] || "").trim().length > 0) done++;
+      }
+      progressEl.textContent = `${Math.round((done/total)*100)}%`;
+    }
+
+    function saveCurrent(){
+      const store = loadStore();
+      store[activeStep] = userTextEl.value;
+      saveStore(store);
+      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
       renderSteps();
     }
 
-    function selectStep(stepId){
-      // salva texto atual antes de trocar
-      persistCurrentText();
-      state.currentStepId = stepId;
-      saveState(state);
-      hideAlert();
-      renderEditor();
+    let autosaveTimer = null;
+    function scheduleAutosave(){
+      if(autosaveTimer) clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(saveCurrent, 600);
     }
+    userTextEl.addEventListener("input", scheduleAutosave);
+    evidenceTextEl.addEventListener("input", () => localStorage.setItem(STORE_EVID, evidenceTextEl.value));
+    evidenceToggleEl.addEventListener("change", () => localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false"));
+    saveBtn.addEventListener("click", saveCurrent);
 
-    function persistCurrentText(){
-      const txt = $("textoAluno").value || "";
-      state.texts[state.currentStepId] = txt;
-      saveState(state);
-    }
+    clearStepBtn.addEventListener("click", () => {
+      userTextEl.value = "";
+      saveCurrent();
+      aiOutEl.textContent = "—";
+    });
 
-    function nextStep(){
-      persistCurrentText();
-      const idx = ETAPAS.findIndex(e => e.id === state.currentStepId);
-      const next = ETAPAS[Math.min(idx + 1, ETAPAS.length - 1)];
-      state.currentStepId = next.id;
-      saveState(state);
-      hideAlert();
-      renderEditor();
-    }
+    resetAllBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(STORE_ACTIVE);
+      localStorage.removeItem(STORE_EVID);
+      localStorage.removeItem(STORE_EVID_TOGGLE);
+      localStorage.removeItem(STORE_PDFS);
+      activeStep = STEPS[0].id;
+      localStorage.setItem(STORE_ACTIVE, activeStep);
+      renderSteps();
+      renderPdfs();
+      openStep(activeStep);
+      lastSavedEl.textContent = "—";
+      aiOutEl.textContent = "—";
+    });
 
-    function clearStep(){
-      state.texts[state.currentStepId] = "";
-      saveState(state);
-      $("textoAluno").value = "";
-      showAlert("ok", "Etapa limpa com sucesso.");
-    }
-
-    /***********************
-     * CHAMADA À IA (POST) *
-     ***********************/
-    async function callAssist(promptText){
-      // O Worker exige POST JSON: { prompt: "..." }
-      const body = {
-        prompt: promptText,
-        step: state.currentStepId,
-        evidenceMode: state.modoEvidencia ? true : false
-      };
-
-      const resp = await fetch(ENDPOINT_ASSIST, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      // Se não for JSON válido, pega texto cru para debug
-      const raw = await resp.text();
-      let data = null;
-      try { data = JSON.parse(raw); } catch { data = { ok:false, error:"Resposta não-JSON do Worker.", raw }; }
-
-      if(!resp.ok){
-        return { ok:false, error: data.error || ("HTTP " + resp.status), detail: data.detail || data.raw || raw };
+    // ---------------------------
+    // HEALTH
+    // ---------------------------
+    async function checkHealth(){
+      try{
+        const r = await fetch("/health", { method:"GET" });
+        const j = await r.json().catch(() => ({}));
+        if(r.ok && j.ok) setSvc("ok","online");
+        else setSvc("bad","offline");
+      }catch{
+        setSvc("bad","offline");
       }
-      return data;
     }
 
-    async function orientarComIA(){
-      hideAlert();
-      setStatus("consultando IA...");
+    // ---------------------------
+    // PDF: ler e extrair texto real
+    // ---------------------------
 
-      const txt = ($("textoAluno").value || "").trim();
-      if(!txt){
-        setStatus("pronto");
-        showAlert("bad", "Digite um texto antes de clicar em “Orientar com IA”.");
+    async function fileToDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function prettyBytes(bytes){
+      const units = ["B","KB","MB","GB"];
+      let i = 0, n = bytes;
+      while(n >= 1024 && i < units.length-1){ n/=1024; i++; }
+      return `${n.toFixed(i===0?0:1)} ${units[i]}`;
+    }
+
+    function parseRanges(input, max){
+      // input: "1-3, 7, 10-12"
+      // returns 0-based page indices
+      const clean = (input || "").trim();
+      if(!clean) return null;
+      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
+      const pages = new Set();
+      for(const part of parts){
+        const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+        if(m){
+          let a = parseInt(m[1],10);
+          let b = parseInt(m[2],10);
+          if(Number.isNaN(a)||Number.isNaN(b)) continue;
+          if(a>b) [a,b] = [b,a];
+          a = Math.max(1,a); b = Math.min(max,b);
+          for(let p=a;p<=b;p++) pages.add(p-1);
+        }else{
+          const n = parseInt(part,10);
+          if(!Number.isNaN(n) && n>=1 && n<=max) pages.add(n-1);
+        }
+      }
+      return Array.from(pages).sort((x,y)=>x-y);
+    }
+
+    async function extractPdfText(pdfItem, opts){
+      // pdfItem: {dataUrl, name}
+      // opts: {maxPages, maxChars, pageIndices?}
+      const { maxPages, maxChars, pageIndices } = opts;
+
+      const dataUrl = pdfItem.dataUrl;
+      const base64 = dataUrl.split(",")[1] || "";
+      const raw = atob(base64);
+      const bytes = new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+
+      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      const pdf = await loadingTask.promise;
+
+      const totalPages = pdf.numPages;
+      const hardLimit = Math.min(totalPages, maxPages);
+
+      let indices = pageIndices;
+      if(!indices){
+        indices = Array.from({length: hardLimit}, (_,i)=>i);
+      }else{
+        // filtra pages acima do maxPages se quiser respeitar limite também
+        indices = indices.filter(i => i >= 0 && i < totalPages);
+        // ainda aplica maxPages para não travar
+        if(indices.length > hardLimit) indices = indices.slice(0, hardLimit);
+      }
+
+      let out = `=== PDF: ${pdfItem.name} ===\n`;
+      out += `Páginas no arquivo: ${totalPages}. Extraindo: ${indices.length} página(s).\n\n`;
+
+      let usedChars = out.length;
+
+      for(const idx of indices){
+        const pageNo = idx + 1;
+        const page = await pdf.getPage(pageNo);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(it => (it.str || "")).join(" ").replace(/\s+/g," ").trim();
+
+        // Se a página vier vazia, ainda registra (PDF escaneado, etc.)
+        const block = pageText
+          ? `--- Página ${pageNo} ---\n${pageText}\n\n`
+          : `--- Página ${pageNo} ---\n[Sem texto extraível nesta página]\n\n`;
+
+        if(usedChars + block.length > maxChars){
+          out += `\n[Limite de caracteres atingido (${maxChars}). Interrompendo extração.]\n`;
+          break;
+        }
+
+        out += block;
+        usedChars += block.length;
+      }
+
+      return { totalPages, extractedPages: indices.length, text: out };
+    }
+
+    function renderPdfs(){
+      const list = loadPdfs();
+      pdfListEl.innerHTML = "";
+
+      if(list.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "hint";
+        empty.textContent = "Nenhum PDF anexado ainda.";
+        pdfListEl.appendChild(empty);
         return;
       }
 
-      // Persistir antes de chamar
-      persistCurrentText();
+      for(const item of list){
+        const file = document.createElement("div");
+        file.className = "file";
 
-      // Prompt (controla orientação e, se marcado, pede evidências)
-      const prefix = state.modoEvidencia
-        ? "Você é um orientador acadêmico. Responda com rigor metodológico e cite apenas as evidências fornecidas pelo usuário (sem inventar referências). Texto do aluno:\n\n"
-        : "Você é um orientador acadêmico. Melhore o texto do aluno com clareza metodológica, mantendo a autoria e sugerindo ajustes. Texto do aluno:\n\n";
+        const meta = [];
+        meta.push(prettyBytes(item.size || 0));
+        if(item.pages) meta.push(`${item.pages} pág.`);
+        if(item.lastExtract) meta.push(`extraído: ${new Date(item.lastExtract).toLocaleString()}`);
+
+        file.innerHTML = `
+          <div class="fileTop">
+            <div style="min-width:0">
+              <div class="fileName" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+              <div class="fileMeta">${meta.join(" • ")}</div>
+            </div>
+            <button class="btn danger small" type="button" data-act="remove">Remover</button>
+          </div>
+
+          <div class="fileBtns">
+            <button class="btn small" type="button" data-act="extractAll">Extrair tudo p/ Evidências</button>
+            <button class="btn small" type="button" data-act="extractRange">Extrair páginas…</button>
+            <button class="btn small" type="button" data-act="preview">Ver texto extraído</button>
+          </div>
+
+          <div class="hint" data-slot="rangeHint" style="display:none;">
+            Informe páginas no formato <span class="kbd">1-3, 7, 10-12</span> e confirme.
+          </div>
+
+          <div class="inline" data-slot="rangeUi" style="display:none;">
+            <div class="field">
+              <label>Páginas</label>
+              <input type="text" value="1-3" data-slot="rangeInput" />
+            </div>
+            <button class="btn primary small" type="button" data-act="confirmRange">Extrair</button>
+          </div>
+        `;
+
+        const removeBtn = file.querySelector('[data-act="remove"]');
+        const extractAllBtn = file.querySelector('[data-act="extractAll"]');
+        const extractRangeBtn = file.querySelector('[data-act="extractRange"]');
+        const previewBtn = file.querySelector('[data-act="preview"]');
+        const rangeHint = file.querySelector('[data-slot="rangeHint"]');
+        const rangeUi = file.querySelector('[data-slot="rangeUi"]');
+        const rangeInput = file.querySelector('[data-slot="rangeInput"]');
+        const confirmRangeBtn = file.querySelector('[data-act="confirmRange"]');
+
+        removeBtn.addEventListener("click", () => {
+          const updated = loadPdfs().filter(x => x.id !== item.id);
+          savePdfs(updated);
+        });
+
+        extractAllBtn.addEventListener("click", async () => {
+          await doExtract(item.id, null);
+        });
+
+        extractRangeBtn.addEventListener("click", () => {
+          const shown = rangeUi.style.display !== "none";
+          rangeHint.style.display = shown ? "none" : "block";
+          rangeUi.style.display = shown ? "none" : "flex";
+        });
+
+        confirmRangeBtn.addEventListener("click", async () => {
+          await doExtract(item.id, (rangeInput.value || "").trim());
+        });
+
+        previewBtn.addEventListener("click", () => {
+          const listNow = loadPdfs();
+          const it = listNow.find(x => x.id === item.id);
+          const txt = (it && it.extractedText) ? it.extractedText : "Ainda não há texto extraído deste PDF.";
+          aiOutEl.textContent = txt;
+        });
+
+        pdfListEl.appendChild(file);
+      }
+    }
+
+    async function doExtract(pdfId, rangeStr){
+      const list = loadPdfs();
+      const item = list.find(x => x.id === pdfId);
+      if(!item){
+        aiOutEl.textContent = "PDF não encontrado.";
+        return;
+      }
+
+      const maxPages = clampInt(maxPagesEl.value, 1, 200, 30);
+      const maxChars = clampInt(maxCharsEl.value, 5000, 300000, 60000);
+
+      runtimeStatusEl.textContent = "extraindo PDF…";
+      aiOutEl.textContent = "Extraindo texto do PDF… (isso pode levar alguns segundos)";
 
       try{
-        const data = await callAssist(prefix + txt);
+        // Se ainda não tem páginas (metadata), tenta ler para descobrir
+        // (a extração já traz totalPages, então podemos atualizar)
+        let pageIndices = null;
+        if(rangeStr){
+          // precisamos do totalPages para validar; faremos uma extração mínima primeiro?
+          // Solução: extrair abrindo o pdf e pegando numPages (dentro de extractPdfText)
+          // Para validar o range, fazemos parse depois do open:
+          // Aqui fazemos um "open" rápido para obter numPages, depois parse e chama extração.
+          const numPages = await getPdfNumPages(item.dataUrl);
+          pageIndices = parseRanges(rangeStr, numPages);
+          if(!pageIndices || pageIndices.length === 0
+             ){
+            aiOutEl.textContent = "Intervalo de páginas inválido. Use formato: 1-3, 7, 10-12";
+            runtimeStatusEl.textContent = "pronto";
+            return;
+          }
+        }
 
-        if(data && (data.response || data.text)){
-          const out = data.response || data.text;
-          $("textoAluno").value = out;
-          state.texts[state.currentStepId] = out;
-          saveState(state);
-          setStatus("pronto");
-          showAlert("ok", "Resposta gerada e aplicada ao texto.");
+        const result = await extractPdfText(item, { maxPages, maxChars, pageIndices });
+
+        // Atualiza item no storage com texto extraído
+        item.pages = result.totalPages;
+        item.lastExtract = Date.now();
+        item.extractedText = result.text;
+
+        // Salva no storage
+        savePdfs(list);
+
+        // Injeta no campo Evidências (append)
+        const current = (evidenceTextEl.value || "").trim();
+        const appended = (current ? (current + "\n\n") : "") + result.text;
+        evidenceTextEl.value = appended;
+        localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+
+        aiOutEl.textContent = `Texto extraído com sucesso de "${item.name}".\n\n` +
+          `Páginas no PDF: ${result.totalPages}\n` +
+          `Páginas extraídas: ${result.extractedPages}\n` +
+          `Caracteres atuais em Evidências: ${evidenceTextEl.value.length}\n\n` +
+          `Dica: ative "Modo Evidência" e clique em "Orientar com IA".`;
+
+        runtimeStatusEl.textContent = "pronto";
+      } catch (e) {
+        aiOutEl.textContent = "Falha ao extrair texto do PDF: " + (e?.message || e);
+        runtimeStatusEl.textContent = "erro";
+      }
+    }
+
+    async function getPdfNumPages(dataUrl){
+      const base64 = dataUrl.split(",")[1] || "";
+      const raw = atob(base64);
+      const bytes = new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+
+      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      const pdf = await loadingTask.promise;
+      return pdf.numPages || 0;
+    }
+
+    function clampInt(value, min, max, fallback){
+      const n = parseInt(value, 10);
+      if(Number.isNaN(n)) return fallback;
+      return Math.max(min, Math.min(max, n));
+    }
+
+    // ---------------------------
+    // IA (POST /assist)
+    // ---------------------------
+    async function callAssist(){
+      saveCurrent();
+
+      const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
+      const evidenceMode = evidenceToggleEl.checked;
+
+      const userText = (userTextEl.value || "").trim();
+      const evid = (evidenceTextEl.value || "").trim();
+
+      if(!userText){
+        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
+        return;
+      }
+
+      if(evidenceMode && !evid){
+        aiOutEl.textContent =
+          "Modo Evidência está ativo, mas você não forneceu evidências.\n\n" +
+          "Anexe um PDF e use 'Extrair tudo p/ Evidências' ou cole trechos relevantes na área de Evidências.";
+        return;
+      }
+
+      runtimeStatusEl.textContent = "consultando IA…";
+      aiOutEl.textContent = "Gerando orientação…";
+
+      const systemGuide =
+`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
+Entregue orientação clara e didática, sem linguagem robótica.
+Regras:
+- Não invente referências.
+- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e explique como foram usados.
+- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
+- Linguagem em português do Brasil.`;
+
+      // Observação:
+      // Seu Worker pode esperar {prompt} ou {text}. Para evitar erro, enviamos ambos.
+      const payload = {
+        step: activeStep,
+        stepId: activeStep,
+        stepTitle: stepInfo.title,
+        evidenceMode,
+        guide: systemGuide,
+        prompt:
+          systemGuide +
+          "\n\nTEXTO DO ALUNO:\n" + userText +
+          (evidenceMode ? ("\n\nEVIDÊNCIAS:\n" + evid) : ""),
+        text: userText,
+        evidences: evid
+      };
+
+      try{
+        const res = await fetch("/assist", {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if(!res.ok){
+          const msg = data?.error || `Erro HTTP ${res.status}`;
+          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
+          runtimeStatusEl.textContent = "erro";
           return;
         }
 
-        // Se veio no formato {ok:false,...}
-        setStatus("pronto");
-        showAlert("bad", (data && (data.error || data.detail)) ? (data.error + (data.detail ? ("\n\n" + data.detail) : "")) : "A IA não retornou texto.");
-      }catch(e){
-        setStatus("pronto");
-        showAlert("bad", "Falha ao conectar com o Worker:\n" + e.message + "\n\nVerifique:\n- se o endpoint está correto;\n- se o Worker está publicado (Deploy);\n- se há bloqueio de rede/CORS.");
+        // formatos aceitos (depende do Worker)
+        const out = data.response || data.text || data.output || data.answer || data.result || "";
+        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
+        runtimeStatusEl.textContent = "pronto";
+      }catch(err){
+        aiOutEl.textContent =
+          "Erro de rede ao chamar /assist.\n\n" +
+          "Verifique:\n" +
+          "1) Se o Worker está online\n" +
+          "2) Se o endpoint correto é /assist\n" +
+          "3) Se o seu domínio está apontando corretamente\n\n" +
+          "Detalhe: " + (err?.message || err);
+        runtimeStatusEl.textContent = "erro";
       }
     }
 
-    async function testarHealth(){
-      hideAlert();
-      setStatus("testando...");
+    askBtn.addEventListener("click", callAssist);
+
+    // ---------------------------
+    // Exportações
+    // ---------------------------
+    exportPdfBtn.addEventListener("click", () => {
+      saveCurrent();
+      window.print();
+    });
+
+    exportDocxBtn.addEventListener("click", async () => {
       try{
-        const resp = await fetch(ENDPOINT_HEALTH, { method: "GET" });
-        const raw = await resp.text();
-        let data = null;
-        try { data = JSON.parse(raw); } catch { data = { raw }; }
+        saveCurrent();
 
-        if(resp.ok && data && data.ok === true){
-          setStatus("online");
-          showAlert("ok", "Worker online em /health.");
-        }else{
-          setStatus("atenção");
-          showAlert("bad", "Resposta inesperada de /health:\n" + raw);
+        if(!window.docx || !window.saveAs){
+          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
+          return;
         }
+
+        const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
+        const text = userTextEl.value || "";
+        const evid = evidenceTextEl.value || "";
+
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+
+        const doc = new Document({
+          sections: [{
+            properties: {},
+            children: [
+              new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
+              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
+              new Paragraph({ children: [ new TextRun(text) ] }),
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
+              new Paragraph({ children: [ new TextRun(evid || "—") ] })
+            ]
+          }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
       }catch(e){
-        setStatus("offline");
-        showAlert("bad", "Não foi possível acessar /health.\n" + e.message);
+        alert("Falha ao exportar DOCX: " + (e?.message || e));
       }
+    });
+
+    // ---------------------------
+    // Upload PDFs (armazenando DataURL)
+    // ---------------------------
+    pdfInputEl.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if(files.length === 0) return;
+
+      const list = loadPdfs();
+
+      runtimeStatusEl.textContent = "carregando PDF(s)…";
+      aiOutEl.textContent = "Carregando PDF(s) no navegador…";
+
+      try{
+        for(const f of files){
+          // Atenção: localStorage tem limite (~5MB-10MB dependendo do navegador).
+          // PDFs grandes podem falhar. Ideal: IndexedDB (posso migrar depois).
+          const dataUrl = await fileToDataUrl(f);
+
+          list.push({
+            id: crypto.randomUUID(),
+            name: f.name,
+            size: f.size,
+            dataUrl,
+            addedAt: Date.now(),
+            pages: null,
+            extractedText: ""
+          });
+        }
+
+        savePdfs(list);
+        pdfInputEl.value = "";
+
+        aiOutEl.textContent =
+          "PDF(s) anexado(s) com sucesso.\n\n" +
+          "Agora você pode:\n" +
+          "- 'Extrair tudo p/ Evidências'\n" +
+          "- 'Extrair páginas…' (1-3, 7, 10-12)\n\n" +
+          "Depois, use 'Orientar com IA'.";
+
+        runtimeStatusEl.textContent = "pronto";
+      }catch(err){
+        aiOutEl.textContent =
+          "Falha ao anexar PDF.\n\n" +
+          "Possível causa: PDF muito grande para o limite do navegador (localStorage).\n\n" +
+          "Detalhe: " + (err?.message || err);
+        runtimeStatusEl.textContent = "erro";
+      }
+    });
+
+    clearPdfsBtn.addEventListener("click", () => {
+      savePdfs([]);
+      aiOutEl.textContent = "Lista de PDFs apagada.";
+    });
+
+    // ---------------------------
+    // Util
+    // ---------------------------
+    function escapeHtml(str){
+      return (str||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    /***********************
-     * EVENTOS / INIT      *
-     ***********************/
-    function init(){
-      $("endpointLabel").textContent = WORKER_BASE;
-      $("endpointFull").textContent = ENDPOINT_ASSIST;
+    // ---------------------------
+    // Init
+    // ---------------------------
+    (function init(){
+      renderSteps();
+      renderPdfs();
+      openStep(activeStep);
 
-      // Preenche select
-      renderSelect();
+      const existing = localStorage.getItem(STORE_KEY);
+      if(existing) lastSavedEl.textContent = "carregado do navegador";
 
-      // Render inicial
-      renderEditor();
+      checkHealth();
+      setInterval(checkHealth, 15000);
 
-      // Eventos
-      $("stepSelect").addEventListener("change", (e) => selectStep(e.target.value));
-
-      $("modoEvidencia").addEventListener("change", () => {
-        state.modoEvidencia = $("modoEvidencia").checked;
-        saveState(state);
-      });
-
-      $("btnSalvar").addEventListener("click", () => {
-        persistCurrentText();
-        showAlert("ok", "Salvo localmente (neste navegador).");
-      });
-
-      $("btnProxima").addEventListener("click", nextStep);
-      $("btnLimpar").addEventListener("click", clearStep);
-      $("btnIA").addEventListener("click", orientarComIA);
-      $("btnTestar").addEventListener("click", testarHealth);
-    }
-
-    init();
+      // status inicial
+      runtimeStatusEl.textContent = "pronto";
+    })();
   </script>
 </body>
 </html>
-```0
