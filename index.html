@@ -5,602 +5,514 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orientador de TCC Digital</title>
 
+  <!-- Visual: fonte moderna -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- PDF.js (leitura real de PDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
-
-  <!-- Exportar DOCX -->
+  <!-- (Opcional) Exportar DOCX -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <style>
     :root{
-      --bgA:#0b1020;
-      --bgB:#0f1736;
-
-      --card:rgba(255,255,255,.10);
-      --card2:rgba(255,255,255,.14);
-      --line:rgba(255,255,255,.16);
-
-      --text:#eef3ff;
-      --muted:#b9c6f3;
-
-      --p1:#7c5cff;  /* roxo */
-      --p2:#33d69f;  /* verde */
-      --p3:#ffd15c;  /* amarelo */
-      --p4:#4aa3ff;  /* azul */
+      --bg:#0b1020;
+      --panel:#101a33;
+      --panel2:#0e1730;
+      --card:#111c39;
+      --text:#e8eeff;
+      --muted:#9fb0da;
+      --line:rgba(255,255,255,.10);
+      --accent:#7c5cff;
+      --accent2:#33d69f;
       --danger:#ff5c7c;
-
-      --shadow:0 18px 60px rgba(0,0,0,.35);
-      --r10:10px; --r14:14px; --r18:18px; --r24:24px;
+      --warn:#ffd15c;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:22px;
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
       font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      color:var(--text);
       background:
-        radial-gradient(1100px 680px at 12% 0%, rgba(124,92,255,.35), transparent 60%),
-        radial-gradient(900px 600px at 92% 8%, rgba(51,214,159,.22), transparent 55%),
-        radial-gradient(900px 650px at 50% 95%, rgba(255,209,92,.14), transparent 55%),
-        linear-gradient(180deg, var(--bgA), var(--bgB));
+        radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.25), transparent 60%),
+        radial-gradient(900px 600px at 90% 15%, rgba(51,214,159,.18), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:18px;
+      height:100vh;
+      padding:18px;
+    }
+    .sidebar, .main{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
+    .sidebar{
+      display:flex;
+      flex-direction:column;
+      min-width:280px;
+    }
+    .main{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
 
-    /* Topbar */
-    .topbar{
-      height:66px;
+    /* Top bars */
+    .sb-top, .main-top{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:0 18px;
+      padding:16px 16px 14px;
       border-bottom:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
-      backdrop-filter: blur(12px);
+      background:rgba(255,255,255,.02);
     }
-    .brand{ display:flex; flex-direction:column; gap:3px; min-width:0; }
-    .brand .title{
-      font-weight:1000;
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
       letter-spacing:.2px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-weight:700;
     }
-    .brand .subtitle{
-      font-size:12px;
+    .brand small{
       color:var(--muted);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-size:12px;
     }
 
-    .statusChip{
-      display:flex; align-items:center; gap:10px;
-      padding:8px 12px;
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
       border:1px solid var(--line);
       border-radius:999px;
-      background:rgba(0,0,0,.22);
       color:var(--muted);
       font-size:12px;
+      background:rgba(255,255,255,.02);
       user-select:none;
-      max-width:46vw;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--warn);
+      box-shadow:0 0 0 3px rgba(255,209,92,.15);
+    }
+    .dot.ok{background:var(--accent2); box-shadow:0 0 0 3px rgba(51,214,159,.15);}
+    .dot.bad{background:var(--danger); box-shadow:0 0 0 3px rgba(255,92,124,.15);}
+
+    /* Sidebar sections */
+    .sb-body{
+      padding:14px;
+      overflow:auto;
+    }
+    .section{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:12px;
+      margin-bottom:12px;
+    }
+    .section h3{
+      margin:0 0 10px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    /* Steps */
+    .steps{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .step{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      transition:.15s ease;
+      background:rgba(255,255,255,.02);
+    }
+    .step:hover{
+      border-color:rgba(124,92,255,.35);
+      background:rgba(124,92,255,.08);
+    }
+    .step.active{
+      border-color:rgba(124,92,255,.55);
+      background:rgba(124,92,255,.14);
+    }
+    .badge{
+      width:24px;height:24px;
+      border-radius:8px;
+      background:rgba(124,92,255,.22);
+      border:1px solid rgba(124,92,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;
+      flex:0 0 auto;
+    }
+    .step .meta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .step .title{
+      font-size:13px;
+      font-weight:600;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .dot{ width:10px; height:10px; border-radius:50%; background:var(--p3); box-shadow:0 0 0 4px rgba(255,209,92,.14); }
-    .dot.ok{ background:var(--p2); box-shadow:0 0 0 4px rgba(51,214,159,.14); }
-    .dot.bad{ background:var(--danger); box-shadow:0 0 0 4px rgba(255,92,124,.14); }
-
-    /* Layout */
-    .layout{
-      height:calc(100vh - 66px);
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:14px;
-      padding:14px;
-      min-width:0;
+    .step .sub{
+      font-size:12px;
+      color:var(--muted);
     }
 
-    .panel{
-      border:1px solid var(--line);
-      border-radius:var(--r24);
-      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      min-width:0;
+    /* File upload */
+    .upload-row{
       display:flex;
-      flex-direction:column;
-    }
-
-    .panelHead{
-      display:flex;
+      gap:10px;
       align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.05);
     }
-    .panelHead h3{
-      margin:0;
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:1000;
-    }
-
-    .scroll{
-      overflow:auto;
-      padding:14px;
-    }
-
-    .card{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      border-radius:var(--r18);
-      padding:12px;
-      margin-bottom:12px;
-    }
-    .card h4{
-      margin:0 0 10px;
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:1000;
-    }
-
-    /* Buttons */
     .btn{
       appearance:none;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
       color:var(--text);
-      border-radius:14px;
       padding:10px 12px;
-      font-weight:900;
-      font-size:13px;
+      border-radius:12px;
       cursor:pointer;
+      font-weight:600;
+      font-size:13px;
       transition:.15s ease;
       display:inline-flex;
       align-items:center;
       gap:8px;
       user-select:none;
     }
-    .btn:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.26); }
-    .btn:active{ transform:translateY(0px); }
-
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.20);}
     .btn.primary{
-      border-color:rgba(124,92,255,.55);
-      background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.75));
+      background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));
+      border-color:rgba(124,92,255,.65);
     }
-    .btn.success{
-      border-color:rgba(51,214,159,.40);
-      background:linear-gradient(180deg, rgba(51,214,159,.35), rgba(51,214,159,.18));
-    }
-    .btn.info{
-      border-color:rgba(74,163,255,.45);
-      background:linear-gradient(180deg, rgba(74,163,255,.35), rgba(74,163,255,.18));
-    }
+    .btn.primary:hover{border-color:rgba(124,92,255,.85);}
     .btn.danger{
-      border-color:rgba(255,92,124,.38);
-      background:linear-gradient(180deg, rgba(255,92,124,.28), rgba(255,92,124,.12));
+      background:rgba(255,92,124,.10);
+      border-color:rgba(255,92,124,.35);
+      color:#ffdbe2;
     }
-    .btn.ghost{ background:transparent; }
-
-    .small{ padding:8px 10px; font-size:12px; border-radius:12px; }
-
-    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-
-    .hint{
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.45;
+    .btn.ghost{
+      background:transparent;
     }
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:11px;
-      padding:2px 6px;
-      border-radius:8px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.25);
-      color:var(--muted);
-    }
-
-    /* Steps */
-    .steps{ display:flex; flex-direction:column; gap:8px; }
-    .step{
-      display:flex; gap:10px; align-items:flex-start;
-      border:1px solid transparent;
-      background:rgba(255,255,255,.06);
-      padding:10px;
-      border-radius:16px;
-      cursor:pointer;
-      transition:.15s ease;
-    }
-    .step:hover{ border-color:rgba(124,92,255,.45); background:rgba(124,92,255,.14); }
-    .step.active{ border-color:rgba(124,92,255,.72); background:rgba(124,92,255,.20); }
-    .badge{
-      width:28px; height:28px; border-radius:11px;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:1000; font-size:12px;
-      flex:0 0 auto;
-      border:1px solid rgba(124,92,255,.40);
-      background:rgba(124,92,255,.25);
-    }
-    .meta{ min-width:0; }
-    .meta .t{ font-weight:1000; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .meta .s{ font-size:12px; color:var(--muted); }
-
-    /* Main top */
-    .mainTop{
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.05);
+    input[type="file"]{display:none;}
+    .files{
+      margin-top:10px;
       display:flex;
-      align-items:flex-start;
+      flex-direction:column;
+      gap:8px;
+      max-height:220px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .file{
+      display:flex;
+      align-items:center;
       justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.02);
+    }
+    .file .name{
+      font-size:12px;
+      color:var(--text);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      min-width:0;
+    }
+    .file .actions{
+      display:flex; gap:8px; flex:0 0 auto;
+    }
+    .icon{
+      width:34px;height:34px;border-radius:10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
+    }
+
+    /* Main content */
+    .main-top{
       gap:12px;
     }
-    .mainTitle{
+    .main-top .left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .main-top h2{
       margin:0;
-      font-size:18px;
-      font-weight:1000;
-      letter-spacing:.2px;
+      font-size:16px;
+      font-weight:800;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .mainDesc{
-      margin:6px 0 0;
+    .main-top .desc{
+      margin:0;
       color:var(--muted);
       font-size:12px;
-      line-height:1.45;
+    }
+    .toolbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
-    /* Toggle */
-    .toggle{
-      display:flex; align-items:center; gap:10px;
-      padding:8px 10px;
-      border-radius:999px;
+    .content{
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      gap:12px;
+      padding:14px;
+      height:100%;
+      overflow:hidden;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      min-height:0;
+    }
+
+    .card{
       border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
+      background:rgba(255,255,255,.02);
+      border-radius:var(--radius);
+      padding:12px;
+      min-width:0;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .card h3{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
+    }
+    textarea{
+      width:100%;
+      min-height:260px;
+      resize:vertical;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:12px;
+      font-size:13px;
+      line-height:1.55;
+      outline:none;
+    }
+    textarea:focus{
+      border-color:rgba(124,92,255,.55);
+      box-shadow:0 0 0 3px rgba(124,92,255,.15);
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .switch{
+      display:flex;
+      align-items:center;
+      gap:10px;
       user-select:none;
     }
-    .toggle input{
-      width:44px; height:24px;
+    .switch input{
+      width:42px;height:24px;
       appearance:none;
       border-radius:999px;
+      background:rgba(255,255,255,.08);
       border:1px solid var(--line);
-      background:rgba(255,255,255,.10);
       position:relative;
       cursor:pointer;
       outline:none;
       transition:.15s ease;
     }
-    .toggle input:checked{
-      background:rgba(51,214,159,.24);
-      border-color:rgba(51,214,159,.38);
+    .switch input:checked{
+      background:rgba(51,214,159,.25);
+      border-color:rgba(51,214,159,.35);
     }
-    .toggle input::after{
+    .switch input::after{
       content:"";
-      width:18px; height:18px;
+      width:18px;height:18px;
       border-radius:50%;
+      background:rgba(255,255,255,.85);
       position:absolute;
-      top:50%; left:4px;
+      top:50%;
+      left:4px;
       transform:translateY(-50%);
-      background:rgba(255,255,255,.92);
       transition:.15s ease;
     }
-    .toggle input:checked::after{ left:22px; }
-    .toggle span{ font-size:12px; font-weight:1000; }
-
-    /* Work area */
-    .content{
-      display:grid;
-      grid-template-rows: 1fr auto;
-      height:100%;
-      overflow:hidden;
-    }
-    .work{
-      padding:14px;
-      overflow:auto;
-    }
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      min-width:0;
-    }
-    .box{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      border-radius:var(--r18);
-      padding:12px;
-      min-width:0;
-    }
-    .box h4{
-      margin:0 0 10px;
+    .switch input:checked::after{left:20px;}
+    .switch label{
       font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:1000;
-    }
-    textarea{
-      width:100%;
-      min-height:260px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
       color:var(--text);
-      border-radius:14px;
-      padding:12px;
-      font-size:13px;
-      line-height:1.55;
-      outline:none;
-      resize:vertical;
-    }
-    textarea:focus{
-      border-color:rgba(124,92,255,.72);
-      box-shadow:0 0 0 4px rgba(124,92,255,.15);
-    }
-
-    .out{
-      white-space:pre-wrap;
-      word-break:break-word;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      border-radius:14px;
-      padding:12px;
-      min-height:210px;
-      overflow:auto;
-      font-size:12.5px;
-      line-height:1.55;
+      font-weight:600;
     }
 
     .statusbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       padding:10px 14px;
       border-top:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      background:rgba(255,255,255,.02);
       font-size:12px;
       color:var(--muted);
     }
-    .statusbar b{ color:var(--text); }
-
-    /* PDF list */
-    input[type="file"]{ display:none; }
-    .fileList{ display:flex; flex-direction:column; gap:10px; max-height:260px; overflow:auto; padding-right:4px; }
-    .fileItem{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      border-radius:14px;
-      padding:10px;
-    }
-    .fileTop{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-    }
-    .fileName{
+    .statusbar b{color:var(--text);}
+    .log{
+      white-space:pre-wrap;
+      word-break:break-word;
       font-size:12px;
-      font-weight:1000;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      min-width:0;
-    }
-    .fileMeta{ font-size:12px; color:var(--muted); margin-top:4px; }
-
-    /* Modal */
-    .modalMask{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      z-index:9999;
-    }
-    .modal{
-      width:min(920px, 96vw);
-      max-height:86vh;
-      overflow:hidden;
-      border-radius:22px;
+      line-height:1.45;
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.30));
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-    }
-    .modalHead{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
       background:rgba(0,0,0,.18);
-    }
-    .modalHead .mhTitle{
-      font-weight:1000;
-      font-size:13px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .modalBody{
-      display:grid;
-      grid-template-columns: 1fr 320px;
-      gap:12px;
+      border-radius:14px;
       padding:12px;
       overflow:auto;
-      min-height:0;
-    }
-    .viewer{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      border-radius:16px;
-      padding:10px;
-      overflow:auto;
-      min-height:420px;
-    }
-    canvas{
-      display:block;
-      margin:0 auto 12px;
-      max-width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
-    }
-    .side{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      border-radius:16px;
-      padding:10px;
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .side .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .side .field label{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-    }
-    .side input[type="number"], .side input[type="text"]{
-      width:100%;
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      outline:none;
-      font-weight:900;
-      font-size:12px;
-    }
-    .side input:focus{
-      border-color:rgba(74,163,255,.60);
-      box-shadow:0 0 0 4px rgba(74,163,255,.15);
+      min-height:260px;
     }
 
+    /* Responsive */
     @media (max-width: 980px){
-      body{ overflow:auto; }
-      .layout{ grid-template-columns:1fr; height:auto; }
-      .grid2{ grid-template-columns:1fr; }
-      .modalBody{ grid-template-columns: 1fr; }
-      .viewer{ min-height:300px; }
+      .app{grid-template-columns:1fr; height:auto;}
+      .grid{grid-template-columns:1fr;}
+      .sidebar{order:2}
+      .main{order:1; height:auto; min-height:70vh;}
     }
 
+    /* Print (Export PDF) */
     @media print{
-      body{ background:#fff; color:#000; }
-      .topbar,.panel:first-child,.mainTop,.statusbar,.btn,.toggle,.statusChip{ display:none!important; }
-      .panel{ border:none; box-shadow:none; }
-      textarea,.out{ background:#fff; border:1px solid #ddd; color:#000; }
-      .layout{ padding:0; }
-      .work{ padding:0; }
+      body{background:#fff; color:#000;}
+      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none !important;}
+      .main{border:none; box-shadow:none;}
+      .content{padding:0;}
+      .grid{grid-template-columns:1fr;}
+      textarea, .log{
+        border:1px solid #ddd;
+        background:#fff;
+        color:#000;
+        min-height:auto;
+      }
+      textarea{
+        height:auto !important;
+      }
     }
   </style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="title">Orientador de TCC Digital</div>
-      <div class="subtitle">Layout colorido + PDF real (PDF.js) + IA via Cloudflare Worker (POST /assist)</div>
-    </div>
-
-    <div class="statusChip" title="Status do backend">
-      <span id="svcDot" class="dot"></span>
-      <span>Backend: <b id="svcText">verificando…</b></span>
-      <span class="hint" style="margin-left:6px" id="endpointMini"></span>
-    </div>
-  </header>
-
-  <div class="layout">
+  <div class="app">
     <!-- SIDEBAR -->
-    <aside class="panel">
-      <div class="panelHead">
-        <h3>Etapas</h3>
-        <button class="btn ghost small" id="resetAllBtn" type="button">Reset geral</button>
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="brand">
+          <h1>Orientador de TCC Digital</h1>
+          <small>Frontend + Worker (POST /assist)</small>
+        </div>
+        <div class="pill" title="Status do serviço">
+          <span id="svcDot" class="dot"></span>
+          <span id="svcText">verificando…</span>
+        </div>
       </div>
 
-      <div class="scroll">
-        <div class="card">
-          <h4>Navegação</h4>
+      <div class="sb-body">
+        <div class="section">
+          <h3>Etapas</h3>
           <div class="steps" id="steps"></div>
-          <div class="hint" style="margin-top:10px">
-            Tudo é salvo automaticamente no seu navegador (localStorage).
-          </div>
         </div>
 
-        <div class="card">
-          <h4>Anexos (PDF) — leitura real</h4>
-          <div class="row" style="margin-bottom:10px">
-            <label class="btn success" for="pdfInput">Anexar PDF</label>
+        <div class="section">
+          <h3>Anexos (PDF)</h3>
+          <div class="upload-row">
+            <label class="btn" for="pdfInput">Anexar PDF</label>
             <input id="pdfInput" type="file" accept="application/pdf" multiple />
-            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar</button>
+            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar PDFs</button>
           </div>
-
-          <div class="row" style="margin-bottom:10px">
-            <button class="btn info small" id="openViewerBtn" type="button">Abrir Visualizador</button>
-            <button class="btn small" id="extractSelectedBtn" type="button">Extrair (selecionado)</button>
+          <div class="hint" style="margin-top:10px;">
+            Os PDFs ficam no seu navegador (local). Para usar “Modo Evidência”, você pode colar trechos relevantes no campo “Evidências”.
           </div>
-
-          <div class="hint" style="margin-bottom:10px">
-            Extração por páginas: <span class="kbd">1-3, 7, 10-12</span>. PDFs escaneados podem vir sem texto (precisa OCR).
-          </div>
-
-          <div class="fileList" id="pdfList"></div>
+          <div class="files" id="pdfList"></div>
         </div>
 
-        <div class="card">
-          <h4>Exportação</h4>
-          <div class="row">
+        <div class="section">
+          <h3>Exportação</h3>
+          <div class="upload-row" style="flex-wrap:wrap;">
             <button class="btn" id="exportPdfBtn" type="button">Exportar PDF</button>
             <button class="btn" id="exportDocxBtn" type="button">Exportar DOCX</button>
+            <button class="btn ghost" id="resetAllBtn" type="button">Reset geral</button>
           </div>
-          <div class="hint" style="margin-top:10px">
-            PDF: impressão do navegador. DOCX: Word simples da etapa atual.
-          </div>
-        </div>
-
-        <div class="card">
-          <h4>Configuração da IA</h4>
-          <div class="hint" style="margin-bottom:10px">
-            Cole o link do seu Worker (Cloudflare) para ativar a IA. Ex.: <span class="kbd">https://seu-worker.workers.dev</span>
-          </div>
-          <div class="row">
-            <input id="workerBaseInput" type="text" placeholder="https://seu-worker.workers.dev"
-              style="flex:1;min-width:200px;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font-weight:900;outline:none;">
-            <button class="btn primary small" id="saveWorkerBtn" type="button">Salvar</button>
-          </div>
-          <div class="hint" style="margin-top:10px">
-            Se aparecer <b>HTTP 405</b>, normalmente o Worker não está aceitando POST em <span class="kbd">/assist</span> ou o link está errado.
+          <div class="hint" style="margin-top:10px;">
+            Exportar PDF usa impressão do navegador (formato limpo). DOCX gera um arquivo Word simples com o texto da etapa.
           </div>
         </div>
       </div>
     </aside>
 
     <!-- MAIN -->
-    <main class="panel">
-      <div class="mainTop">
-        <div style="min-width:0">
-          <h1 class="mainTitle" id="stepTitle">—</h1>
-          <p class="mainDesc" id="stepDesc">—</p>
+    <main class="main">
+      <div class="main-top">
+        <div class="left">
+          <h2 id="stepTitle">—</h2>
+          <p class="desc" id="stepDesc">—</p>
         </div>
 
-        <div class="row" style="justify-content:flex-end">
-          <div class="toggle">
+        <div class="toolbar">
+          <div class="switch" title="Quando ativo, peça para a IA citar evidências fornecidas por você.">
             <input id="evidenceToggle" type="checkbox" />
-            <span>Modo Evidência</span>
+            <label for="evidenceToggle">Modo Evidência</label>
           </div>
           <button class="btn" id="saveBtn" type="button">Salvar</button>
           <button class="btn primary" id="askBtn" type="button">Orientar com IA</button>
@@ -609,383 +521,141 @@
       </div>
 
       <div class="content">
-        <div class="work">
-          <div class="grid2">
-            <section class="box">
-              <h4>Seu texto</h4>
-              <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa..."></textarea>
-              <div class="row" style="justify-content:space-between">
-                <div class="hint">Último salvamento: <b id="lastSaved">—</b></div>
-                <div class="hint">Progresso: <b id="progress">0%</b></div>
-              </div>
-            </section>
+        <div class="grid">
+          <section class="card">
+            <h3>Seu texto</h3>
+            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa do TCC..."></textarea>
+            <div class="row">
+              <span class="hint">Autosave ativo. Último salvamento: <b id="lastSaved">—</b></span>
+              <span class="hint">Progresso: <b id="progress">0%</b></span>
+            </div>
+          </section>
 
-            <section class="box">
-              <h4>Evidências (PDF / anotações)</h4>
-              <textarea id="evidenceText" placeholder="Cole aqui trechos extraídos do PDF e/ou suas anotações..."></textarea>
-              <div class="hint">
-                No Modo Evidência, a IA deve justificar com base neste campo.
-              </div>
-            </section>
-          </div>
-
-          <section class="box" style="margin-top:12px;">
-            <h4>Resposta da IA</h4>
-            <div id="aiOut" class="out">—</div>
+          <section class="card">
+            <h3>Evidências / Trechos de apoio</h3>
+            <textarea id="evidenceText" placeholder="Cole aqui trechos de PDFs, citações, notas, referências, dados, etc. (Opcional, mas recomendado no Modo Evidência)."></textarea>
+            <div class="hint">
+              Dica: se a IA “inventar”, ative o Modo Evidência e alimente esta área com trechos reais (copiados do PDF).
+            </div>
           </section>
         </div>
 
-        <footer class="statusbar">
-          <span>Status: <b id="runtimeStatus">pronto</b></span>
-          <span>Endpoint: <b id="endpointText">—</b></span>
-        </footer>
+        <section class="card" style="min-height:0;">
+          <h3>Resposta da IA</h3>
+          <div id="aiOut" class="log">—</div>
+        </section>
+      </div>
+
+      <div class="statusbar">
+        <span>Status: <b id="runtimeStatus">pronto</b></span>
+        <span>Endpoint: <b id="endpointLabel">/assist</b></span>
       </div>
     </main>
   </div>
 
-  <!-- MODAL VISUALIZADOR PDF -->
-  <div class="modalMask" id="modalMask" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="mhTitle" id="viewerTitle">Visualizador de PDF</div>
-        <div class="row" style="justify-content:flex-end">
-          <button class="btn small" id="prevPageBtn" type="button">◀ Página</button>
-          <button class="btn small" id="nextPageBtn" type="button">Página ▶</button>
-          <button class="btn danger small" id="closeViewerBtn" type="button">Fechar</button>
-        </div>
-      </div>
-
-      <div class="modalBody">
-        <div class="viewer" id="viewerCanvasWrap">
-          <!-- canvases são inseridos aqui -->
-        </div>
-
-        <div class="side">
-          <div class="field">
-            <label>Arquivo selecionado</label>
-            <div class="hint" id="viewerFileMeta">Nenhum</div>
-          </div>
-
-          <div class="field">
-            <label>Página atual</label>
-            <input id="pageInput" type="number" min="1" value="1" />
-          </div>
-
-          <div class="field">
-            <label>Zoom</label>
-            <input id="zoomInput" type="number" min="50" max="250" value="120" />
-            <div class="hint">Use 100–150 para leitura confortável.</div>
-          </div>
-
-          <div class="field">
-            <label>Extrair páginas (texto)</label>
-            <input id="rangeInput" type="text" placeholder="1-3, 7, 10-12" />
-            <div class="row">
-              <button class="btn info small" id="extractRangeBtn" type="button">Extrair p/ Evidências</button>
-              <button class="btn small" id="extractCurrentPageBtn" type="button">Extrair página atual</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Limites</label>
-            <div class="row">
-              <input id="maxPages" type="number" min="1" max="200" value="30" />
-              <input id="maxChars" type="number" min="5000" max="300000" value="60000" />
-            </div>
-            <div class="hint">Máx. páginas / Máx. caracteres.</div>
-          </div>
-
-          <div class="hint">
-            Observação: PDF escaneado pode não ter texto extraível (vai aparecer “Sem texto extraível”).
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    /*****************************************************************
-     * 1) CONFIGURAÇÃO DO WORKER (IA)
-     * - Este site roda no GitHub Pages e NÃO pode receber POST /assist.
-     * - Portanto, a IA deve ser chamada no Worker Cloudflare.
-     * - Você pode configurar aqui ou pelo campo "Configuração da IA".
-     *****************************************************************/
-    const STORE_WORKER = "orientador_worker_base_v1";
-    const DEFAULT_WORKER_BASE = ""; // pode deixar vazio; o usuário configura pela UI
-
-    /*****************************************************************
-     * 2) PDF.js worker
-     *****************************************************************/
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
-    }
-
-    /*****************************************************************
-     * 3) Etapas
-     *****************************************************************/
+    // ---------------------------
+    // Configuração de etapas
+    // ---------------------------
     const STEPS = [
-      { id:"tema",         title:"Tema / Introdução",        desc:"Delimite o tema e contextualize o problema." },
-      { id:"problema",     title:"Problema de Pesquisa",     desc:"Formule a pergunta central e o recorte." },
-      { id:"objetivos",    title:"Objetivos",                desc:"Geral e específicos (com verbos no infinitivo)." },
-      { id:"justificativa",title:"Justificativa",            desc:"Relevância acadêmica e social; por que vale pesquisar." },
-      { id:"referencial",  title:"Referencial Teórico",      desc:"Base conceitual (autores, conceitos, categorias)." },
-      { id:"metodologia",  title:"Metodologia",              desc:"Abordagem, tipo de pesquisa, técnicas e instrumentos." },
-      { id:"cronograma",   title:"Cronograma",               desc:"Planejamento por etapas e prazos." },
-      { id:"elementos",    title:"Elementos Pré-textuais",   desc:"Resumo, palavras-chave, abstract, etc." },
-      { id:"referencias",  title:"Referências",              desc:"Lista final em padrão exigido." }
+      { id: "tema", title: "Tema / Introdução", desc: "Delimite o tema e contextualize o problema." },
+      { id: "problema", title: "Problema de Pesquisa", desc: "Formule a pergunta central e o recorte." },
+      { id: "objetivos", title: "Objetivos", desc: "Geral e específicos (com verbos no infinitivo)." },
+      { id: "justificativa", title: "Justificativa", desc: "Relevância acadêmica e social; por que vale pesquisar." },
+      { id: "referencial", title: "Referencial Teórico", desc: "Base conceitual (autores, conceitos, categorias)." },
+      { id: "metodologia", title: "Metodologia", desc: "Abordagem, tipo de pesquisa, técnicas e instrumentos." },
+      { id: "cronograma", title: "Cronograma", desc: "Planejamento por etapas e prazos." },
+      { id: "elementos", title: "Elementos Pré-textuais", desc: "Resumo, palavras-chave, abstract, etc." },
+      { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido pela instituição/revista." }
     ];
 
-    /*****************************************************************
-     * 4) Storage keys
-     *****************************************************************/
-    const STORE_KEY         = "orientador_tcc_store_v1";
-    const STORE_ACTIVE      = "orientador_tcc_active_v1";
-    const STORE_EVID        = "orientador_tcc_evid_v1";
-    const STORE_EVID_TOGGLE = "orientador_tcc_evid_toggle_v1";
-    const STORE_PDFS        = "orientador_tcc_pdfs_v1"; // {id,name,size,dataUrl,pages,lastExtract,extractedText}
+    // ---------------------------
+    // Storage keys
+    // ---------------------------
+    const STORE_KEY = "orientador_tcc_v2";
+    const STORE_PDFS = "orientador_pdfs_v2";
+    const STORE_ACTIVE = "orientador_active_step_v2";
+    const STORE_EVID = "orientador_evidence_v2";
+    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v2";
 
-    /*****************************************************************
-     * Helpers
-     *****************************************************************/
-    const $ = (id) => document.getElementById(id);
+    // ---------------------------
+    // DOM
+    // ---------------------------
+    const stepsEl = document.getElementById("steps");
+    const stepTitleEl = document.getElementById("stepTitle");
+    const stepDescEl = document.getElementById("stepDesc");
+    const userTextEl = document.getElementById("userText");
+    const evidenceTextEl = document.getElementById("evidenceText");
+    const aiOutEl = document.getElementById("aiOut");
+    const lastSavedEl = document.getElementById("lastSaved");
+    const progressEl = document.getElementById("progress");
 
-    function escapeHtml(str){
-      return (str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function clampInt(v, min, max, fallback){
-      const n = parseInt(v,10);
-      if(Number.isNaN(n)) return fallback;
-      return Math.max(min, Math.min(max, n));
-    }
-    function prettyBytes(bytes){
-      const units = ["B","KB","MB","GB"];
-      let i=0, n=bytes||0;
-      while(n>=1024 && i<units.length-1){ n/=1024; i++; }
-      return `${n.toFixed(i===0?0:1)} ${units[i]}`;
-    }
-    function normalizeBase(v){
-      const s = (v||"").trim();
-      if(!s) return "";
-      return s.replace(/\/+$/,"");
-    }
-    function parseRanges(input, max){
-      const clean = (input||"").trim();
-      if(!clean) return null;
-      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
-      const pages = new Set();
-      for(const part of parts){
-        const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
-        if(m){
-          let a = parseInt(m[1],10);
-          let b = parseInt(m[2],10);
-          if(Number.isNaN(a)||Number.isNaN(b)) continue;
-          if(a>b) [a,b]=[b,a];
-          a = Math.max(1,a); b = Math.min(max,b);
-          for(let p=a;p<=b;p++) pages.add(p-1);
-        }else{
-          const n = parseInt(part,10);
-          if(!Number.isNaN(n) && n>=1 && n<=max) pages.add(n-1);
-        }
-      }
-      return Array.from(pages).sort((x,y)=>x-y);
-    }
+    const pdfInputEl = document.getElementById("pdfInput");
+    const pdfListEl = document.getElementById("pdfList");
+    const clearPdfsBtn = document.getElementById("clearPdfsBtn");
 
-    function loadJson(key, fallback){
-      try{
-        const v = localStorage.getItem(key);
-        if(!v) return fallback;
-        return JSON.parse(v);
-      }catch{
-        return fallback;
-      }
-    }
-    function saveJson(key, value){
-      localStorage.setItem(key, JSON.stringify(value));
-    }
+    const saveBtn = document.getElementById("saveBtn");
+    const askBtn = document.getElementById("askBtn");
+    const clearStepBtn = document.getElementById("clearStepBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const exportPdfBtn = document.getElementById("exportPdfBtn");
+    const exportDocxBtn = document.getElementById("exportDocxBtn");
 
-    /*****************************************************************
-     * DOM refs
-     *****************************************************************/
-    const svcDot = $("svcDot");
-    const svcText = $("svcText");
-    const endpointMini = $("endpointMini");
-    const endpointText = $("endpointText");
-    const runtimeStatus = $("runtimeStatus");
+    const evidenceToggleEl = document.getElementById("evidenceToggle");
+    const runtimeStatusEl = document.getElementById("runtimeStatus");
+    const svcDot = document.getElementById("svcDot");
+    const svcText = document.getElementById("svcText");
 
-    const stepsEl = $("steps");
-    const stepTitle = $("stepTitle");
-    const stepDesc = $("stepDesc");
-    const userText = $("userText");
-    const evidenceText = $("evidenceText");
-    const aiOut = $("aiOut");
-
-    const lastSaved = $("lastSaved");
-    const progress = $("progress");
-
-    const evidenceToggle = $("evidenceToggle");
-    const saveBtn = $("saveBtn");
-    const askBtn = $("askBtn");
-    const clearStepBtn = $("clearStepBtn");
-    const resetAllBtn = $("resetAllBtn");
-
-    const pdfInput = $("pdfInput");
-    const pdfList = $("pdfList");
-    const clearPdfsBtn = $("clearPdfsBtn");
-
-    const exportPdfBtn = $("exportPdfBtn");
-    const exportDocxBtn = $("exportDocxBtn");
-
-    const workerBaseInput = $("workerBaseInput");
-    const saveWorkerBtn = $("saveWorkerBtn");
-
-    const openViewerBtn = $("openViewerBtn");
-    const extractSelectedBtn = $("extractSelectedBtn");
-
-    /* Viewer modal */
-    const modalMask = $("modalMask");
-    const viewerTitle = const viewerTitle = $("viewerTitle");
-    const viewerFileMeta = $("viewerFileMeta");
-    const viewerCanvasWrap = $("viewerCanvasWrap");
-    const prevPageBtn = $("prevPageBtn");
-    const nextPageBtn = $("nextPageBtn");
-    const closeViewerBtn = $("closeViewerBtn");
-    const pageInput = $("pageInput");
-    const zoomInput = $("zoomInput");
-    const rangeInput = $("rangeInput");
-    const extractRangeBtn = $("extractRangeBtn");
-    const extractCurrentPageBtn = $("extractCurrentPageBtn");
-
-    const maxPagesInput = $("maxPages");
-    const maxCharsInput = $("maxChars");
-
-    /*****************************************************************
-     * Estado global
-     *****************************************************************/
+    // ---------------------------
+    // Estado
+    // ---------------------------
     let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
 
-    // PDFs
-    let selectedPdfId = null;
-
-    // Viewer (pdf.js)
-    let viewerPdf = null;       // pdfjs document
-    let viewerPdfMeta = null;   // item do STORE_PDFS
-    let viewerTotalPages = 0;
-    let viewerCurrentPage = 1;
-
-    /*****************************************************************
-     * Worker endpoints (dinâmico via localStorage)
-     *****************************************************************/
-    function getWorkerBase(){
-      const saved = normalizeBase(localStorage.getItem(STORE_WORKER) || "");
-      if(saved) return saved;
-      return normalizeBase(DEFAULT_WORKER_BASE);
+    function loadStore(){
+      try {
+        return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+    function saveStore(data){
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      lastSavedEl.textContent = new Date().toLocaleString();
+      updateProgress();
     }
 
-    function getEndpoints(){
-      const base = getWorkerBase();
-      if(!base) return { base:"", assist:"", health:"" };
-      return {
-        base,
-        assist: base + "/assist",
-        health: base + "/health"
-      };
+    function loadPdfs(){
+      try { return JSON.parse(localStorage.getItem(STORE_PDFS) || "[]"); } catch { return []; }
+    }
+    function savePdfs(list){
+      localStorage.setItem(STORE_PDFS, JSON.stringify(list));
+      renderPdfs();
     }
 
-    function setSvc(type, text){
+    function setStatus(type, text){
+      runtimeStatusEl.textContent = text;
       svcText.textContent = text;
       svcDot.classList.remove("ok","bad");
       if(type === "ok") svcDot.classList.add("ok");
       if(type === "bad") svcDot.classList.add("bad");
     }
 
-    async function checkHealth(){
-      const ep = getEndpoints();
-      if(!ep.base){
-        setSvc("bad","sem Worker");
-        endpointMini.textContent = "(configure o Worker)";
-        endpointText.textContent = "—";
-        return;
-      }
-      endpointMini.textContent = ep.base;
-      endpointText.textContent = ep.assist;
-
-      try{
-        const r = await fetch(ep.health, { method:"GET" });
-        const j = await r.json().catch(()=> ({}));
-        if(r.ok && (j.ok === true || j.status === "ok")) setSvc("ok","online");
-        else setSvc("bad","offline");
-      }catch{
-        setSvc("bad","offline");
-      }
-    }
-
-    /*****************************************************************
-     * Store (texto)
-     *****************************************************************/
-    function loadStore(){
-      return loadJson(STORE_KEY, {});
-    }
-    function saveStore(data){
-      saveJson(STORE_KEY, data);
-      lastSaved.textContent = new Date().toLocaleString();
-      updateProgress();
-      renderSteps();
-    }
-
-    function updateProgress(){
-      const store = loadStore();
-      const total = STEPS.length;
-      let done = 0;
-      for(const s of STEPS){
-        if((store[s.id] || "").trim().length > 0) done++;
-      }
-      progress.textContent = `${Math.round((done/total)*100)}%`;
-    }
-
-    function openStep(stepId){
-      const s = STEPS.find(x => x.id === stepId) || STEPS[0];
-      const store = loadStore();
-
-      stepTitle.textContent = s.title;
-      stepDesc.textContent = s.desc;
-
-      userText.value = store[stepId] || "";
-      evidenceText.value = localStorage.getItem(STORE_EVID) || "";
-      evidenceToggle.checked = (localStorage.getItem(STORE_EVID_TOGGLE) === "true");
-      aiOut.textContent = "—";
-    }
-
-    function saveCurrent(){
-      const store = loadStore();
-      store[activeStep] = userText.value || "";
-      saveStore(store);
-
-      localStorage.setItem(STORE_EVID, evidenceText.value || "");
-      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggle.checked ? "true" : "false");
-    }
-
-    /*****************************************************************
-     * Steps UI
-     *****************************************************************/
+    // ---------------------------
+    // Render steps
+    // ---------------------------
     function renderSteps(){
-      const store = loadStore();
       stepsEl.innerHTML = "";
+      const store = loadStore();
 
       STEPS.forEach((s, idx) => {
-        const filled = ((store[s.id] || "").trim().length > 0);
+        const filled = (store[s.id] || "").trim().length > 0;
         const el = document.createElement("div");
         el.className = "step" + (s.id === activeStep ? " active" : "");
         el.innerHTML = `
           <div class="badge">${idx+1}</div>
           <div class="meta">
-            <div class="t">${escapeHtml(s.title)}</div>
-            <div class="s">${filled ? "Preenchida" : "Vazia"}</div>
+            <div class="title">${s.title}</div>
+            <div class="sub">${filled ? "Preenchida" : "Vazia"}</div>
           </div>
         `;
         el.addEventListener("click", () => {
@@ -996,708 +666,295 @@
         });
         stepsEl.appendChild(el);
       });
-
       updateProgress();
     }
 
-    /*****************************************************************
-     * Autosave
-     *****************************************************************/
+    function openStep(stepId){
+      const s = STEPS.find(x => x.id === stepId) || STEPS[0];
+      const store = loadStore();
+
+      stepTitleEl.textContent = s.title;
+      stepDescEl.textContent = s.desc;
+
+      userTextEl.value = store[stepId] || "";
+      evidenceTextEl.value = localStorage.getItem(STORE_EVID) || "";
+      evidenceToggleEl.checked = (localStorage.getItem(STORE_EVID_TOGGLE) === "true");
+
+      aiOutEl.textContent = "—";
+    }
+
+    function updateProgress(){
+      const store = loadStore();
+      const total = STEPS.length;
+      let done = 0;
+      for(const s of STEPS){
+        if((store[s.id] || "").trim().length > 0) done++;
+      }
+      const pct = Math.round((done/total)*100);
+      progressEl.textContent = `${pct}%`;
+    }
+
+    // ---------------------------
+    // PDF management (metadata only)
+    // ---------------------------
+    function renderPdfs(){
+      const list = loadPdfs();
+      pdfListEl.innerHTML = "";
+      if(list.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "hint";
+        empty.textContent = "Nenhum PDF anexado ainda.";
+        pdfListEl.appendChild(empty);
+        return;
+      }
+
+      for(const item of list){
+        const row = document.createElement("div");
+        row.className = "file";
+        row.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div class="icon">PDF</div>
+            <div class="name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn danger" data-id="${item.id}" type="button">Remover</button>
+          </div>
+        `;
+        row.querySelector("button").addEventListener("click", () => {
+          const updated = loadPdfs().filter(x => x.id !== item.id);
+          savePdfs(updated);
+        });
+        pdfListEl.appendChild(row);
+      }
+    }
+
+    function escapeHtml(str){
+      return (str||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+                      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    pdfInputEl.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if(files.length === 0) return;
+
+      // Guardamos apenas metadados (nome, tamanho) no localStorage.
+      // Se quiser leitura real de PDF no navegador (pdf.js + extração), eu implemento na próxima versão.
+      const list = loadPdfs();
+      for(const f of files){
+        list.push({
+          id: crypto.randomUUID(),
+          name: f.name,
+          size: f.size,
+          addedAt: Date.now()
+        });
+      }
+      savePdfs(list);
+      pdfInputEl.value = "";
+    });
+
+    clearPdfsBtn.addEventListener("click", () => {
+      savePdfs([]);
+    });
+
+    // ---------------------------
+    // Save / autosave
+    // ---------------------------
+    function saveCurrentStep(){
+      const store = loadStore();
+      store[activeStep] = userTextEl.value;
+      saveStore(store);
+
+      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
+
+      renderSteps();
+    }
+
     let autosaveTimer = null;
     function scheduleAutosave(){
       if(autosaveTimer) clearTimeout(autosaveTimer);
-      autosaveTimer = setTimeout(saveCurrent, 600);
+      autosaveTimer = setTimeout(saveCurrentStep, 600);
     }
-    userText.addEventListener("input", scheduleAutosave);
-    evidenceText.addEventListener("input", () => localStorage.setItem(STORE_EVID, evidenceText.value || ""));
-    evidenceToggle.addEventListener("change", () => localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggle.checked ? "true" : "false"));
 
-    saveBtn.addEventListener("click", saveCurrent);
+    userTextEl.addEventListener("input", scheduleAutosave);
+    evidenceTextEl.addEventListener("input", () => {
+      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+    });
+    evidenceToggleEl.addEventListener("change", () => {
+      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
+    });
+
+    saveBtn.addEventListener("click", saveCurrentStep);
 
     clearStepBtn.addEventListener("click", () => {
-      userText.value = "";
-      saveCurrent();
-      aiOut.textContent = "—";
+      userTextEl.value = "";
+      saveCurrentStep();
+      aiOutEl.textContent = "—";
     });
 
     resetAllBtn.addEventListener("click", () => {
       localStorage.removeItem(STORE_KEY);
-      localStorage.removeItem(STORE_ACTIVE);
+      localStorage.removeItem(STORE_PDFS);
       localStorage.removeItem(STORE_EVID);
       localStorage.removeItem(STORE_EVID_TOGGLE);
-      localStorage.removeItem(STORE_PDFS);
-      // NÃO apaga o worker salvo (para não “quebrar” de novo)
-      // localStorage.removeItem(STORE_WORKER);
-
+      localStorage.removeItem(STORE_ACTIVE);
       activeStep = STEPS[0].id;
       localStorage.setItem(STORE_ACTIVE, activeStep);
-
+      renderPdfs();
       renderSteps();
       openStep(activeStep);
-      renderPdfs();
-
-      lastSaved.textContent = "—";
-      aiOut.textContent = "—";
-      runtimeStatus.textContent = "pronto";
+      lastSavedEl.textContent = "—";
+      aiOutEl.textContent = "—";
     });
 
-    /*****************************************************************
-     * PDF store
-     *****************************************************************/
-    function loadPdfs(){
-      return loadJson(STORE_PDFS, []);
-    }
-    function savePdfs(list){
-      saveJson(STORE_PDFS, list);
-      renderPdfs();
-    }
-
-    async function fileToDataUrl(file){
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function getPdfNumPages(dataUrl){
-      const base64 = (dataUrl.split(",")[1] || "");
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
-      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-      return pdf.numPages;
-    }
-
-    async function extractPdfText(pdfItem, opts){
-      const { maxPages, maxChars, pageIndices } = opts;
-
-      const base64 = (pdfItem.dataUrl.split(",")[1] || "");
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
-
-      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-      const totalPages = pdf.numPages;
-
-      const hardLimit = Math.min(totalPages, maxPages);
-      let indices = pageIndices;
-
-      if(!indices){
-        indices = Array.from({length: hardLimit}, (_,i)=>i);
-      }else{
-        indices = indices.filter(i => i>=0 && i<totalPages);
-        if(indices.length > hardLimit) indices = indices.slice(0, hardLimit);
-      }
-
-      let out = `=== PDF: ${pdfItem.name} ===\n`;
-      out += `Páginas no arquivo: ${totalPages}. Extraindo: ${indices.length} página(s).\n\n`;
-
-      let used = out.length;
-
-      for(const idx of indices){
-        const pageNo = idx + 1;
-        const page = await pdf.getPage(pageNo);
-        const tc = await page.getTextContent();
-        const pageText = tc.items.map(it => (it.str || "")).join(" ").replace(/\s+/g," ").trim();
-
-        const block = pageText
-          ? `--- Página ${pageNo} ---\n${pageText}\n\n`
-          : `--- Página ${pageNo} ---\n[Sem texto extraível nesta página]\n\n`;
-
-        if(used + block.length > maxChars){
-          out += `\n[Limite de caracteres atingido (${maxChars}). Interrompendo extração.]\n`;
-          break;
-        }
-        out += block;
-        used += block.length;
-      }
-
-      return { totalPages, extractedPages: indices.length, text: out };
-    }
-
-    /*****************************************************************
-     * PDF list UI (seleção + ações)
-     *****************************************************************/
-    function renderPdfs(){
-      const list = loadPdfs();
-      pdfList.innerHTML = "";
-
-      if(list.length === 0){
-        const d = document.createElement("div");
-        d.className = "hint";
-        d.textContent = "Nenhum PDF anexado ainda.";
-        pdfList.appendChild(d);
-        selectedPdfId = null;
-        return;
-      }
-
-      if(!selectedPdfId || !list.find(x => x.id === selectedPdfId)){
-        selectedPdfId = list[0].id;
-      }
-
-      for(const item of list){
-        const isSel = (item.id === selectedPdfId);
-        const meta = [];
-        meta.push(prettyBytes(item.size || 0));
-        if(item.pages) meta.push(`${item.pages} pág.`);
-        if(item.lastExtract) meta.push(`extraído: ${new Date(item.lastExtract).toLocaleString()}`);
-
-        const el = document.createElement("div");
-        el.className = "fileItem";
-        el.style.outline = isSel ? "2px solid rgba(74,163,255,.55)" : "none";
-        el.style.boxShadow = isSel ? "0 0 0 4px rgba(74,163,255,.12)" : "none";
-
-        el.innerHTML = `
-          <div class="fileTop">
-            <div style="min-width:0;flex:1">
-              <div class="fileName" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
-              <div class="fileMeta">${escapeHtml(meta.join(" • "))}</div>
-            </div>
-            <button class="btn danger small" data-act="remove">Remover</button>
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn small" data-act="select">${isSel ? "Selecionado" : "Selecionar"}</button>
-            <button class="btn small" data-act="previewText">Ver extração</button>
-          </div>
-        `;
-
-        el.querySelector('[data-act="remove"]').addEventListener("click", () => {
-          const updated = loadPdfs().filter(x => x.id !== item.id);
-          savePdfs(updated);
-        });
-
-        el.querySelector('[data-act="select"]').addEventListener("click", () => {
-          selectedPdfId = item.id;
-          renderPdfs();
-        });
-
-        el.querySelector('[data-act="previewText"]').addEventListener("click", () => {
-          const now = loadPdfs().find(x => x.id === item.id);
-          aiOut.textContent = (now && now.extractedText) ? now.extractedText : "Ainda não há texto extraído deste PDF.";
-        });
-
-        pdfList.appendChild(el);
-      }
-    }
-
-    clearPdfsBtn.addEventListener("click", () => {
-      savePdfs([]);
-      aiOut.textContent = "—";
-    });
-
-    pdfInput.addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files || []);
-      if(files.length === 0) return;
-
-      runtimeStatus.textContent = "anexando PDFs…";
+    // ---------------------------
+    // Health check
+    // ---------------------------
+    async function checkHealth(){
       try{
-        const list = loadPdfs();
-        for(const f of files){
-          const dataUrl = await fileToDataUrl(f);
-          const id = "pdf_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-          const item = { id, name: f.name, size: f.size, dataUrl, pages: null, lastExtract: null, extractedText: "" };
-          list.unshift(item);
+        const r = await fetch("/health", { method:"GET" });
+        const j = await r.json().catch(() => ({}));
+        if(r.ok && j.ok){
+          setStatus("ok","online");
+        }else{
+          setStatus("bad","offline");
         }
-        savePdfs(list);
-
-        // Preenche pages async (melhora a UX)
-        const newList = loadPdfs();
-        for(const item of newList){
-          if(item.pages == null){
-            try{
-              item.pages = await getPdfNumPages(item.dataUrl);
-            }catch{
-              item.pages = null;
-            }
-          }
-        }
-        savePdfs(newList);
-
-      }finally{
-        runtimeStatus.textContent = "pronto";
-        pdfInput.value = "";
+      }catch{
+        setStatus("bad","offline");
       }
-    });
+    }
 
-    /*****************************************************************
-     * Extração (botão na sidebar)
-     *****************************************************************/
-    async function extractSelected(rangeStr){
-      const list = loadPdfs();
-      const item = list.find(x => x.id === selectedPdfId);
-      if(!item){
-        aiOut.textContent = "Selecione um PDF primeiro.";
+    // ---------------------------
+    // Call IA (POST /assist)
+    // ---------------------------
+    async function callAssist(){
+      saveCurrentStep();
+
+      const stepInfo = STEPS.find(s => s.id === activeStep);
+      const evidenceMode = evidenceToggleEl.checked;
+
+      const userText = userTextEl.value.trim();
+      const evid = (evidenceTextEl.value || "").trim();
+
+      if(!userText){
+        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
         return;
       }
 
-      const maxPages = clampInt(maxPagesInput.value, 1, 200, 30);
-      const maxChars = clampInt(maxCharsInput.value, 5000, 300000, 60000);
+      runtimeStatusEl.textContent = "consultando IA…";
+      aiOutEl.textContent = "Gerando orientação…";
 
-      runtimeStatus.textContent = "extraindo PDF…";
-      aiOut.textContent = "Extraindo texto do PDF…";
-
-      try{
-        let pageIndices = null;
-        if(rangeStr){
-          const total = item.pages || await getPdfNumPages(item.dataUrl);
-          pageIndices = parseRanges(rangeStr, total);
-          if(!pageIndices || pageIndices.length === 0){
-            aiOut.textContent = "Faixa inválida. Use: 1-3, 7, 10-12";
-            return;
-          }
-        }
-
-        const res = await extractPdfText(item, { maxPages, maxChars, pageIndices });
-
-        // atualiza metadata/cache
-        const updated = loadPdfs().map(x => {
-          if(x.id !== item.id) return x;
-          return {
-            ...x,
-            pages: res.totalPages,
-            lastExtract: Date.now(),
-            extractedText: res.text
-          };
-        });
-        savePdfs(updated);
-
-        // joga no campo evidências (append)
-        const sep = evidenceText.value.trim() ? "\n\n" : "";
-        evidenceText.value = (evidenceText.value || "") + sep + res.text;
-        localStorage.setItem(STORE_EVID, evidenceText.value || "");
-
-        aiOut.textContent = "Extração concluída e adicionada em Evidências.";
-      }catch(err){
-        aiOut.textContent = "Falha ao extrair PDF: " + (err && err.message ? err.message : String(err));
-      }finally{
-        runtimeStatus.textContent = "pronto";
-      }
-    }
-
-    extractSelectedBtn.addEventListener("click", async () => {
-      await extractSelected(""); // extrai “tudo” (limitado)
-    });
-
-    /*****************************************************************
-     * Viewer modal (renderização real do PDF)
-     *****************************************************************/
-    function openModal(){
-      modalMask.style.display = "flex";
-      document.body.style.overflow = "hidden";
-    }
-    function closeModal(){
-      modalMask.style.display = "none";
-      document.body.style.overflow = "";
-      viewerCanvasWrap.innerHTML = "";
-      viewerPdf = null;
-      viewerPdfMeta = null;
-      viewerTotalPages = 0;
-      viewerCurrentPage = 1;
-    }
-
-    closeViewerBtn.addEventListener("click", closeModal);
-    modalMask.addEventListener("click", (e) => {
-      if(e.target === modalMask) closeModal();
-    });
-
-    openViewerBtn.addEventListener("click", async () => {
-      const list = loadPdfs();
-      const item = list.find(x => x.id === selectedPdfId);
-      if(!item){
-        aiOut.textContent = "Anexe e selecione um PDF primeiro.";
-        return;
-      }
-      await loadPdfInViewer(item.id);
-      openModal();
-    });
-
-    async function loadPdfInViewer(pdfId){
-      const list = loadPdfs();
-      const item = list.find(x => x.id === pdfId);
-      if(!item) return;
-
-      viewerPdfMeta = item;
-      viewerTitle.textContent = "Visualizador de PDF";
-      viewerFileMeta.textContent = `${item.name} • ${prettyBytes(item.size||0)} • ${(item.pages||"?")} pág.`;
-      viewerCanvasWrap.innerHTML = "";
-
-      runtimeStatus.textContent = "carregando PDF…";
-      try{
-        const base64 = (item.dataUrl.split(",")[1] || "");
-        const raw = atob(base64);
-        const bytes = new Uint8Array(raw.length);
-        for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
-
-        viewerPdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-        viewerTotalPages = viewerPdf.numPages;
-
-        pageInput.min = "1";
-        pageInput.max = String(viewerTotalPages);
-        viewerCurrentPage = clampInt(pageInput.value, 1, viewerTotalPages, 1);
-
-        await renderViewerPage(viewerCurrentPage);
-      }catch(err){
-        aiOut.textContent = "Falha ao abrir PDF no visualizador: " + (err && err.message ? err.message : String(err));
-      }finally{
-        runtimeStatus.textContent = "pronto";
-      }
-    }
-
-    async function renderViewerPage(pageNo){
-      if(!viewerPdf) return;
-      viewerCurrentPage = clampInt(pageNo, 1, viewerTotalPages, 1);
-      pageInput.value = String(viewerCurrentPage);
-
-      const zoomPct = clampInt(zoomInput.value, 50, 250, 120);
-      const scale = zoomPct / 100;
-
-      viewerCanvasWrap.innerHTML = "";
-      const page = await viewerPdf.getPage(viewerCurrentPage);
-      const viewport = page.getViewport({ scale });
-
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d", { alpha:false });
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      viewerCanvasWrap.appendChild(canvas);
-
-      await page.render({ canvasContext: ctx, viewport }).promise;
-
-      viewerTitle.textContent = `Visualizador de PDF — Página ${viewerCurrentPage}/${viewerTotalPages}`;
-    }
-
-    prevPageBtn.addEventListener("click", async () => {
-      if(!viewerPdf) return;
-      await renderViewerPage(viewerCurrentPage - 1);
-    });
-    nextPageBtn.addEventListener("click", async () => {
-      if(!viewerPdf) return;
-      await renderViewerPage(viewerCurrentPage + 1);
-    });
-
-    pageInput.addEventListener("change", async () => {
-      if(!viewerPdf) return;
-      await renderViewerPage(clampInt(pageInput.value, 1, viewerTotalPages, 1));
-    });
-    zoomInput.addEventListener("change", async () => {
-      if(!viewerPdf) return;
-      await renderViewerPage(viewerCurrentPage);
-    });
-
-    extractCurrentPageBtn.addEventListener("click", async () => {
-      if(!viewerPdfMeta) return;
-      await extractSelected(String(viewerCurrentPage));
-    });
-
-    extractRangeBtn.addEventListener("click", async () => {
-      const v = (rangeInput.value || "").trim();
-      if(!v){
-        aiOut.textContent = "Digite um intervalo. Ex.: 1-3, 7, 10-12";
-        return;
-      }
-      await extractSelected(v);
-    });
-
-    /*****************************************************************
-     * IA: chamada no Worker (/assist)
-     *****************************************************************/
-    function buildPrompt(){
-      const step = STEPS.find(s => s.id === activeStep) || STEPS[0];
-      const user = (userText.value || "").trim();
-      const evid = (evidenceText.value || "").trim();
-      const evidOn = evidenceToggle.checked;
-
-      let prompt = `Você é um orientador acadêmico. Etapa: ${step.title}.\n\n`;
-      prompt += `Descrição da etapa: ${step.desc}\n\n`;
-      prompt += `Texto do aluno:\n${user || "[vazio]"}\n\n`;
-
-      if(evidOn){
-        prompt += `Modo Evidência: ATIVO.\n`;
-        prompt += `Use SOMENTE as evidências abaixo para justificar sugestões e evite inventar.\n\n`;
-        prompt += `Evidências:\n${evid || "[sem evidências]"}\n\n`;
-      }else{
-        if(evid){
-          prompt += `Evidências disponíveis (opcional):\n${evid}\n\n`;
-        }
-      }
-
-      prompt += `Tarefas:\n`;
-      prompt += `1) Aponte melhorias objetivas e reescreva um trecho exemplo.\n`;
-      prompt += `2) Sugira estrutura/tópicos para esta etapa.\n`;
-      prompt += `3) Liste 5 palavras-chave adequadas.\n`;
-
-      return prompt;
-    }
-
-    async function callAssist(prompt){
-      const ep = getEndpoints();
-      if(!ep.base){
-        throw new Error("Worker não configurado. Cole o link do Worker em “Configuração da IA”.");
-        }
+      // Prompt de controle (não “robótico”, mas bem guiado)
+      const systemGuide =
+`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
+Entregue uma orientação clara, didática, sem linguagem robótica.
+Regras:
+- Não invente referências.
+- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e diga onde foram usados.
+- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
+- Linguagem em português do Brasil.
+`;
 
       const payload = {
-        prompt,
-        // você pode adicionar outros campos se seu Worker esperar
-        // ex: step: activeStep, evidenceMode: evidenceToggle.checked
+        stepId: activeStep,
+        stepTitle: stepInfo.title,
+        evidenceMode,
+        text: userText,
+        evidences: evid,
+        guide: systemGuide
       };
 
-      // Se seu Worker exigir um "x-api-key" ou algo similar, ajuste aqui.
-      // Para a maioria dos Workers simples, NÃO precisa header de API key no frontend.
-      const r = await fetch(ep.assist, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      try{
+        const res = await fetch("/assist", {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
 
-      // Se o Worker retornar erro, tenta ler texto para mostrar no UI
-      if (!r.ok) {
-        const t = await r.text().catch(() => "");
-        throw new Error(`Falha ao chamar /assist (HTTP ${r.status}). ${t ? "Resposta: " + t : ""}`);
-      }
+        const data = await res.json().catch(() => ({}));
 
-      // Espera JSON padrão { ok: true, answer: "..." } ou { answer: "..." }
-      const data = await r.json().catch(() => ({}));
-      return data;
-    }
-
-    askBtn.addEventListener("click", async () => {
-      runtimeStatus.textContent = "chamando IA…";
-      aiOut.textContent = "Consultando a IA…";
-
-      try {
-        saveCurrent(); // garante que o texto não se perde
-        const prompt = buildPrompt();
-        const data = await callAssist(prompt);
-
-        // tenta encontrar o campo de resposta de forma robusta
-        const answer =
-          data.answer ||
-          data.output ||
-          data.response ||
-          data.text ||
-          (typeof data === "string" ? data : "");
-
-        if (!answer) {
-          aiOut.textContent = "A IA respondeu, mas não veio texto de resposta. Verifique o formato do JSON retornado pelo Worker.";
-        } else {
-          aiOut.textContent = answer;
+        if(!res.ok){
+          const msg = data?.error || `Erro HTTP ${res.status}`;
+          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
+          runtimeStatusEl.textContent = "erro";
+          return;
         }
 
-        runtimeStatus.textContent = "pronto";
-      } catch (err) {
-        runtimeStatus.textContent = "erro";
-        aiOut.textContent =
-          "Erro: " + (err && err.message ? err.message : String(err)) +
-          "\n\nDica: verifique se o Worker aceita POST em /assist e se está retornando JSON.";
-      }
-    });
-
-    /*****************************************************************
-     * Configuração do Worker pela UI
-     *****************************************************************/
-    function refreshWorkerUi(){
-      const base = getWorkerBase();
-      workerBaseInput.value = base || "";
-      const ep = getEndpoints();
-
-      if(ep.base){
-        endpointMini.textContent = ep.base;
-        endpointText.textContent = ep.assist;
-      }else{
-        endpointMini.textContent = "(configure o Worker)";
-        endpointText.textContent = "—";
+        // Aceita formatos diferentes do backend (data.text / data.output / data.answer)
+        const out = data.text || data.output || data.answer || data.result || "";
+        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
+        runtimeStatusEl.textContent = "pronto";
+      }catch(err){
+        aiOutEl.textContent = "Erro de rede ao chamar /assist. Verifique o Worker, CORS e se o endpoint está online.";
+        runtimeStatusEl.textContent = "erro";
       }
     }
 
-    saveWorkerBtn.addEventListener("click", async () => {
-      const v = normalizeBase(workerBaseInput.value || "");
-      if(!v){
-        localStorage.removeItem(STORE_WORKER);
-        refreshWorkerUi();
-        await checkHealth();
-        aiOut.textContent = "Worker removido. IA desativada até configurar novamente.";
-        return;
-      }
-      localStorage.setItem(STORE_WORKER, v);
-      refreshWorkerUi();
-      await checkHealth();
-      aiOut.textContent = "Worker salvo. Backend será verificado automaticamente.";
-    });
+    askBtn.addEventListener("click", callAssist);
 
-    /*****************************************************************
-     * Exportação
-     *****************************************************************/
+    // ---------------------------
+    // Export PDF (print)
+    // ---------------------------
     exportPdfBtn.addEventListener("click", () => {
-      // PDF via impressão do navegador
+      // Sugestão: antes de imprimir, garantir salvamento
+      saveCurrentStep();
       window.print();
     });
 
+    // ---------------------------
+    // Export DOCX
+    // ---------------------------
     exportDocxBtn.addEventListener("click", async () => {
       try{
-        const step = STEPS.find(s => s.id === activeStep) || STEPS[0];
-        const content = (userText.value || "").trim();
-        const evid = (evidenceText.value || "").trim();
-        const answer = (aiOut.textContent || "").trim();
+        saveCurrentStep();
 
-        const { Document, Packer, Paragraph, TextRun } = window.docx;
+        const stepInfo = STEPS.find(s => s.id === activeStep);
+        const text = userTextEl.value || "";
+        const evid = evidenceTextEl.value || "";
+
+        if(!window.docx || !window.saveAs){
+          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
+          return;
+        }
+
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
 
         const doc = new Document({
           sections: [{
+            properties: {},
             children: [
-              new Paragraph({
-                children: [ new TextRun({ text: "Orientador de TCC Digital", bold: true, size: 32 }) ]
-              }),
-              new Paragraph({
-                children: [ new TextRun({ text: `Etapa: ${step.title}`, bold: true }) ]
-              }),
-              new Paragraph(step.desc || ""),
-              new Paragraph(""),
-              new Paragraph({
-                children: [ new TextRun({ text: "Seu texto", bold: true }) ]
-              }),
-              new Paragraph(content || "[vazio]"),
-              new Paragraph(""),
-              new Paragraph({
-                children: [ new TextRun({ text: "Evidências", bold: true }) ]
-              }),
-              new Paragraph(evid || "[sem evidências]"),
-              new Paragraph(""),
-              new Paragraph({
-                children: [ new TextRun({ text: "Resposta da IA", bold: true }) ]
-              }),
-              new Paragraph(answer || "[sem resposta]"),
+              new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
+              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
+              new Paragraph({ children: [ new TextRun(text) ] }),
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
+              new Paragraph({ children: [ new TextRun(evid || "—") ] })
             ]
           }]
         });
 
         const blob = await Packer.toBlob(doc);
-        saveAs(blob, `orientador_tcc_${step.id}.docx`);
-      }catch(err){
-        aiOut.textContent = "Falha ao exportar DOCX: " + (err && err.message ? err.message : String(err));
+        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
+      }catch(e){
+        alert("Falha ao exportar DOCX: " + (e?.message || e));
       }
     });
 
-    /*****************************************************************
-     * Inicialização
-     *****************************************************************/
-    function init(){
-      // carrega worker salvo
-      refreshWorkerUi();
-
-      // steps
+    // ---------------------------
+    // Init
+    // ---------------------------
+    (function init(){
       renderSteps();
+      renderPdfs();
       openStep(activeStep);
 
-      // PDFs
-      renderPdfs();
+      // Marca último salvamento se existir
+      const existing = localStorage.getItem(STORE_KEY);
+      if(existing) lastSavedEl.textContent = "carregado do navegador";
 
-      // health check
       checkHealth();
-
-      // atalho ESC para fechar modal
-      document.addEventListener("keydown", (e) => {
-        if(e.key === "Escape" && modalMask.style.display === "flex"){
-          closeModal();
-        }
-      });
-    }
-
-    init();
+      setInterval(checkHealth, 15000);
+    })();
   </script>
 </body>
 </html>
-/* ===== TEMA BRANCO FORCADO (FINAL DO CSS) ===== */
-html, body {
-  background: #ffffff !important;
-  color: #111827 !important;
-}
-
-body {
-  background-image: none !important;
-}
-
-:root{
-  --bgA:#ffffff !important;
-  --bgB:#ffffff !important;
-  --text:#111827 !important;
-  --muted:#4b5563 !important;
-  --card:#ffffff !important;
-  --card2:#ffffff !important;
-  --line: rgba(17,24,39,.14) !important;
-  --shadow: 0 10px 30px rgba(0,0,0,.10) !important;
-}
-
-.topbar,
-.panel,
-.panelHead,
-.scroll,
-.card,
-.box,
-.statusbar,
-.statusChip,
-.toggle,
-.out,
-.viewer,
-.side,
-.modal,
-.modalHead,
-.modalBody,
-.fileItem {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border-color: rgba(17,24,39,.14) !important;
-}
-
-.hint,
-.brand .subtitle,
-.statusChip,
-.fileMeta,
-.meta .s,
-.mainDesc,
-.statusbar {
-  color: #4b5563 !important;
-}
-
-textarea,
-input[type="text"],
-input[type="number"]{
-  background:#ffffff !important;
-  color:#111827 !important;
-  border:1px solid rgba(17,24,39,.20) !important;
-}
-
-textarea:focus,
-input[type="text"]:focus,
-input[type="number"]:focus{
-  box-shadow: 0 0 0 4px rgba(124,92,255,.18) !important;
-  border-color: rgba(124,92,255,.55) !important;
-}
-
-/* Botões continuam coloridos, mas com fundo claro geral */
-.btn{
-  background: #f3f4f6 !important;
-  color: #111827 !important;
-  border-color: rgba(17,24,39,.18) !important;
-}
-.btn.primary{
-  background: linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.75)) !important;
-  color: #ffffff !important;
-  border-color: rgba(124,92,255,.55) !important;
-}
-.btn.success{
-  background: linear-gradient(180deg, rgba(51,214,159,.45), rgba(51,214,159,.25)) !important;
-  color: #064e3b !important;
-}
-.btn.info{
-  background: linear-gradient(180deg, rgba(74,163,255,.45), rgba(74,163,255,.25)) !important;
-  color: #0b3b74 !important;
-}
-.btn.danger{
-  background: linear-gradient(180deg, rgba(255,92,124,.35), rgba(255,92,124,.18)) !important;
-  color: #7f1d1d !important;
-}
