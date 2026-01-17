@@ -5,68 +5,121 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orientador de TCC Digital</title>
 
+  <!-- Visual: fonte moderna -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- PDF.js (leitura real de PDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
-
-  <!-- Exportar DOCX -->
+  <!-- (Opcional) Exportar DOCX -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <style>
     :root{
-      --bg:#0b1020; --text:#e8eeff; --muted:#9fb0da;
+      --bg:#0b1020;
+      --panel:#101a33;
+      --panel2:#0e1730;
+      --card:#111c39;
+      --text:#e8eeff;
+      --muted:#9fb0da;
       --line:rgba(255,255,255,.10);
-      --accent:#7c5cff; --accent2:#33d69f; --danger:#ff5c7c; --warn:#ffd15c;
+      --accent:#7c5cff;
+      --accent2:#33d69f;
+      --danger:#ff5c7c;
+      --warn:#ffd15c;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius:16px; --radius2:22px;
+      --radius:16px;
+      --radius2:22px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.25), transparent 60%),
         radial-gradient(900px 600px at 90% 15%, rgba(51,214,159,.18), transparent 55%),
         var(--bg);
       color:var(--text);
     }
-    .app{display:grid; grid-template-columns: 340px 1fr; gap:18px; height:100vh; padding:18px;}
-    .sidebar,.main{
+    a{color:inherit}
+
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:18px;
+      height:100vh;
+      padding:18px;
+    }
+    .sidebar, .main{
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border-radius:var(--radius2);
-      box-shadow:var(--shadow);
+      box-shadow: var(--shadow);
       overflow:hidden;
+    }
+    .sidebar{
+      display:flex;
+      flex-direction:column;
+      min-width:280px;
+    }
+    .main{
+      display:flex;
+      flex-direction:column;
       min-width:0;
     }
-    .sidebar{display:flex;flex-direction:column}
-    .main{display:flex;flex-direction:column}
 
-    .sb-top,.main-top{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px; border-bottom:1px solid var(--line);
+    /* Top bars */
+    .sb-top, .main-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 16px 14px;
+      border-bottom:1px solid var(--line);
       background:rgba(255,255,255,.02);
-      gap:12px;
     }
-    .brand{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .brand h1{margin:0;font-size:16px;font-weight:900;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .brand small{color:var(--muted);font-size:12px}
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:700;
+    }
+    .brand small{
+      color:var(--muted);
+      font-size:12px;
+    }
 
     .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border:1px solid var(--line);
-      border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.02);
-      user-select:none;flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      background:rgba(255,255,255,.02);
+      user-select:none;
     }
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 3px rgba(255,209,92,.15);}
-    .dot.ok{background:var(--accent2);box-shadow:0 0 0 3px rgba(51,214,159,.15);}
-    .dot.bad{background:var(--danger);box-shadow:0 0 0 3px rgba(255,92,124,.15);}
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--warn);
+      box-shadow:0 0 0 3px rgba(255,209,92,.15);
+    }
+    .dot.ok{background:var(--accent2); box-shadow:0 0 0 3px rgba(51,214,159,.15);}
+    .dot.bad{background:var(--danger); box-shadow:0 0 0 3px rgba(255,92,124,.15);}
 
-    .sb-body{padding:14px;overflow:auto}
+    /* Sidebar sections */
+    .sb-body{
+      padding:14px;
+      overflow:auto;
+    }
     .section{
       background:rgba(255,255,255,.02);
       border:1px solid var(--line);
@@ -76,161 +129,340 @@
     }
     .section h3{
       margin:0 0 10px;
-      font-size:12px;color:var(--muted);font-weight:800;
-      text-transform:uppercase;letter-spacing:.12em;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.12em;
     }
 
+    /* Steps */
+    .steps{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .step{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      transition:.15s ease;
+      background:rgba(255,255,255,.02);
+    }
+    .step:hover{
+      border-color:rgba(124,92,255,.35);
+      background:rgba(124,92,255,.08);
+    }
+    .step.active{
+      border-color:rgba(124,92,255,.55);
+      background:rgba(124,92,255,.14);
+    }
+    .badge{
+      width:24px;height:24px;
+      border-radius:8px;
+      background:rgba(124,92,255,.22);
+      border:1px solid rgba(124,92,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;
+      flex:0 0 auto;
+    }
+    .step .meta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .step .title{
+      font-size:13px;
+      font-weight:600;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .step .sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* File upload */
+    .upload-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
     .btn{
-      appearance:none;border:1px solid var(--line);
+      appearance:none;
+      border:1px solid var(--line);
       background:rgba(255,255,255,.03);
       color:var(--text);
-      padding:10px 12px;border-radius:12px;
-      cursor:pointer;font-weight:800;font-size:13px;
-      transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      transition:.15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
       user-select:none;
     }
-    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.20);}
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.20);}
     .btn.primary{
       background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));
       border-color:rgba(124,92,255,.65);
     }
+    .btn.primary:hover{border-color:rgba(124,92,255,.85);}
     .btn.danger{
-      background:linear-gradient(180deg, rgba(255,92,124,.18), rgba(255,92,124,.08));
-      border-color:rgba(255,92,124,.35);color:#ffdbe2;
+      background:rgba(255,92,124,.10);
+      border-color:rgba(255,92,124,.35);
+      color:#ffdbe2;
     }
-    .btn.ghost{background:transparent;}
-    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-
-    .hint{color:var(--muted);font-size:12px;line-height:1.5}
+    .btn.ghost{
+      background:transparent;
+    }
     input[type="file"]{display:none;}
-
-    .steps{display:flex;flex-direction:column;gap:6px;}
-    .step{
-      display:flex;gap:10px;align-items:flex-start;
-      padding:10px;border-radius:14px;cursor:pointer;transition:.15s ease;
-      background:rgba(255,255,255,.02);border:1px solid transparent;
+    .files{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:220px;
+      overflow:auto;
+      padding-right:4px;
     }
-    .step:hover{border-color:rgba(124,92,255,.35);background:rgba(124,92,255,.08);}
-    .step.active{border-color:rgba(124,92,255,.55);background:rgba(124,92,255,.14);}
-    .badge{
-      width:24px;height:24px;border-radius:8px;
-      background:rgba(124,92,255,.22);border:1px solid rgba(124,92,255,.35);
-      display:flex;align-items:center;justify-content:center;
-      font-size:12px;font-weight:900;flex:0 0 auto;
-    }
-    .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .sub{font-size:12px;color:var(--muted)}
-
-    .files{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;padding-right:4px;}
     .file{
-      display:flex;flex-direction:column;gap:10px;
-      padding:10px;border:1px solid var(--line);border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
       background:rgba(255,255,255,.02);
     }
-    .fileTop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;}
-    .fileName{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
-    .fileMeta{font-size:12px;color:var(--muted)}
-    .fileBtns{display:flex;gap:8px;flex-wrap:wrap;}
-    .small{font-size:12px;padding:8px 10px;border-radius:10px;}
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:11px;color:var(--muted);border:1px solid var(--line);
-      padding:2px 6px;border-radius:8px;background:rgba(0,0,0,.18);
+    .file .name{
+      font-size:12px;
+      color:var(--text);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      min-width:0;
+    }
+    .file .actions{
+      display:flex; gap:8px; flex:0 0 auto;
+    }
+    .icon{
+      width:34px;height:34px;border-radius:10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
     }
 
-    .main-top .left{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .main-top h2{margin:0;font-size:16px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .main-top .desc{margin:0;color:var(--muted);font-size:12px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
-
-    .switch{display:flex;align-items:center;gap:10px;user-select:none}
-    .switch input{
-      width:42px;height:24px;appearance:none;border-radius:999px;
-      background:rgba(255,255,255,.08);border:1px solid var(--line);
-      position:relative;cursor:pointer;outline:none;transition:.15s ease;
+    /* Main content */
+    .main-top{
+      gap:12px;
     }
-    .switch input:checked{background:rgba(51,214,159,.25);border-color:rgba(51,214,159,.35);}
-    .switch input::after{
-      content:"";width:18px;height:18px;border-radius:50%;
-      background:rgba(255,255,255,.90);position:absolute;top:50%;left:4px;transform:translateY(-50%);transition:.15s ease;
+    .main-top .left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
     }
-    .switch input:checked::after{left:20px;}
-    .switch label{font-size:12px;color:var(--text);font-weight:900}
+    .main-top h2{
+      margin:0;
+      font-size:16px;
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .main-top .desc{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .toolbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
     .content{
-      display:grid;grid-template-rows:auto 1fr auto;
-      gap:12px;padding:14px;height:100%;overflow:hidden;
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      gap:12px;
+      padding:14px;
+      height:100%;
+      overflow:hidden;
     }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      min-height:0;
+    }
+
     .card{
-      border:1px solid var(--line);background:rgba(255,255,255,.02);
-      border-radius:var(--radius);padding:12px;min-width:0;min-height:0;
-      display:flex;flex-direction:column;gap:10px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      border-radius:var(--radius);
+      padding:12px;
+      min-width:0;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
     .card h3{
-      margin:0;font-size:12px;color:var(--muted);
-      text-transform:uppercase;letter-spacing:.12em;font-weight:900;
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
     }
     textarea{
-      width:100%;min-height:250px;resize:vertical;
-      border-radius:14px;border:1px solid var(--line);
-      background:rgba(0,0,0,.18);color:var(--text);
-      padding:12px;font-size:13px;line-height:1.55;outline:none;
-    }
-    textarea:focus{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 3px rgba(124,92,255,.15);}
-    .log{
-      white-space:pre-wrap;word-break:break-word;
-      font-size:12px;line-height:1.45;
+      width:100%;
+      min-height:260px;
+      resize:vertical;
+      border-radius:14px;
       border:1px solid var(--line);
       background:rgba(0,0,0,.18);
-      border-radius:14px;padding:12px;overflow:auto;
-      min-height:250px;
+      color:var(--text);
+      padding:12px;
+      font-size:13px;
+      line-height:1.55;
+      outline:none;
     }
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+    textarea:focus{
+      border-color:rgba(124,92,255,.55);
+      box-shadow:0 0 0 3px rgba(124,92,255,.15);
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .switch{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .switch input{
+      width:42px;height:24px;
+      appearance:none;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      position:relative;
+      cursor:pointer;
+      outline:none;
+      transition:.15s ease;
+    }
+    .switch input:checked{
+      background:rgba(51,214,159,.25);
+      border-color:rgba(51,214,159,.35);
+    }
+    .switch input::after{
+      content:"";
+      width:18px;height:18px;
+      border-radius:50%;
+      background:rgba(255,255,255,.85);
+      position:absolute;
+      top:50%;
+      left:4px;
+      transform:translateY(-50%);
+      transition:.15s ease;
+    }
+    .switch input:checked::after{left:20px;}
+    .switch label{
+      font-size:12px;
+      color:var(--text);
+      font-weight:600;
+    }
+
     .statusbar{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 14px;border-top:1px solid var(--line);background:rgba(255,255,255,.02);
-      font-size:12px;color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 14px;
+      border-top:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      font-size:12px;
+      color:var(--muted);
     }
     .statusbar b{color:var(--text);}
-
-    .inline{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .field{display:flex;flex-direction:column;gap:6px;min-width:140px;}
-    .field label{font-size:12px;color:var(--muted);font-weight:800}
-    .field input{
-      width:160px;padding:10px 10px;border-radius:12px;border:1px solid var(--line);
-      background:rgba(0,0,0,.18);color:var(--text);
-      outline:none;font-weight:800;font-size:12px;
+    .log{
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-size:12px;
+      line-height:1.45;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      min-height:260px;
     }
 
+    /* Responsive */
     @media (max-width: 980px){
-      .app{grid-template-columns:1fr;height:auto;}
+      .app{grid-template-columns:1fr; height:auto;}
       .grid{grid-template-columns:1fr;}
       .sidebar{order:2}
-      .main{order:1;min-height:70vh;}
+      .main{order:1; height:auto; min-height:70vh;}
     }
 
+    /* Print (Export PDF) */
     @media print{
-      body{background:#fff;color:#000;}
-      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none!important;}
-      .main{border:none;box-shadow:none;}
+      body{background:#fff; color:#000;}
+      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none !important;}
+      .main{border:none; box-shadow:none;}
       .content{padding:0;}
       .grid{grid-template-columns:1fr;}
-      textarea,.log{border:1px solid #ddd;background:#fff;color:#000;min-height:auto;}
+      textarea, .log{
+        border:1px solid #ddd;
+        background:#fff;
+        color:#000;
+        min-height:auto;
+      }
+      textarea{
+        height:auto !important;
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="app">
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sb-top">
         <div class="brand">
           <h1>Orientador de TCC Digital</h1>
-          <small>PDF real (PDF.js) + Worker (POST /assist)</small>
+          <small>Frontend + Worker (POST /assist)</small>
         </div>
-        <div class="pill">
+        <div class="pill" title="Status do serviço">
           <span id="svcDot" class="dot"></span>
           <span id="svcText">verificando…</span>
         </div>
@@ -243,47 +475,33 @@
         </div>
 
         <div class="section">
-          <h3>Anexos (PDF) — leitura real</h3>
-
-          <div class="inline" style="margin-bottom:10px;">
+          <h3>Anexos (PDF)</h3>
+          <div class="upload-row">
             <label class="btn" for="pdfInput">Anexar PDF</label>
             <input id="pdfInput" type="file" accept="application/pdf" multiple />
             <button class="btn danger" id="clearPdfsBtn" type="button">Limpar PDFs</button>
           </div>
-
-          <div class="inline" style="margin-bottom:10px;">
-            <div class="field">
-              <label for="maxPages">Máx. páginas por PDF</label>
-              <input id="maxPages" type="number" min="1" max="200" value="30" />
-            </div>
-            <div class="field">
-              <label for="maxChars">Máx. caracteres por extração</label>
-              <input id="maxChars" type="number" min="5000" max="300000" value="60000" />
-            </div>
+          <div class="hint" style="margin-top:10px;">
+            Os PDFs ficam no seu navegador (local). Para usar “Modo Evidência”, você pode colar trechos relevantes no campo “Evidências”.
           </div>
-
-          <div class="hint">
-            Dica: para extrair páginas específicas, use formato <span class="kbd">1-3, 7, 10-12</span>.
-            PDFs escaneados (imagem) podem extrair pouco ou nada — aí precisa de OCR.
-          </div>
-
           <div class="files" id="pdfList"></div>
         </div>
 
         <div class="section">
           <h3>Exportação</h3>
-          <div class="inline">
+          <div class="upload-row" style="flex-wrap:wrap;">
             <button class="btn" id="exportPdfBtn" type="button">Exportar PDF</button>
             <button class="btn" id="exportDocxBtn" type="button">Exportar DOCX</button>
             <button class="btn ghost" id="resetAllBtn" type="button">Reset geral</button>
           </div>
           <div class="hint" style="margin-top:10px;">
-            PDF por impressão do navegador. DOCX gera um Word simples da etapa.
+            Exportar PDF usa impressão do navegador (formato limpo). DOCX gera um arquivo Word simples com o texto da etapa.
           </div>
         </div>
       </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
       <div class="main-top">
         <div class="left">
@@ -292,7 +510,7 @@
         </div>
 
         <div class="toolbar">
-          <div class="switch">
+          <div class="switch" title="Quando ativo, peça para a IA citar evidências fornecidas por você.">
             <input id="evidenceToggle" type="checkbox" />
             <label for="evidenceToggle">Modo Evidência</label>
           </div>
@@ -306,18 +524,18 @@
         <div class="grid">
           <section class="card">
             <h3>Seu texto</h3>
-            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa..."></textarea>
+            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa do TCC..."></textarea>
             <div class="row">
-              <span class="hint">Último salvamento: <b id="lastSaved">—</b></span>
+              <span class="hint">Autosave ativo. Último salvamento: <b id="lastSaved">—</b></span>
               <span class="hint">Progresso: <b id="progress">0%</b></span>
             </div>
           </section>
 
           <section class="card">
-            <h3>Evidências (auto do PDF ou colar manual)</h3>
-            <textarea id="evidenceText" placeholder="Aqui entram os trechos extraídos do PDF e/ou seus apontamentos..."></textarea>
+            <h3>Evidências / Trechos de apoio</h3>
+            <textarea id="evidenceText" placeholder="Cole aqui trechos de PDFs, citações, notas, referências, dados, etc. (Opcional, mas recomendado no Modo Evidência)."></textarea>
             <div class="hint">
-              Use os botões nos PDFs para extrair texto para este campo. No Modo Evidência, a IA deve se apoiar daqui.
+              Dica: se a IA “inventar”, ative o Modo Evidência e alimente esta área com trechos reais (copiados do PDF).
             </div>
           </section>
         </div>
@@ -330,24 +548,15 @@
 
       <div class="statusbar">
         <span>Status: <b id="runtimeStatus">pronto</b></span>
-        <span>Endpoint: <b id="epLabel">/assist</b></span>
+        <span>Endpoint: <b id="endpointLabel">/assist</b></span>
       </div>
     </main>
   </div>
 
   <script>
-    // PDF.js worker
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
-    }
-
-    // ===== CONFIG ENDPOINT =====
-    // Se o Worker estiver em outro domínio/URL, coloque aqui:
-    // Ex.: const ASSIST_ENDPOINT = "https://seu-worker.workers.dev/assist";
-    const ASSIST_ENDPOINT = "/assist";
-    document.getElementById("epLabel").textContent = ASSIST_ENDPOINT;
-
+    // ---------------------------
+    // Configuração de etapas
+    // ---------------------------
     const STEPS = [
       { id: "tema", title: "Tema / Introdução", desc: "Delimite o tema e contextualize o problema." },
       { id: "problema", title: "Problema de Pesquisa", desc: "Formule a pergunta central e o recorte." },
@@ -357,15 +566,21 @@
       { id: "metodologia", title: "Metodologia", desc: "Abordagem, tipo de pesquisa, técnicas e instrumentos." },
       { id: "cronograma", title: "Cronograma", desc: "Planejamento por etapas e prazos." },
       { id: "elementos", title: "Elementos Pré-textuais", desc: "Resumo, palavras-chave, abstract, etc." },
-      { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido." }
+      { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido pela instituição/revista." }
     ];
 
-    const STORE_KEY = "orientador_tcc_v3";
-    const STORE_ACTIVE = "orientador_active_step_v3";
-    const STORE_EVID = "orientador_evidence_v3";
-    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v3";
-    const STORE_PDFS = "orientador_pdfs_v3";
+    // ---------------------------
+    // Storage keys
+    // ---------------------------
+    const STORE_KEY = "orientador_tcc_v2";
+    const STORE_PDFS = "orientador_pdfs_v2";
+    const STORE_ACTIVE = "orientador_active_step_v2";
+    const STORE_EVID = "orientador_evidence_v2";
+    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v2";
 
+    // ---------------------------
+    // DOM
+    // ---------------------------
     const stepsEl = document.getElementById("steps");
     const stepTitleEl = document.getElementById("stepTitle");
     const stepDescEl = document.getElementById("stepDesc");
@@ -374,13 +589,10 @@
     const aiOutEl = document.getElementById("aiOut");
     const lastSavedEl = document.getElementById("lastSaved");
     const progressEl = document.getElementById("progress");
-    const runtimeStatusEl = document.getElementById("runtimeStatus");
 
     const pdfInputEl = document.getElementById("pdfInput");
     const pdfListEl = document.getElementById("pdfList");
     const clearPdfsBtn = document.getElementById("clearPdfsBtn");
-    const maxPagesEl = document.getElementById("maxPages");
-    const maxCharsEl = document.getElementById("maxChars");
 
     const saveBtn = document.getElementById("saveBtn");
     const askBtn = document.getElementById("askBtn");
@@ -390,38 +602,26 @@
     const exportDocxBtn = document.getElementById("exportDocxBtn");
 
     const evidenceToggleEl = document.getElementById("evidenceToggle");
+    const runtimeStatusEl = document.getElementById("runtimeStatus");
     const svcDot = document.getElementById("svcDot");
     const svcText = document.getElementById("svcText");
 
+    // ---------------------------
+    // Estado
+    // ---------------------------
     let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
 
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function clampInt(v, min, max, fallback){
-      const n = parseInt(v,10);
-      if(Number.isNaN(n)) return fallback;
-      return Math.max(min, Math.min(max, n));
-    }
-
     function loadStore(){
-      try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch { return {}; }
+      try {
+        return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+      } catch {
+        return {};
+      }
     }
     function saveStore(data){
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
       lastSavedEl.textContent = new Date().toLocaleString();
       updateProgress();
-    }
-    function setSvc(type, text){
-      svcText.textContent = text;
-      svcDot.classList.remove("ok","bad");
-      if(type === "ok") svcDot.classList.add("ok");
-      if(type === "bad") svcDot.classList.add("bad");
     }
 
     function loadPdfs(){
@@ -432,9 +632,21 @@
       renderPdfs();
     }
 
+    function setStatus(type, text){
+      runtimeStatusEl.textContent = text;
+      svcText.textContent = text;
+      svcDot.classList.remove("ok","bad");
+      if(type === "ok") svcDot.classList.add("ok");
+      if(type === "bad") svcDot.classList.add("bad");
+    }
+
+    // ---------------------------
+    // Render steps
+    // ---------------------------
     function renderSteps(){
       stepsEl.innerHTML = "";
       const store = loadStore();
+
       STEPS.forEach((s, idx) => {
         const filled = (store[s.id] || "").trim().length > 0;
         const el = document.createElement("div");
@@ -442,7 +654,7 @@
         el.innerHTML = `
           <div class="badge">${idx+1}</div>
           <div class="meta">
-            <div class="title">${escapeHtml(s.title)}</div>
+            <div class="title">${s.title}</div>
             <div class="sub">${filled ? "Preenchida" : "Vazia"}</div>
           </div>
         `;
@@ -460,11 +672,14 @@
     function openStep(stepId){
       const s = STEPS.find(x => x.id === stepId) || STEPS[0];
       const store = loadStore();
+
       stepTitleEl.textContent = s.title;
       stepDescEl.textContent = s.desc;
+
       userTextEl.value = store[stepId] || "";
       evidenceTextEl.value = localStorage.getItem(STORE_EVID) || "";
       evidenceToggleEl.checked = (localStorage.getItem(STORE_EVID_TOGGLE) === "true");
+
       aiOutEl.textContent = "—";
     }
 
@@ -475,172 +690,16 @@
       for(const s of STEPS){
         if((store[s.id] || "").trim().length > 0) done++;
       }
-      progressEl.textContent = `${Math.round((done/total)*100)}%`;
-    }
-
-    function saveCurrent(){
-      const store = loadStore();
-      store[activeStep] = userTextEl.value;
-      saveStore(store);
-      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
-      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
-      renderSteps();
-    }
-
-    let autosaveTimer = null;
-    function scheduleAutosave(){
-      if(autosaveTimer) clearTimeout(autosaveTimer);
-      autosaveTimer = setTimeout(saveCurrent, 600);
-    }
-    userTextEl.addEventListener("input", scheduleAutosave);
-    evidenceTextEl.addEventListener("input", () => localStorage.setItem(STORE_EVID, evidenceTextEl.value));
-    evidenceToggleEl.addEventListener("change", () => localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false"));
-    saveBtn.addEventListener("click", saveCurrent);
-
-    clearStepBtn.addEventListener("click", () => {
-      userTextEl.value = "";
-      saveCurrent();
-      aiOutEl.textContent = "—";
-    });
-
-    resetAllBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORE_KEY);
-      localStorage.removeItem(STORE_ACTIVE);
-      localStorage.removeItem(STORE_EVID);
-      localStorage.removeItem(STORE_EVID_TOGGLE);
-      localStorage.removeItem(STORE_PDFS);
-      activeStep = STEPS[0].id;
-      localStorage.setItem(STORE_ACTIVE, activeStep);
-      renderSteps();
-      renderPdfs();
-      openStep(activeStep);
-      lastSavedEl.textContent = "—";
-      aiOutEl.textContent = "—";
-      runtimeStatusEl.textContent = "pronto";
-    });
-
-    // ---------------------------
-    // HEALTH
-    // ---------------------------
-    async function checkHealth(){
-      // Se você tem um /health no Worker, ótimo.
-      // Se não tiver, apenas marca "online" quando o site carrega.
-      try{
-        const r = await fetch("/health", { method:"GET" });
-        const j = await r.json().catch(() => ({}));
-        if(r.ok && (j.ok === true || j.status === "ok")) setSvc("ok","online");
-        else setSvc("ok","online");
-      }catch{
-        setSvc("ok","online");
-      }
+      const pct = Math.round((done/total)*100);
+      progressEl.textContent = `${pct}%`;
     }
 
     // ---------------------------
-    // PDF: ler e extrair texto real
+    // PDF management (metadata only)
     // ---------------------------
-    async function fileToDataUrl(file){
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function prettyBytes(bytes){
-      const units = ["B","KB","MB","GB"];
-      let i = 0, n = bytes || 0;
-      while(n >= 1024 && i < units.length-1){ n/=1024; i++; }
-      return `${n.toFixed(i===0?0:1)} ${units[i]}`;
-    }
-
-    function parseRanges(input, max){
-      const clean = (input || "").trim();
-      if(!clean) return null;
-      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
-      const pages = new Set();
-      for(const part of parts){
-        const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
-        if(m){
-          let a = parseInt(m[1],10);
-          let b = parseInt(m[2],10);
-          if(Number.isNaN(a)||Number.isNaN(b)) continue;
-          if(a>b) [a,b] = [b,a];
-          a = Math.max(1,a); b = Math.min(max,b);
-          for(let p=a;p<=b;p++) pages.add(p-1);
-        }else{
-          const n = parseInt(part,10);
-          if(!Number.isNaN(n) && n>=1 && n<=max) pages.add(n-1);
-        }
-      }
-      return Array.from(pages).sort((x,y)=>x-y);
-    }
-
-    async function dataUrlToBytes(dataUrl){
-      const base64 = (dataUrl || "").split(",")[1] || "";
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
-      return bytes;
-    }
-
-    async function getPdfNumPages(dataUrl){
-      const bytes = await dataUrlToBytes(dataUrl);
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
-      return pdf.numPages;
-    }
-
-    async function extractPdfText(pdfItem, opts){
-      const { maxPages, maxChars, pageIndices } = opts;
-
-      const bytes = await dataUrlToBytes(pdfItem.dataUrl);
-
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
-
-      const totalPages = pdf.numPages;
-      const hardLimit = Math.min(totalPages, maxPages);
-
-      let indices = pageIndices;
-      if(!indices){
-        indices = Array.from({length: hardLimit}, (_,i)=>i);
-      }else{
-        indices = indices.filter(i => i >= 0 && i < totalPages);
-        if(indices.length > hardLimit) indices = indices.slice(0, hardLimit);
-      }
-
-      let out = `=== PDF: ${pdfItem.name} ===\n`;
-      out += `Páginas no arquivo: ${totalPages}. Extraindo: ${indices.length} página(s).\n\n`;
-
-      let usedChars = out.length;
-
-      for(const idx of indices){
-        const pageNo = idx + 1;
-        const page = await pdf.getPage(pageNo);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(it => (it.str || "")).join(" ").replace(/\s+/g," ").trim();
-
-        const block = pageText
-          ? `--- Página ${pageNo} ---\n${pageText}\n\n`
-          : `--- Página ${pageNo} ---\n[Sem texto extraível nesta página]\n\n`;
-
-        if(usedChars + block.length > maxChars){
-          out += `\n[Limite de caracteres atingido (${maxChars}). Interrompendo extração.]\n`;
-          break;
-        }
-
-        out += block;
-        usedChars += block.length;
-      }
-
-      return { totalPages, extractedPages: indices.length, text: out };
-    }
-
     function renderPdfs(){
       const list = loadPdfs();
       pdfListEl.innerHTML = "";
-
       if(list.length === 0){
         const empty = document.createElement("div");
         empty.className = "hint";
@@ -650,292 +709,252 @@
       }
 
       for(const item of list){
-        const file = document.createElement("div");
-        file.className = "file";
-
-        const meta = [];
-        meta.push(prettyBytes(item.size || 0));
-        if(item.pages) meta.push(`${item.pages} pág.`);
-        if(item.lastExtract) meta.push(`extraído: ${new Date(item.lastExtract).toLocaleString()}`);
-
-        file.innerHTML = `
-          <div class="fileTop">
-            <div style="min-width:0">
-              <div class="fileName" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
-              <div class="fileMeta">${meta.join(" • ")}</div>
-            </div>
-            <button class="btn danger small" type="button" data-act="remove">Remover</button>
+        const row = document.createElement("div");
+        row.className = "file";
+        row.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div class="icon">PDF</div>
+            <div class="name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
           </div>
-
-          <div class="fileBtns">
-            <button class="btn small" type="button" data-act="extractAll">Extrair tudo p/ Evidências</button>
-            <button class="btn small" type="button" data-act="extractRange">Extrair páginas…</button>
-            <button class="btn small" type="button" data-act="preview">Ver texto extraído</button>
-          </div>
-
-          <div class="hint" data-slot="rangeHint" style="display:none;">
-            Informe páginas no formato <span class="kbd">1-3, 7, 10-12</span> e confirme.
-          </div>
-
-          <div class="inline" data-slot="rangeUi" style="display:none;">
-            <div class="field">
-              <label>Páginas</label>
-              <input type="text" value="1-3" data-slot="rangeInput" />
-            </div>
-            <button class="btn primary small" type="button" data-act="confirmRange">Extrair</button>
+          <div class="actions">
+            <button class="btn danger" data-id="${item.id}" type="button">Remover</button>
           </div>
         `;
-
-        const removeBtn = file.querySelector('[data-act="remove"]');
-        const extractAllBtn = file.querySelector('[data-act="extractAll"]');
-        const extractRangeBtn = file.querySelector('[data-act="extractRange"]');
-        const previewBtn = file.querySelector('[data-act="preview"]');
-        const rangeHint = file.querySelector('[data-slot="rangeHint"]');
-        const rangeUi = file.querySelector('[data-slot="rangeUi"]');
-        const rangeInput = file.querySelector('[data-slot="rangeInput"]');
-        const confirmRangeBtn = file.querySelector('[data-act="confirmRange"]');
-
-        removeBtn.addEventListener("click", () => {
+        row.querySelector("button").addEventListener("click", () => {
           const updated = loadPdfs().filter(x => x.id !== item.id);
           savePdfs(updated);
         });
-
-        extractAllBtn.addEventListener("click", async () => {
-          await doExtract(item.id, null);
-        });
-
-        extractRangeBtn.addEventListener("click", () => {
-          const shown = rangeUi.style.display !== "none";
-          rangeHint.style.display = shown ? "none" : "block";
-          rangeUi.style.display = shown ? "none" : "flex";
-        });
-
-        confirmRangeBtn.addEventListener("click", async () => {
-          await doExtract(item.id, (rangeInput.value || "").trim());
-        });
-
-        previewBtn.addEventListener("click", () => {
-          const listNow = loadPdfs();
-          const it = listNow.find(x => x.id === item.id);
-          const txt = (it && it.extractedText) ? it.extractedText : "Ainda não há texto extraído deste PDF.";
-          aiOutEl.textContent = txt;
-        });
-
-        pdfListEl.appendChild(file);
+        pdfListEl.appendChild(row);
       }
     }
 
-    // ====== CONTINUAÇÃO EXATA DE ONDE PAROU (doExtract) ======
-    async function doExtract(pdfId, rangeStr){
-      const list = loadPdfs();
-      const item = list.find(x => x.id === pdfId);
-      if(!item){
-        aiOutEl.textContent = "PDF não encontrado.";
-        return;
-      }
-
-      const maxPages = clampInt(maxPagesEl.value, 1, 200, 30);
-      const maxChars = clampInt(maxCharsEl.value, 5000, 300000, 60000);
-
-      runtimeStatusEl.textContent = "extraindo PDF…";
-      aiOutEl.textContent = "Extraindo texto do PDF… (isso pode levar alguns segundos)";
-
-      try{
-        let pageIndices = null;
-
-        if(rangeStr){
-          const numPages = await getPdfNumPages(item.dataUrl);
-          pageIndices = parseRanges(rangeStr, numPages);
-
-          // === AQUI ERA O PONTO EM QUE O SEU CÓDIGO PAROU ===
-          if(!pageIndices || pageIndices.length === 0){
-            runtimeStatusEl.textContent = "pronto";
-            aiOutEl.textContent = "Intervalo inválido. Use exemplo: 1-3, 7, 10-12";
-            return;
-          }
-        }
-
-        const result = await extractPdfText(item, { maxPages, maxChars, pageIndices });
-
-        // Atualiza item no storage
-        const updated = loadPdfs().map(x => {
-          if(x.id !== item.id) return x;
-          return {
-            ...x,
-            pages: result.totalPages,
-            extractedText: result.text,
-            lastExtract: Date.now()
-          };
-        });
-        savePdfs(updated);
-
-        // Joga direto nas Evidências (concatena)
-        const prefix = evidenceTextEl.value.trim() ? "\n\n" : "";
-        evidenceTextEl.value = (evidenceTextEl.value || "") + prefix + result.text;
-        localStorage.setItem(STORE_EVID, evidenceTextEl.value);
-
-        runtimeStatusEl.textContent = "pronto";
-        aiOutEl.textContent = "Extração concluída. Trechos enviados para Evidências.";
-      }catch(err){
-        runtimeStatusEl.textContent = "erro";
-        aiOutEl.textContent = "Falha ao extrair PDF: " + (err?.message || String(err));
-      }
+    function escapeHtml(str){
+      return (str||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+                      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
-    // Upload PDFs
     pdfInputEl.addEventListener("change", async (e) => {
       const files = Array.from(e.target.files || []);
       if(files.length === 0) return;
 
-      runtimeStatusEl.textContent = "carregando PDFs…";
-      aiOutEl.textContent = "Carregando PDFs…";
-
-      try{
-        const current = loadPdfs();
-        for(const f of files){
-          const dataUrl = await fileToDataUrl(f);
-          current.push({
-            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
-            name: f.name,
-            size: f.size,
-            type: f.type,
-            dataUrl
-          });
-        }
-        savePdfs(current);
-        aiOutEl.textContent = "PDF(s) anexado(s). Use “Extrair…” para enviar aos campos.";
-      }catch(err){
-        aiOutEl.textContent = "Erro ao anexar PDF: " + (err?.message || String(err));
-      }finally{
-        runtimeStatusEl.textContent = "pronto";
-        pdfInputEl.value = "";
+      // Guardamos apenas metadados (nome, tamanho) no localStorage.
+      // Se quiser leitura real de PDF no navegador (pdf.js + extração), eu implemento na próxima versão.
+      const list = loadPdfs();
+      for(const f of files){
+        list.push({
+          id: crypto.randomUUID(),
+          name: f.name,
+          size: f.size,
+          addedAt: Date.now()
+        });
       }
+      savePdfs(list);
+      pdfInputEl.value = "";
     });
 
     clearPdfsBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORE_PDFS);
-      renderPdfs();
-      aiOutEl.textContent = "PDFs limpos.";
+      savePdfs([]);
     });
 
     // ---------------------------
-    // Exportação
+    // Save / autosave
     // ---------------------------
-    exportPdfBtn.addEventListener("click", () => {
-      // PDF via impressão (não quebra nada)
-      window.print();
-    });
+    function saveCurrentStep(){
+      const store = loadStore();
+      store[activeStep] = userTextEl.value;
+      saveStore(store);
 
-    exportDocxBtn.addEventListener("click", async () => {
-      try{
-        const s = STEPS.find(x => x.id === activeStep) || STEPS[0];
-        const { Document, Packer, Paragraph, TextRun } = window.docx;
+      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
 
-        const doc = new Document({
-          sections: [{
-            children: [
-              new Paragraph({ children: [ new TextRun({ text: "Orientador de TCC Digital", bold: true, size: 32 }) ] }),
-              new Paragraph({ children: [ new TextRun({ text: s.title, bold: true, size: 28 }) ] }),
-              new Paragraph({ text: "" }),
-              new Paragraph({ text: userTextEl.value || "" }),
-              new Paragraph({ text: "" }),
-              new Paragraph({ children: [ new TextRun({ text: "Evidências", bold: true }) ] }),
-              new Paragraph({ text: evidenceTextEl.value || "" }),
-            ]
-          }]
-        });
-
-        const blob = await Packer.toBlob(doc);
-        saveAs(blob, `orientador_${activeStep}.docx`);
-        aiOutEl.textContent = "DOCX gerado com sucesso.";
-      }catch(err){
-        aiOutEl.textContent = "Falha ao gerar DOCX: " + (err?.message || String(err));
-      }
-    });
-
-    // ---------------------------
-    // Chamada ao Worker (corrige 405)
-    // ---------------------------
-    function buildPrompt(){
-      const step = STEPS.find(x => x.id === activeStep) || STEPS[0];
-
-      const base = `
-Você é um orientador acadêmico. Ajude o estudante a melhorar a etapa do TCC.
-
-ETAPA: ${step.title}
-DESCRIÇÃO: ${step.desc}
-
-TEXTO DO ALUNO:
-${userTextEl.value || "(vazio)"}
-`.trim();
-
-      const evidOn = evidenceToggleEl.checked;
-      if(!evidOn) return base;
-
-      return (base + `
-
-MODO EVIDÊNCIA ATIVO:
-Use APENAS as evidências abaixo para sustentar afirmações, e sinalize quando algo não estiver evidenciado.
-
-EVIDÊNCIAS:
-${evidenceTextEl.value || "(sem evidências)"}`
-      );
+      renderSteps();
     }
 
+    let autosaveTimer = null;
+    function scheduleAutosave(){
+      if(autosaveTimer) clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(saveCurrentStep, 600);
+    }
+
+    userTextEl.addEventListener("input", scheduleAutosave);
+    evidenceTextEl.addEventListener("input", () => {
+      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
+    });
+    evidenceToggleEl.addEventListener("change", () => {
+      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
+    });
+
+    saveBtn.addEventListener("click", saveCurrentStep);
+
+    clearStepBtn.addEventListener("click", () => {
+      userTextEl.value = "";
+      saveCurrentStep();
+      aiOutEl.textContent = "—";
+    });
+
+    resetAllBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(STORE_PDFS);
+      localStorage.removeItem(STORE_EVID);
+      localStorage.removeItem(STORE_EVID_TOGGLE);
+      localStorage.removeItem(STORE_ACTIVE);
+      activeStep = STEPS[0].id;
+      localStorage.setItem(STORE_ACTIVE, activeStep);
+      renderPdfs();
+      renderSteps();
+      openStep(activeStep);
+      lastSavedEl.textContent = "—";
+      aiOutEl.textContent = "—";
+    });
+
+    // ---------------------------
+    // Health check
+    // ---------------------------
+    async function checkHealth(){
+      try{
+        const r = await fetch("/health", { method:"GET" });
+        const j = await r.json().catch(() => ({}));
+        if(r.ok && j.ok){
+          setStatus("ok","online");
+        }else{
+          setStatus("bad","offline");
+        }
+      }catch{
+        setStatus("bad","offline");
+      }
+    }
+
+    // ---------------------------
+    // Call IA (POST /assist)
+    // ---------------------------
     async function callAssist(){
+      saveCurrentStep();
+
+      const stepInfo = STEPS.find(s => s.id === activeStep);
+      const evidenceMode = evidenceToggleEl.checked;
+
+      const userText = userTextEl.value.trim();
+      const evid = (evidenceTextEl.value || "").trim();
+
+      if(!userText){
+        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
+        return;
+      }
+
       runtimeStatusEl.textContent = "consultando IA…";
-      askBtn.disabled = true;
-      aiOutEl.textContent = "Consultando IA…";
+      aiOutEl.textContent = "Gerando orientação…";
+
+      // Prompt de controle (não “robótico”, mas bem guiado)
+      const systemGuide =
+`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
+Entregue uma orientação clara, didática, sem linguagem robótica.
+Regras:
+- Não invente referências.
+- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e diga onde foram usados.
+- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
+- Linguagem em português do Brasil.
+`;
 
       const payload = {
-        prompt: buildPrompt(),
-        step: activeStep,
-        evidence_mode: evidenceToggleEl.checked
+        stepId: activeStep,
+        stepTitle: stepInfo.title,
+        evidenceMode,
+        text: userText,
+        evidences: evid,
+        guide: systemGuide
       };
 
       try{
-        // POST obrigatório para evitar 405
-        const r = await fetch(ASSIST_ENDPOINT, {
+        const res = await fetch("/assist", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type":"application/json" },
           body: JSON.stringify(payload)
         });
 
-        const text = await r.text();
-        if(!r.ok){
-          // Mostra o erro de forma “amigável”
-          aiOutEl.textContent =
-            `Falha ao chamar ${ASSIST_ENDPOINT} (HTTP ${r.status}).\n\n` +
-            `Resposta:\n${text || "(vazio)"}\n\n` +
-            `Dica: confirme se o Worker está aceitando POST em /assist e retornando JSON/texto.`;
+        const data = await res.json().catch(() => ({}));
+
+        if(!res.ok){
+          const msg = data?.error || `Erro HTTP ${res.status}`;
+          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
           runtimeStatusEl.textContent = "erro";
           return;
         }
 
-        // Pode ser JSON ou texto puro
-        let out = text;
-        try{
-          const j = JSON.parse(text);
-          out = j.answer || j.result || j.output || j.text || text;
-        }catch{}
-
-        aiOutEl.textContent = out || "(sem conteúdo retornado)";
+        // Aceita formatos diferentes do backend (data.text / data.output / data.answer)
+        const out = data.text || data.output || data.answer || data.result || "";
+        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
         runtimeStatusEl.textContent = "pronto";
       }catch(err){
-        aiOutEl.textContent = "Falha ao chamar /assist: " + (err?.message || String(err));
+        aiOutEl.textContent = "Erro de rede ao chamar /assist. Verifique o Worker, CORS e se o endpoint está online.";
         runtimeStatusEl.textContent = "erro";
-      }finally{
-        askBtn.disabled = false;
       }
     }
 
     askBtn.addEventListener("click", callAssist);
 
+    // ---------------------------
+    // Export PDF (print)
+    // ---------------------------
+    exportPdfBtn.addEventListener("click", () => {
+      // Sugestão: antes de imprimir, garantir salvamento
+      saveCurrentStep();
+      window.print();
+    });
+
+    // ---------------------------
+    // Export DOCX
+    // ---------------------------
+    exportDocxBtn.addEventListener("click", async () => {
+      try{
+        saveCurrentStep();
+
+        const stepInfo = STEPS.find(s => s.id === activeStep);
+        const text = userTextEl.value || "";
+        const evid = evidenceTextEl.value || "";
+
+        if(!window.docx || !window.saveAs){
+          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
+          return;
+        }
+
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+
+        const doc = new Document({
+          sections: [{
+            properties: {},
+            children: [
+              new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
+              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
+              new Paragraph({ children: [ new TextRun(text) ] }),
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
+              new Paragraph({ children: [ new TextRun(evid || "—") ] })
+            ]
+          }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
+      }catch(e){
+        alert("Falha ao exportar DOCX: " + (e?.message || e));
+      }
+    });
+
+    // ---------------------------
     // Init
-    renderSteps();
-    renderPdfs();
-    openStep(activeStep);
-    checkHealth();
+    // ---------------------------
+    (function init(){
+      renderSteps();
+      renderPdfs();
+      openStep(activeStep);
+
+      // Marca último salvamento se existir
+      const existing = localStorage.getItem(STORE_KEY);
+      if(existing) lastSavedEl.textContent = "carregado do navegador";
+
+      checkHealth();
+      setInterval(checkHealth, 15000);
+    })();
   </script>
 </body>
 </html>
