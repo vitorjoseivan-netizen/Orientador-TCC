@@ -3,957 +3,946 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orientador de TCC Digital</title>
+  <title>Orientador de TCC</title>
 
-  <!-- Visual: fonte moderna -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF (jsPDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-  <!-- (Opcional) Exportar DOCX -->
+  <!-- Word (docx + FileSaver) -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#101a33;
-      --panel2:#0e1730;
-      --card:#111c39;
-      --text:#e8eeff;
-      --muted:#9fb0da;
-      --line:rgba(255,255,255,.10);
-      --accent:#7c5cff;
-      --accent2:#33d69f;
-      --danger:#ff5c7c;
-      --warn:#ffd15c;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius:16px;
-      --radius2:22px;
+      --bg:#eef3f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+      --blue:#2b6cb0; --blue-soft:#d7ecff;
+      --yellow:#f2b300;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --radius:16px; --radius-lg:22px;
+      --border:rgba(31,41,55,.12);
+      --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.25), transparent 60%),
-        radial-gradient(900px 600px at 90% 15%, rgba(51,214,159,.18), transparent 55%),
-        var(--bg);
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{ margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
+
+    /* Top bar */
+    .topbar{
+      position: sticky; top:0; z-index:10;
+      display:grid; grid-template-columns:auto 1fr auto;
+      gap:12px; align-items:center;
+      padding:12px 14px;
+      background:#f7fafc;
+      border-bottom:1px solid var(--border);
+    }
+    .brand{ display:grid; gap:2px; min-width:44px; }
+    .brand-title{ font-weight:800; letter-spacing:.5px; }
+    .brand-subtitle{ font-size:12px; color:var(--muted); }
+
+    .evidence{ display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:14px; user-select:none; }
+    .evidence input{ transform: translateY(1px); }
+
+    /* Buttons */
+    .btn{
+      border:1px solid rgba(31,41,55,.12);
+      background:#fff;
       color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(0,0,0,.06);
+      transition: transform .05s ease, opacity .2s ease, background .2s ease;
     }
-    a{color:inherit}
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+    .btn.primary{ background: var(--yellow); border-color: rgba(0,0,0,.05); }
+    .btn.primary:hover{ background:#ffc733; }
+    .btn.ghost{ background: rgba(255,255,255,.65); }
+    .btn.icon{ width:40px; height:40px; padding:0; border-radius:12px; }
+    .btn.small{ padding:8px 10px; border-radius:12px; font-weight:800; }
+
+    .menu-btn{ border-radius:12px; padding:10px 12px; font-weight:700; }
 
     /* Layout */
-    .app{
-      display:grid;
-      grid-template-columns: 320px 1fr;
-      gap:18px;
-      height:100vh;
-      padding:18px;
-    }
-    .sidebar, .main{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border-radius:var(--radius2);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .sidebar{
-      display:flex;
-      flex-direction:column;
-      min-width:280px;
-    }
-    .main{
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-    }
-
-    /* Top bars */
-    .sb-top, .main-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:16px 16px 14px;
-      border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-    }
-    .brand{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .brand h1{
-      margin:0;
-      font-size:16px;
-      letter-spacing:.2px;
-      font-weight:700;
-    }
-    .brand small{
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:12px;
-      background:rgba(255,255,255,.02);
-      user-select:none;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:50%;
-      background:var(--warn);
-      box-shadow:0 0 0 3px rgba(255,209,92,.15);
-    }
-    .dot.ok{background:var(--accent2); box-shadow:0 0 0 3px rgba(51,214,159,.15);}
-    .dot.bad{background:var(--danger); box-shadow:0 0 0 3px rgba(255,92,124,.15);}
-
-    /* Sidebar sections */
-    .sb-body{
-      padding:14px;
-      overflow:auto;
-    }
-    .section{
-      background:rgba(255,255,255,.02);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:12px;
-      margin-bottom:12px;
-    }
-    .section h3{
-      margin:0 0 10px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-    }
-
-    /* Steps */
-    .steps{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .step{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding:10px;
-      border-radius:14px;
-      border:1px solid transparent;
-      cursor:pointer;
-      transition:.15s ease;
-      background:rgba(255,255,255,.02);
-    }
-    .step:hover{
-      border-color:rgba(124,92,255,.35);
-      background:rgba(124,92,255,.08);
-    }
-    .step.active{
-      border-color:rgba(124,92,255,.55);
-      background:rgba(124,92,255,.14);
-    }
-    .badge{
-      width:24px;height:24px;
-      border-radius:8px;
-      background:rgba(124,92,255,.22);
-      border:1px solid rgba(124,92,255,.35);
-      display:flex;align-items:center;justify-content:center;
-      font-size:12px;font-weight:700;
-      flex:0 0 auto;
-    }
-    .step .meta{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:0;
-    }
-    .step .title{
-      font-size:13px;
-      font-weight:600;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .step .sub{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    /* File upload */
-    .upload-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .btn{
-      appearance:none;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:600;
-      font-size:13px;
-      transition:.15s ease;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
-    }
-    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.20);}
-    .btn.primary{
-      background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));
-      border-color:rgba(124,92,255,.65);
-    }
-    .btn.primary:hover{border-color:rgba(124,92,255,.85);}
-    .btn.danger{
-      background:rgba(255,92,124,.10);
-      border-color:rgba(255,92,124,.35);
-      color:#ffdbe2;
-    }
-    .btn.ghost{
-      background:transparent;
-    }
-    input[type="file"]{display:none;}
-    .files{
-      margin-top:10px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      max-height:220px;
-      overflow:auto;
-      padding-right:4px;
-    }
-    .file{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:rgba(255,255,255,.02);
-    }
-    .file .name{
-      font-size:12px;
-      color:var(--text);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      min-width:0;
-    }
-    .file .actions{
-      display:flex; gap:8px; flex:0 0 auto;
-    }
-    .icon{
-      width:34px;height:34px;border-radius:10px;
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      display:flex;align-items:center;justify-content:center;
-      color:var(--muted);
-      font-weight:800;
-      font-size:12px;
-    }
-
-    /* Main content */
-    .main-top{
-      gap:12px;
-    }
-    .main-top .left{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
-    .main-top h2{
-      margin:0;
-      font-size:16px;
-      font-weight:800;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .main-top .desc{
-      margin:0;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .toolbar{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex:0 0 auto;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .content{
-      display:grid;
-      grid-template-rows: auto 1fr auto;
-      gap:12px;
-      padding:14px;
-      height:100%;
-      overflow:hidden;
-    }
+    .container{ max-width: 980px; margin: 0 auto; padding: 14px 14px 28px; }
 
     .grid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      min-height:0;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
-    .card{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      border-radius:var(--radius);
-      padding:12px;
-      min-width:0;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+    /* Progress */
+    .progress{ margin-top: 10px; margin-bottom: 14px; }
+    .progress-row{ display:flex; justify-content:flex-start; align-items:baseline; margin-bottom: 8px; }
+    .progress-label{ font-size:14px; color:var(--muted); }
+    .progress-bar{
+      width:100%; height:10px;
+      background: rgba(31,41,55,.08);
+      border-radius:999px; overflow:hidden;
     }
-    .card h3{
-      margin:0;
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-weight:700;
-    }
-    textarea{
-      width:100%;
-      min-height:260px;
-      resize:vertical;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      padding:12px;
-      font-size:13px;
-      line-height:1.55;
-      outline:none;
-    }
-    textarea:focus{
-      border-color:rgba(124,92,255,.55);
-      box-shadow:0 0 0 3px rgba(124,92,255,.15);
-    }
-    .hint{
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.5;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .switch{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-    }
-    .switch input{
-      width:42px;height:24px;
-      appearance:none;
+    .progress-fill{
+      height:100%;
+      background: rgba(59,130,246,.65);
       border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid var(--line);
+      transition: width .25s ease;
+    }
+
+    /* Cards */
+    .card{
       position:relative;
-      cursor:pointer;
+      background:var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      border:1px solid rgba(31,41,55,.08);
+      overflow:hidden;
+    }
+    .card-body{ padding: 18px 16px 16px; }
+    .card-title{ margin:0 0 6px; font-size:20px; font-weight:800; }
+    .card-text{ margin:0; color:var(--muted); line-height:1.35; font-size:16px; }
+
+    .card-orientador{ margin-top:10px; }
+    .card-accent{
+      position:absolute; left:0; top:0; bottom:0;
+      width:10px; background: var(--yellow);
+    }
+
+    .card-editor{
+      border:2px solid rgba(59,130,246,.35);
+      background: linear-gradient(0deg, var(--blue-soft), rgba(255,255,255,.92));
+    }
+    .card-subtitle{ margin:0 0 10px; font-size:18px; font-weight:800; }
+
+    /* Inputs */
+    .input, .textarea, select{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(31,41,55,.18);
+      padding: 10px 12px;
+      font-size: 14px;
       outline:none;
-      transition:.15s ease;
+      background:#fff;
     }
-    .switch input:checked{
-      background:rgba(51,214,159,.25);
-      border-color:rgba(51,214,159,.35);
+    .textarea{ font-size:16px; resize: vertical; }
+    .textarea:focus, .input:focus, select:focus{
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.15);
     }
-    .switch input::after{
-      content:"";
-      width:18px;height:18px;
-      border-radius:50%;
-      background:rgba(255,255,255,.85);
-      position:absolute;
-      top:50%;
-      left:4px;
-      transform:translateY(-50%);
-      transition:.15s ease;
-    }
-    .switch input:checked::after{left:20px;}
-    .switch label{
-      font-size:12px;
-      color:var(--text);
-      font-weight:600;
-    }
+    .hint{ margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.35; }
+    code{ background: rgba(31,41,55,.06); padding:2px 6px; border-radius: 8px; }
 
-    .statusbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 14px;
-      border-top:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      font-size:12px;
-      color:var(--muted);
-    }
-    .statusbar b{color:var(--text);}
-    .log{
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-size:12px;
-      line-height:1.45;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:12px;
+    .actions{ display:flex; gap:10px; margin-top:12px; flex-wrap: wrap; }
+    .actions .btn{ flex: 0 0 auto; }
+
+    /* Terminal */
+    .terminal{
+      margin-top: 12px;
+      background:#0b1220;
+      color:#e5e7eb;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.35;
+      min-height: 92px;
       overflow:auto;
-      min-height:260px;
+      white-space: pre-wrap;
     }
 
-    /* Responsive */
-    @media (max-width: 980px){
-      .app{grid-template-columns:1fr; height:auto;}
-      .grid{grid-template-columns:1fr;}
-      .sidebar{order:2}
-      .main{order:1; height:auto; min-height:70vh;}
+    /* Sections list */
+    .sections-head{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-bottom: 10px;
     }
+    .sections-title{ font-weight:900; font-size:16px; }
+    .section-item{
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      text-align:left;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(31,41,55,.12);
+      background: rgba(255,255,255,.85);
+      cursor:pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,.05);
+      margin-bottom: 10px;
+    }
+    .section-item.active{
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+      background: #fff;
+    }
+    .section-title{ font-weight:900; font-size:14px; margin-bottom: 2px; }
+    .section-meta{ font-size:12px; color: var(--muted); }
+    .section-right{ font-weight:900; color	pc: var(--text); min-width: 18px; text-align:right; }
 
-    /* Print (Export PDF) */
-    @media print{
-      body{background:#fff; color:#000;}
-      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none !important;}
-      .main{border:none; box-shadow:none;}
-      .content{padding:0;}
-      .grid{grid-template-columns:1fr;}
-      textarea, .log{
-        border:1px solid #ddd;
-        background:#fff;
-        color:#000;
-        min-height:auto;
-      }
-      textarea{
-        height:auto !important;
-      }
+    /* Attachments */
+    .attachment-row{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(31,41,55,.12);
+      background:#fff;
+      margin-bottom: 10px;
     }
+    .attachment-name{ font-weight:900; font-size: 13px; }
+    .attachment-meta{ font-size:12px; color: var(--muted); }
+    .muted{ color: var(--muted); font-size: 13px; }
+
+    /* Drawer */
+    .drawer{ position:fixed; inset:0; display:none; z-index:50; }
+    .drawer[data-open="true"]{ display:block; }
+    .drawer-overlay{ position:absolute; inset:0; background: rgba(0,0,0,.35); }
+    .drawer-panel{
+      position:absolute; top:0; bottom:0; left:0;
+      width: min(420px, 92vw);
+      background:#fff;
+      box-shadow: 30px 0 60px rgba(0,0,0,.18);
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+    }
+    .drawer-header{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 14px 14px;
+      border-bottom:1px solid var(--border);
+    }
+    .drawer-title{ font-weight:900; font-size:16px; }
+    .drawer-content{ padding: 14px; overflow:auto; }
+
+    /* Minor */
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 720px){ .row2{ grid-template-columns: 1fr; } }
+    .divider{ height:1px; background: rgba(31,41,55,.10); margin: 14px 0; }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sb-top">
-        <div class="brand">
-          <h1>Orientador de TCC Digital</h1>
-          <small>Frontend + Worker (POST /assist)</small>
-        </div>
-        <div class="pill" title="Status do serviço">
-          <span id="svcDot" class="dot"></span>
-          <span id="svcText">verificando…</span>
-        </div>
+  <header class="topbar">
+    <button class="btn menu-btn" id="btnMenu" type="button">Menu</button>
+
+    <div class="brand">
+      <div class="brand-title">T.</div>
+      <div class="brand-subtitle">D..</div>
+    </div>
+
+    <label class="evidence">
+      <input type="checkbox" id="evidenceMode" />
+      <span>Modo Evidência (citar apenas fontes)</span>
+    </label>
+  </header>
+
+  <main class="container">
+    <section class="progress">
+      <div class="progress-row">
+        <div class="progress-label">Progresso do TCC: <span id="progressValue">0%</span></div>
       </div>
-
-      <div class="sb-body">
-        <div class="section">
-          <h3>Etapas</h3>
-          <div class="steps" id="steps"></div>
-        </div>
-
-        <div class="section">
-          <h3>Anexos (PDF)</h3>
-          <div class="upload-row">
-            <label class="btn" for="pdfInput">Anexar PDF</label>
-            <input id="pdfInput" type="file" accept="application/pdf" multiple />
-            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar PDFs</button>
-          </div>
-          <div class="hint" style="margin-top:10px;">
-            Os PDFs ficam no seu navegador (local). Para usar “Modo Evidência”, você pode colar trechos relevantes no campo “Evidências”.
-          </div>
-          <div class="files" id="pdfList"></div>
-        </div>
-
-        <div class="section">
-          <h3>Exportação</h3>
-          <div class="upload-row" style="flex-wrap:wrap;">
-            <button class="btn" id="exportPdfBtn" type="button">Exportar PDF</button>
-            <button class="btn" id="exportDocxBtn" type="button">Exportar DOCX</button>
-            <button class="btn ghost" id="resetAllBtn" type="button">Reset geral</button>
-          </div>
-          <div class="hint" style="margin-top:10px;">
-            Exportar PDF usa impressão do navegador (formato limpo). DOCX gera um arquivo Word simples com o texto da etapa.
-          </div>
-        </div>
+      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
       </div>
-    </aside>
+    </section>
 
-    <!-- MAIN -->
-    <main class="main">
-      <div class="main-top">
-        <div class="left">
-          <h2 id="stepTitle">—</h2>
-          <p class="desc" id="stepDesc">—</p>
-        </div>
-
-        <div class="toolbar">
-          <div class="switch" title="Quando ativo, peça para a IA citar evidências fornecidas por você.">
-            <input id="evidenceToggle" type="checkbox" />
-            <label for="evidenceToggle">Modo Evidência</label>
-          </div>
-          <button class="btn" id="saveBtn" type="button">Salvar</button>
-          <button class="btn primary" id="askBtn" type="button">Orientar com IA</button>
-          <button class="btn danger" id="clearStepBtn" type="button">Limpar etapa</button>
-        </div>
+    <section class="card card-orientador">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <h2 class="card-title">Orientador:</h2>
+        <p class="card-text">
+          Escolha a seção, escreva um briefing curto e clique em “Gerar com IA” para preencher a seção com linguagem acadêmica.
+        </p>
       </div>
+    </section>
 
-      <div class="content">
-        <div class="grid">
-          <section class="card">
-            <h3>Seu texto</h3>
-            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa do TCC..."></textarea>
-            <div class="row">
-              <span class="hint">Autosave ativo. Último salvamento: <b id="lastSaved">—</b></span>
-              <span class="hint">Progresso: <b id="progress">0%</b></span>
+    <div class="grid">
+      <!-- Coluna esquerda: Estrutura + anexos -->
+      <section class="card">
+        <div class="card-body">
+          <div class="sections-head">
+            <div class="sections-title">Estrutura do TCC</div>
+            <select id="etapaSelect" class="input" title="Etapa geral">
+              <option value="tema">tema</option>
+              <option value="introducao">introducao</option>
+              <option value="problema">problema</option>
+              <option value="objetivo_geral">objetivo_geral</option>
+              <option value="objetivos_especificos">objetivos_especificos</option>
+              <option value="justificativa">justificativa</option>
+              <option value="referencial">referencial</option>
+              <option value="metodologia">metodologia</option>
+              <option value="resultados">resultados</option>
+              <option value="consideracoes_finais">consideracoes_finais</option>
+              <option value="referencias">referencias</option>
+            </select>
+          </div>
+
+          <div id="sectionsList"></div>
+
+          <div class="divider"></div>
+
+          <div class="sections-title">Anexar arquivos</div>
+          <p class="hint">Os anexos ficam listados e entram na “Lista de Anexos” no PDF/Word. (O conteúdo do arquivo não é enviado ao Worker.)</p>
+          <input id="fileInput" class="input" type="file" multiple />
+          <div style="height:10px"></div>
+          <div id="attachmentsList"></div>
+
+          <div class="divider"></div>
+
+          <div class="actions">
+            <button class="btn ghost" id="btnExportPDF" type="button">Exportar PDF</button>
+            <button class="btn ghost" id="btnExportDOCX" type="button">Exportar Word</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coluna direita: Editor da seção + briefing + terminal -->
+      <section class="card card-editor">
+        <div class="card-body">
+          <h3 class="card-subtitle" id="sectionEditorTitle">Seção</h3>
+
+          <div class="row2">
+            <div class="field">
+              <label class="hint" style="display:block;margin-bottom:6px">Título do Projeto</label>
+              <input id="projectTitle" class="input" type="text" placeholder="Título do trabalho" />
             </div>
-          </section>
-
-          <section class="card">
-            <h3>Evidências / Trechos de apoio</h3>
-            <textarea id="evidenceText" placeholder="Cole aqui trechos de PDFs, citações, notas, referências, dados, etc. (Opcional, mas recomendado no Modo Evidência)."></textarea>
-            <div class="hint">
-              Dica: se a IA “inventar”, ative o Modo Evidência e alimente esta área com trechos reais (copiados do PDF).
+            <div class="field">
+              <label class="hint" style="display:block;margin-bottom:6px">Instituição</label>
+              <input id="institutionName" class="input" type="text" placeholder="Universidade / Faculdade" />
             </div>
-          </section>
+          </div>
+
+          <div class="row2" style="margin-top:10px">
+            <div class="field">
+              <label class="hint" style="display:block;margin-bottom:6px">Autor</label>
+              <input id="authorName" class="input" type="text" placeholder="Seu nome" />
+            </div>
+            <div class="field">
+              <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker</label>
+              <input id="workerEndpoint" class="input" type="url" placeholder="https://seu-worker.workers.dev/assist" />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <label class="hint" style="display:block;margin-bottom:6px">Briefing do aluno (o que você quer que a IA escreva nesta seção)</label>
+          <textarea id="studentText" class="textarea" rows="4" placeholder="Ex.: Faça uma introdução sobre Gestão da Informação em bibliotecas universitárias, com recorte em orientação de TCC e tecnologia educacional."></textarea>
+
+          <div class="actions">
+            <button class="btn primary" id="btnGenerateSection" type="button">Gerar com IA (seção atual)</button>
+            <button class="btn ghost" id="btnSaveSection" type="button">Salvar seção</button>
+            <button class="btn ghost" id="btnOrientar" type="button">Aplicar briefing na seção</button>
+            <button class="btn ghost" id="btnSalvar" type="button">Salvar (rápido)</button>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <label class="hint" style="display:block;margin-bottom:6px">Conteúdo da seção (editável)</label>
+          <textarea id="sectionEditorText" class="textarea" rows="14" placeholder="O texto da seção selecionada aparece aqui..."></textarea>
+
+          <pre class="terminal" id="terminal" aria-live="polite">Aguardando...</pre>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Drawer/Menu -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="drawer-header">
+        <div class="drawer-title">Configurações</div>
+        <button class="btn icon" id="btnCloseDrawer" type="button" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="drawer-content">
+        <div class="field">
+          <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker (com /assist)</label>
+          <input
+            id="workerEndpointMenu"
+            class="input"
+            type="url"
+            placeholder="https://orientador-tcc-api.seudominio.workers.dev/assist"
+          />
+          <p class="hint">Cole aqui o link do seu Worker finalizando em <code>/assist</code>.</p>
         </div>
 
-        <section class="card" style="min-height:0;">
-          <h3>Resposta da IA</h3>
-          <div id="aiOut" class="log">—</div>
-        </section>
-      </div>
+        <div class="field">
+          <label class="hint" style="display:block;margin-bottom:6px">Meta (salva no documento)</label>
+          <div class="row2">
+            <input id="projectTitleMenu" class="input" type="text" placeholder="Título do projeto" />
+            <input id="authorNameMenu" class="input" type="text" placeholder="Autor" />
+          </div>
+          <div style="height:10px"></div>
+          <input id="institutionNameMenu" class="input" type="text" placeholder="Instituição" />
+        </div>
 
-      <div class="statusbar">
-        <span>Status: <b id="runtimeStatus">pronto</b></span>
-        <span>Endpoint: <b id="endpointLabel">/assist</b></span>
+        <div class="actions">
+          <button class="btn primary" id="btnSaveConfig" type="button">Salvar</button>
+          <button class="btn ghost" id="btnResetConfig" type="button">Restaurar padrão</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="hint">
+          Dica: se sua chamada ao Worker falhar por CORS, habilite CORS no Worker (Access-Control-Allow-Origin).
+        </p>
       </div>
-    </main>
-  </div>
+    </div>
+  </aside>
 
   <script>
-    // ---------------------------
-    // Configuração de etapas
-    // ---------------------------
-    const STEPS = [
-      { id: "tema", title: "Tema / Introdução", desc: "Delimite o tema e contextualize o problema." },
-      { id: "problema", title: "Problema de Pesquisa", desc: "Formule a pergunta central e o recorte." },
-      { id: "objetivos", title: "Objetivos", desc: "Geral e específicos (com verbos no infinitivo)." },
-      { id: "justificativa", title: "Justificativa", desc: "Relevância acadêmica e social; por que vale pesquisar." },
-      { id: "referencial", title: "Referencial Teórico", desc: "Base conceitual (autores, conceitos, categorias)." },
-      { id: "metodologia", title: "Metodologia", desc: "Abordagem, tipo de pesquisa, técnicas e instrumentos." },
-      { id: "cronograma", title: "Cronograma", desc: "Planejamento por etapas e prazos." },
-      { id: "elementos", title: "Elementos Pré-textuais", desc: "Resumo, palavras-chave, abstract, etc." },
-      { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido pela instituição/revista." }
+    /* =========================================================
+       ORIENTADOR TCC - APP
+    ========================================================= */
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const el = {
+      btnMenu: $("#btnMenu"),
+      drawer: $("#drawer"),
+      drawerOverlay: $("#drawerOverlay"),
+      btnCloseDrawer: $("#btnCloseDrawer"),
+
+      evidenceMode: $("#evidenceMode"),
+      progressValue: $("#progressValue"),
+      progressFill: $("#progressFill"),
+
+      etapaSelect: $("#etapaSelect"),
+
+      workerEndpoint: $("#workerEndpoint"),
+      projectTitle: $("#projectTitle"),
+      authorName: $("#authorName"),
+      institutionName: $("#institutionName"),
+
+      studentText: $("#studentText"),
+      terminal: $("#terminal"),
+
+      sectionsList: $("#sectionsList"),
+      sectionEditorTitle: $("#sectionEditorTitle"),
+      sectionEditorText: $("#sectionEditorText"),
+
+      btnGenerateSection: $("#btnGenerateSection"),
+      btnSaveSection: $("#btnSaveSection"),
+      btnOrientar: $("#btnOrientar"),
+      btnSalvar: $("#btnSalvar"),
+
+      fileInput: $("#fileInput"),
+      attachmentsList: $("#attachmentsList"),
+
+      btnExportPDF: $("#btnExportPDF"),
+      btnExportDOCX: $("#btnExportDOCX"),
+
+      // Menu fields
+      workerEndpointMenu: $("#workerEndpointMenu"),
+      projectTitleMenu: $("#projectTitleMenu"),
+      authorNameMenu: $("#authorNameMenu"),
+      institutionNameMenu: $("#institutionNameMenu"),
+      btnSaveConfig: $("#btnSaveConfig"),
+      btnResetConfig: $("#btnResetConfig"),
+    };
+
+    const LS_KEY = "orientador_tcc_state_ready_v1";
+
+    const TCC_STRUCTURE = [
+      { id: "capa", title: "Capa (informações)", required: true },
+      { id: "resumo", title: "Resumo", required: true },
+      { id: "abstract", title: "Abstract", required: false },
+      { id: "introducao", title: "1. Introdução", required: true },
+      { id: "problema", title: "2. Problema de Pesquisa", required: true },
+      { id: "objetivo_geral", title: "3. Objetivo Geral", required: true },
+      { id: "objetivos_especificos", title: "4. Objetivos Específicos", required: true },
+      { id: "justificativa", title: "5. Justificativa", required: true },
+      { id: "referencial", title: "6. Referencial Teórico", required: true },
+      { id: "metodologia", title: "7. Metodologia", required: true },
+      { id: "resultados", title: "8. Resultados (ou Resultados Esperados)", required: false },
+      { id: "cronograma", title: "9. Cronograma", required: false },
+      { id: "consideracoes", title: "10. Considerações Finais", required: true },
+      { id: "referencias", title: "Referências", required: true },
+      { id: "apendices", title: "Apêndices", required: false },
+      { id: "anexos", title: "Anexos", required: false },
     ];
 
-    // ---------------------------
-    // Storage keys
-    // ---------------------------
-    const STORE_KEY = "orientador_tcc_v2";
-    const STORE_PDFS = "orientador_pdfs_v2";
-    const STORE_ACTIVE = "orientador_active_step_v2";
-    const STORE_EVID = "orientador_evidence_v2";
-    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v2";
+    const DEFAULT_STATE = {
+      config: {
+        workerEndpoint: "https://orientador-ia.vitor.workers.dev/assist",
+        evidenceMode: false,
+      },
+      meta: {
+        projectTitle: "Orientador de TCC Digital",
+        authorName: "José Ivan Vitor Cordeiro",
+        institutionName: "Universidade Estadual do Ceará (UECE)",
+      },
+      selectedSectionId: "introducao",
+      sections: TCC_STRUCTURE.reduce((acc, s) => {
+        acc[s.id] = { title: s.title, content: "" };
+        return acc;
+      }, {}),
+      attachments: [],
+    };
 
-    // ---------------------------
-    // DOM
-    // ---------------------------
-    const stepsEl = document.getElementById("steps");
-    const stepTitleEl = document.getElementById("stepTitle");
-    const stepDescEl = document.getElementById("stepDesc");
-    const userTextEl = document.getElementById("userText");
-    const evidenceTextEl = document.getElementById("evidenceText");
-    const aiOutEl = document.getElementById("aiOut");
-    const lastSavedEl = document.getElementById("lastSaved");
-    const progressEl = document.getElementById("progress");
-
-    const pdfInputEl = document.getElementById("pdfInput");
-    const pdfListEl = document.getElementById("pdfList");
-    const clearPdfsBtn = document.getElementById("clearPdfsBtn");
-
-    const saveBtn = document.getElementById("saveBtn");
-    const askBtn = document.getElementById("askBtn");
-    const clearStepBtn = document.getElementById("clearStepBtn");
-    const resetAllBtn = document.getElementById("resetAllBtn");
-    const exportPdfBtn = document.getElementById("exportPdfBtn");
-    const exportDocxBtn = document.getElementById("exportDocxBtn");
-
-    const evidenceToggleEl = document.getElementById("evidenceToggle");
-    const runtimeStatusEl = document.getElementById("runtimeStatus");
-    const svcDot = document.getElementById("svcDot");
-    const svcText = document.getElementById("svcText");
-
-    // ---------------------------
-    // Estado
-    // ---------------------------
-    let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
-
-    function loadStore(){
-      try {
-        return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
-      } catch {
-        return {};
-      }
+    function safeParse(raw){ try{ return JSON.parse(raw); }catch{ return null; } }
+    function normalizeEndpoint(url){
+      const u = (url || "").trim();
+      if (!u) return "";
+      if (!u.endsWith("/assist")) return u.replace(/\/+$/, "") + "/assist";
+      return u;
     }
-    function saveStore(data){
-      localStorage.setItem(STORE_KEY, JSON.stringify(data));
-      lastSavedEl.textContent = new Date().toLocaleString();
-      updateProgress();
+    function loadState(){
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return structuredClone(DEFAULT_STATE);
+      const parsed = safeParse(raw);
+      if (!parsed) return structuredClone(DEFAULT_STATE);
+
+      const s = structuredClone(DEFAULT_STATE);
+      s.config = { ...s.config, ...(parsed.config || {}) };
+      s.meta = { ...s.meta, ...(parsed.meta || {}) };
+      s.selectedSectionId = parsed.selectedSectionId || s.selectedSectionId;
+      s.sections = { ...s.sections, ...(parsed.sections || {}) };
+      s.attachments = Array.isArray(parsed.attachments) ? parsed.attachments : [];
+      return s;
+    }
+    function saveState(state){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+    function setDrawer(open){
+      el.drawer.dataset.open = open ? "true" : "false";
+      el.drawer.setAttribute("aria-hidden", open ? "false" : "true");
     }
 
-    function loadPdfs(){
-      try { return JSON.parse(localStorage.getItem(STORE_PDFS) || "[]"); } catch { return []; }
-    }
-    function savePdfs(list){
-      localStorage.setItem(STORE_PDFS, JSON.stringify(list));
-      renderPdfs();
+    function logTerminal(msg, append=false){
+      if (!append) el.terminal.textContent = String(msg ?? "");
+      else el.terminal.textContent = el.terminal.textContent + "\n" + String(msg ?? "");
     }
 
-    function setStatus(type, text){
-      runtimeStatusEl.textContent = text;
-      svcText.textContent = text;
-      svcDot.classList.remove("ok","bad");
-      if(type === "ok") svcDot.classList.add("ok");
-      if(type === "bad") svcDot.classList.add("bad");
+    function calcProgress(state){
+      const required = TCC_STRUCTURE.filter(s => s.required);
+      const total = required.length || 1;
+      const done = required.filter(s => (state.sections?.[s.id]?.content || "").trim().length > 30).length;
+      return Math.round((done / total) * 100);
+    }
+    function setProgress(pct){
+      const v = Math.max(0, Math.min(100, Number(pct) || 0));
+      el.progressValue.textContent = `${v}%`;
+      el.progressFill.style.width = `${v}%`;
+      const pb = document.querySelector(".progress-bar");
+      if (pb) pb.setAttribute("aria-valuenow", String(v));
     }
 
-    // ---------------------------
-    // Render steps
-    // ---------------------------
-    function renderSteps(){
-      stepsEl.innerHTML = "";
-      const store = loadStore();
+    function renderSectionsList(state){
+      el.sectionsList.innerHTML = "";
+      for (const s of TCC_STRUCTURE){
+        const content = (state.sections?.[s.id]?.content || "").trim();
+        const isDone = content.length > 30;
 
-      STEPS.forEach((s, idx) => {
-        const filled = (store[s.id] || "").trim().length > 0;
-        const el = document.createElement("div");
-        el.className = "step" + (s.id === activeStep ? " active" : "");
-        el.innerHTML = `
-          <div class="badge">${idx+1}</div>
-          <div class="meta">
-            <div class="title">${s.title}</div>
-            <div class="sub">${filled ? "Preenchida" : "Vazia"}</div>
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "section-item" + (state.selectedSectionId === s.id ? " active" : "");
+        btn.innerHTML = `
+          <div class="section-left">
+            <div class="section-title">${s.title}</div>
+            <div class="section-meta">${s.required ? "Obrigatório" : "Opcional"} • ${isDone ? "Preenchido" : "Vazio"}</div>
           </div>
+          <div class="section-right">${isDone ? "✓" : ""}</div>
         `;
-        el.addEventListener("click", () => {
-          activeStep = s.id;
-          localStorage.setItem(STORE_ACTIVE, activeStep);
-          openStep(activeStep);
-          renderSteps();
+        btn.addEventListener("click", () => {
+          state.selectedSectionId = s.id;
+          saveState(state);
+          syncSectionEditor(state);
+          renderSectionsList(state);
         });
-        stepsEl.appendChild(el);
-      });
-      updateProgress();
-    }
 
-    function openStep(stepId){
-      const s = STEPS.find(x => x.id === stepId) || STEPS[0];
-      const store = loadStore();
-
-      stepTitleEl.textContent = s.title;
-      stepDescEl.textContent = s.desc;
-
-      userTextEl.value = store[stepId] || "";
-      evidenceTextEl.value = localStorage.getItem(STORE_EVID) || "";
-      evidenceToggleEl.checked = (localStorage.getItem(STORE_EVID_TOGGLE) === "true");
-
-      aiOutEl.textContent = "—";
-    }
-
-    function updateProgress(){
-      const store = loadStore();
-      const total = STEPS.length;
-      let done = 0;
-      for(const s of STEPS){
-        if((store[s.id] || "").trim().length > 0) done++;
+        el.sectionsList.appendChild(btn);
       }
-      const pct = Math.round((done/total)*100);
-      progressEl.textContent = `${pct}%`;
     }
 
-    // ---------------------------
-    // PDF management (metadata only)
-    // ---------------------------
-    function renderPdfs(){
-      const list = loadPdfs();
-      pdfListEl.innerHTML = "";
-      if(list.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "hint";
-        empty.textContent = "Nenhum PDF anexado ainda.";
-        pdfListEl.appendChild(empty);
+    function syncSectionEditor(state){
+      const sid = state.selectedSectionId;
+      const sec = state.sections?.[sid] || { title: sid, content: "" };
+      el.sectionEditorTitle.textContent = sec.title || sid;
+      el.sectionEditorText.value = sec.content || "";
+    }
+
+    function renderAttachments(state){
+      el.attachmentsList.innerHTML = "";
+      if (!state.attachments.length){
+        el.attachmentsList.innerHTML = `<div class="muted">Nenhum anexo ainda.</div>`;
         return;
       }
-
-      for(const item of list){
+      state.attachments.forEach((a, idx) => {
         const row = document.createElement("div");
-        row.className = "file";
+        row.className = "attachment-row";
         row.innerHTML = `
-          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-            <div class="icon">PDF</div>
-            <div class="name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+          <div>
+            <div class="attachment-name">${a.name}</div>
+            <div class="attachment-meta">${a.type || "arquivo"} • ${(a.size/1024).toFixed(1)} KB</div>
           </div>
-          <div class="actions">
-            <button class="btn danger" data-id="${item.id}" type="button">Remover</button>
-          </div>
+          <button class="btn small ghost" type="button">Remover</button>
         `;
         row.querySelector("button").addEventListener("click", () => {
-          const updated = loadPdfs().filter(x => x.id !== item.id);
-          savePdfs(updated);
+          state.attachments.splice(idx, 1);
+          saveState(state);
+          renderAttachments(state);
+          setProgress(calcProgress(state));
         });
-        pdfListEl.appendChild(row);
-      }
+        el.attachmentsList.appendChild(row);
+      });
     }
 
-    function escapeHtml(str){
-      return (str||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-                      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
-
-    pdfInputEl.addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files || []);
-      if(files.length === 0) return;
-
-      // Guardamos apenas metadados (nome, tamanho) no localStorage.
-      // Se quiser leitura real de PDF no navegador (pdf.js + extração), eu implemento na próxima versão.
-      const list = loadPdfs();
-      for(const f of files){
-        list.push({
-          id: crypto.randomUUID(),
-          name: f.name,
-          size: f.size,
-          addedAt: Date.now()
-        });
-      }
-      savePdfs(list);
-      pdfInputEl.value = "";
-    });
-
-    clearPdfsBtn.addEventListener("click", () => {
-      savePdfs([]);
-    });
-
-    // ---------------------------
-    // Save / autosave
-    // ---------------------------
-    function saveCurrentStep(){
-      const store = loadStore();
-      store[activeStep] = userTextEl.value;
-      saveStore(store);
-
-      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
-      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
-
-      renderSteps();
-    }
-
-    let autosaveTimer = null;
-    function scheduleAutosave(){
-      if(autosaveTimer) clearTimeout(autosaveTimer);
-      autosaveTimer = setTimeout(saveCurrentStep, 600);
-    }
-
-    userTextEl.addEventListener("input", scheduleAutosave);
-    evidenceTextEl.addEventListener("input", () => {
-      localStorage.setItem(STORE_EVID, evidenceTextEl.value);
-    });
-    evidenceToggleEl.addEventListener("change", () => {
-      localStorage.setItem(STORE_EVID_TOGGLE, evidenceToggleEl.checked ? "true" : "false");
-    });
-
-    saveBtn.addEventListener("click", saveCurrentStep);
-
-    clearStepBtn.addEventListener("click", () => {
-      userTextEl.value = "";
-      saveCurrentStep();
-      aiOutEl.textContent = "—";
-    });
-
-    resetAllBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORE_KEY);
-      localStorage.removeItem(STORE_PDFS);
-      localStorage.removeItem(STORE_EVID);
-      localStorage.removeItem(STORE_EVID_TOGGLE);
-      localStorage.removeItem(STORE_ACTIVE);
-      activeStep = STEPS[0].id;
-      localStorage.setItem(STORE_ACTIVE, activeStep);
-      renderPdfs();
-      renderSteps();
-      openStep(activeStep);
-      lastSavedEl.textContent = "—";
-      aiOutEl.textContent = "—";
-    });
-
-    // ---------------------------
-    // Health check
-    // ---------------------------
-    async function checkHealth(){
-      try{
-        const r = await fetch("/health", { method:"GET" });
-        const j = await r.json().catch(() => ({}));
-        if(r.ok && j.ok){
-          setStatus("ok","online");
-        }else{
-          setStatus("bad","offline");
-        }
-      }catch{
-        setStatus("bad","offline");
-      }
-    }
-
-    // ---------------------------
-    // Call IA (POST /assist)
-    // ---------------------------
-    async function callAssist(){
-      saveCurrentStep();
-
-      const stepInfo = STEPS.find(s => s.id === activeStep);
-      const evidenceMode = evidenceToggleEl.checked;
-
-      const userText = userTextEl.value.trim();
-      const evid = (evidenceTextEl.value || "").trim();
-
-      if(!userText){
-        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
-        return;
-      }
-
-      runtimeStatusEl.textContent = "consultando IA…";
-      aiOutEl.textContent = "Gerando orientação…";
-
-      // Prompt de controle (não “robótico”, mas bem guiado)
-      const systemGuide =
-`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
-Entregue uma orientação clara, didática, sem linguagem robótica.
-Regras:
-- Não invente referências.
-- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e diga onde foram usados.
-- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
-- Linguagem em português do Brasil.
-`;
-
-      const payload = {
-        stepId: activeStep,
-        stepTitle: stepInfo.title,
-        evidenceMode,
-        text: userText,
-        evidences: evid,
-        guide: systemGuide
+    function sectionToEtapa(sectionId){
+      const map = {
+        introducao: "introducao",
+        problema: "problema",
+        objetivo_geral: "objetivo_geral",
+        objetivos_especificos: "objetivos_especificos",
+        justificativa: "justificativa",
+        referencial: "referencial",
+        metodologia: "metodologia",
+        resultados: "resultados",
+        consideracoes: "consideracoes_finais",
+        referencias: "referencias",
+        resumo: "resumo",
+        abstract: "abstract",
       };
+      return map[sectionId] || "tema";
+    }
+
+    async function callWorker({ endpoint, etapa, text, evidenceMode }){
+      const payload = { etapa, texto: text, modo_evidencia: !!evidenceMode };
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 20000);
 
       try{
-        const res = await fetch("/assist", {
+        const res = await fetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
         });
-
-        const data = await res.json().catch(() => ({}));
-
-        if(!res.ok){
-          const msg = data?.error || `Erro HTTP ${res.status}`;
-          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
-          runtimeStatusEl.textContent = "erro";
-          return;
-        }
-
-        // Aceita formatos diferentes do backend (data.text / data.output / data.answer)
-        const out = data.text || data.output || data.answer || data.result || "";
-        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
-        runtimeStatusEl.textContent = "pronto";
-      }catch(err){
-        aiOutEl.textContent = "Erro de rede ao chamar /assist. Verifique o Worker, CORS e se o endpoint está online.";
-        runtimeStatusEl.textContent = "erro";
+        const ct = res.headers.get("content-type") || "";
+        const data = ct.includes("application/json") ? await res.json() : { text: await res.text() };
+        if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+        return data;
+      } finally {
+        clearTimeout(t);
       }
     }
 
-    askBtn.addEventListener("click", callAssist);
+    async function exportPDF(state){
+      const { jsPDF } = window.jspdf || {};
+      if (!jsPDF){ logTerminal("Erro: jsPDF não carregou (CDN)."); return; }
 
-    // ---------------------------
-    // Export PDF (print)
-    // ---------------------------
-    exportPdfBtn.addEventListener("click", () => {
-      // Sugestão: antes de imprimir, garantir salvamento
-      saveCurrentStep();
-      window.print();
-    });
+      const doc = new jsPDF({ unit:"pt", format:"a4" });
+      const margin = 48;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
 
-    // ---------------------------
-    // Export DOCX
-    // ---------------------------
-    exportDocxBtn.addEventListener("click", async () => {
-      try{
-        saveCurrentStep();
-
-        const stepInfo = STEPS.find(s => s.id === activeStep);
-        const text = userTextEl.value || "";
-        const evid = evidenceTextEl.value || "";
-
-        if(!window.docx || !window.saveAs){
-          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
-          return;
-        }
-
-        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
-
-        const doc = new Document({
-          sections: [{
-            properties: {},
-            children: [
-              new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
-              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
-              new Paragraph({ children: [ new TextRun(text) ] }),
-              new Paragraph({ text: "" }),
-              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
-              new Paragraph({ children: [ new TextRun(evid || "—") ] })
-            ]
-          }]
-        });
-
-        const blob = await Packer.toBlob(doc);
-        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
-      }catch(e){
-        alert("Falha ao exportar DOCX: " + (e?.message || e));
+      function addTitle(txt){
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(16);
+        const lines = doc.splitTextToSize(txt, maxWidth);
+        doc.text(lines, margin, y);
+        y += lines.length * 18 + 8;
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(11);
       }
-    });
+      function addParagraph(txt){
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(11);
+        const lines = doc.splitTextToSize(txt, maxWidth);
+        for (const line of lines){
+          if (y > pageHeight - margin){ doc.addPage(); y = margin; }
+          doc.text(line, margin, y);
+          y += 14;
+        }
+        y += 10;
+      }
 
-    // ---------------------------
-    // Init
-    // ---------------------------
+      addTitle(state.meta.projectTitle || "Trabalho");
+      addParagraph(`Autor: ${state.meta.authorName || ""}`);
+      addParagraph(`Instituição: ${state.meta.institutionName || ""}`);
+      addParagraph(`Data: ${new Date().toLocaleDateString("pt-BR")}`);
+
+      doc.addPage(); y = margin;
+      addTitle("Sumário");
+      for (const s of TCC_STRUCTURE) addParagraph(s.title);
+
+      for (const s of TCC_STRUCTURE){
+        const content = (state.sections?.[s.id]?.content || "").trim();
+        if (!content) continue;
+        doc.addPage(); y = margin;
+        addTitle(s.title);
+        addParagraph(content);
+      }
+
+      if (state.attachments.length){
+        doc.addPage(); y = margin;
+        addTitle("Lista de Anexos");
+        for (const a of state.attachments){
+          addParagraph(`- ${a.name} (${a.type || "arquivo"}, ${(a.size/1024).toFixed(1)} KB)`);
+        }
+      }
+
+      const name = (state.meta.projectTitle || "tcc").replace(/[^\w\-]+/g,"_");
+      doc.save(`${name}.pdf`);
+    }
+
+    async function exportDOCX(state){
+      const docx = window.docx;
+      if (!docx || !window.saveAs){ logTerminal("Erro: docx/FileSaver não carregou (CDN)."); return; }
+
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+      const children = [];
+
+      children.push(new Paragraph({
+        heading: HeadingLevel.TITLE,
+        children: [new TextRun({ text: state.meta.projectTitle || "Trabalho", bold:true })],
+      }));
+      children.push(new Paragraph(`Autor: ${state.meta.authorName || ""}`));
+      children.push(new Paragraph(`Instituição: ${state.meta.institutionName || ""}`));
+      children.push(new Paragraph(`Data: ${new Date().toLocaleDateString("pt-BR")}`));
+      children.push(new Paragraph(""));
+
+      children.push(new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: "Sumário", bold:true })],
+      }));
+      for (const s of TCC_STRUCTURE) children.push(new Paragraph(`- ${s.title}`));
+      children.push(new Paragraph(""));
+
+      for (const s of TCC_STRUCTURE){
+        const content = (state.sections?.[s.id]?.content || "").trim();
+        if (!content) continue;
+
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          children: [new TextRun({ text: s.title, bold:true })],
+        }));
+
+        const parts = content.split(/\n{2,}/g).map(p => p.trim()).filter(Boolean);
+        for (const p of parts) children.push(new Paragraph(p));
+        children.push(new Paragraph(""));
+      }
+
+      if (state.attachments.length){
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          children: [new TextRun({ text: "Lista de Anexos", bold:true })],
+        }));
+        for (const a of state.attachments){
+          children.push(new Paragraph(`- ${a.name} (${a.type || "arquivo"}, ${(a.size/1024).toFixed(1)} KB)`));
+        }
+      }
+
+      const doc = new Document({ sections: [{ children }] });
+      const blob = await Packer.toBlob(doc);
+      const name = (state.meta.projectTitle || "tcc").replace(/[^\w\-]+/g,"_");
+      window.saveAs(blob, `${name}.docx`);
+    }
+
+    function fileMeta(file){
+      return { name:file.name, type:file.type, size:file.size, lastModified:file.lastModified };
+    }
+
+    // INIT
     (function init(){
-      renderSteps();
-      renderPdfs();
-      openStep(activeStep);
+      const state = loadState();
 
-      // Marca último salvamento se existir
-      const existing = localStorage.getItem(STORE_KEY);
-      if(existing) lastSavedEl.textContent = "carregado do navegador";
+      // Populate fields
+      el.workerEndpoint.value = normalizeEndpoint(state.config.workerEndpoint || "");
+      el.evidenceMode.checked = !!state.config.evidenceMode;
 
-      checkHealth();
-      setInterval(checkHealth, 15000);
+      el.projectTitle.value = state.meta.projectTitle || "";
+      el.authorName.value = state.meta.authorName || "";
+      el.institutionName.value = state.meta.institutionName || "";
+
+      // Menu mirrors
+      el.workerEndpointMenu.value = el.workerEndpoint.value;
+      el.projectTitleMenu.value = el.projectTitle.value;
+      el.authorNameMenu.value = el.authorName.value;
+      el.institutionNameMenu.value = el.institutionName.value;
+
+      renderSectionsList(state);
+      syncSectionEditor(state);
+      renderAttachments(state);
+      setProgress(calcProgress(state));
+      logTerminal("Aguardando...");
+
+      // Drawer handlers
+      el.btnMenu.addEventListener("click", () => setDrawer(true));
+      el.btnCloseDrawer.addEventListener("click", () => setDrawer(false));
+      el.drawerOverlay.addEventListener("click", () => setDrawer(false));
+
+      // Evidence mode
+      el.evidenceMode.addEventListener("change", () => {
+        state.config.evidenceMode = !!el.evidenceMode.checked;
+        saveState(state);
+      });
+
+      function persistMetaConfig(){
+        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
+        state.meta.projectTitle = el.projectTitle.value || "";
+        state.meta.authorName = el.authorName.value || "";
+        state.meta.institutionName = el.institutionName.value || "";
+        saveState(state);
+
+        // keep menu in sync
+        el.workerEndpointMenu.value = state.config.workerEndpoint;
+        el.projectTitleMenu.value = state.meta.projectTitle;
+        el.authorNameMenu.value = state.meta.authorName;
+        el.institutionNameMenu.value = state.meta.institutionName;
+      }
+
+      el.workerEndpoint.addEventListener("change", persistMetaConfig);
+      el.projectTitle.addEventListener("input", persistMetaConfig);
+      el.authorName.addEventListener("input", persistMetaConfig);
+      el.institutionName.addEventListener("input", persistMetaConfig);
+
+      // Menu save/reset
+      el.btnSaveConfig.addEventListener("click", () => {
+        el.workerEndpoint.value = normalizeEndpoint(el.workerEndpointMenu.value);
+        el.projectTitle.value = el.projectTitleMenu.value || "";
+        el.authorName.value = el.authorNameMenu.value || "";
+        el.institutionName.value = el.institutionNameMenu.value || "";
+
+        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
+        state.meta.projectTitle = el.projectTitle.value;
+        state.meta.authorName = el.authorName.value;
+        state.meta.institutionName = el.institutionName.value;
+
+        saveState(state);
+        logTerminal("Configuração salva.");
+        setDrawer(false);
+      });
+
+      el.btnResetConfig.addEventListener("click", () => {
+        state.config.workerEndpoint = DEFAULT_STATE.config.workerEndpoint;
+        state.config.evidenceMode = DEFAULT_STATE.config.evidenceMode;
+        state.meta = { ...DEFAULT_STATE.meta };
+
+        el.workerEndpoint.value = state.config.workerEndpoint;
+        el.evidenceMode.checked = state.config.evidenceMode;
+        el.projectTitle.value = state.meta.projectTitle;
+        el.authorName.value = state.meta.authorName;
+        el.institutionName.value = state.meta.institutionName;
+
+        el.workerEndpointMenu.value = state.config.workerEndpoint;
+        el.projectTitleMenu.value = state.meta.projectTitle;
+        el.authorNameMenu.value = state.meta.authorName;
+        el.institutionNameMenu.value = state.meta.institutionName;
+
+        saveState(state);
+        setProgress(calcProgress(state));
+        logTerminal("Restaurado para o padrão.");
+      });
+
+      // Save section
+      el.btnSaveSection.addEventListener("click", () => {
+        const sid = state.selectedSectionId;
+        state.sections[sid].content = el.sectionEditorText.value || "";
+        saveState(state);
+        renderSectionsList(state);
+        setProgress(calcProgress(state));
+        logTerminal(`Seção salva: ${state.sections[sid].title}`);
+      });
+
+      // Quick save
+      el.btnSalvar.addEventListener("click", () => {
+        const sid = state.selectedSectionId;
+        state.sections[sid].content = el.sectionEditorText.value || "";
+        saveState(state);
+        setProgress(calcProgress(state));
+        logTerminal(`Salvo. Seção: ${state.sections[sid].title}`);
+      });
+
+      // Apply briefing (does not overwrite long content)
+      el.btnOrientar.addEventListener("click", () => {
+        const sid = state.selectedSectionId;
+        const briefing = (el.studentText.value || "").trim();
+        if (!briefing){ logTerminal("Digite um briefing antes de aplicar."); return; }
+
+        const current = (state.sections[sid].content || "").trim();
+        if (current.length < 50){
+          state.sections[sid].content = briefing;
+          el.sectionEditorText.value = briefing;
+          saveState(state);
+          renderSectionsList(state);
+          setProgress(calcProgress(state));
+          logTerminal(`Briefing aplicado na seção: ${state.sections[sid].title}`);
+        } else {
+          logTerminal("Esta seção já tem conteúdo. Use 'Gerar com IA' para aprimorar sem perder o texto.");
+        }
+      });
+
+      // Generate with IA (section)
+      el.btnGenerateSection.addEventListener("click", async () => {
+        const endpoint = normalizeEndpoint(el.workerEndpoint.value);
+        if (!endpoint){ logTerminal("Configure o endpoint do Worker (com /assist)."); return; }
+
+        const sid = state.selectedSectionId;
+        const etapa = sectionToEtapa(sid);
+        const briefing = (el.studentText.value || "").trim();
+        const current = (el.sectionEditorText.value || "").trim();
+
+        const input = [
+          briefing ? `Briefing do aluno:\n${briefing}` : "",
+          current ? `Rascunho atual da seção:\n${current}` : "",
+          `Meta:\nTítulo: ${state.meta.projectTitle}\nAutor: ${state.meta.authorName}\nInstituição: ${state.meta.institutionName}`,
+          `Tarefa: produzir/aperfeiçoar a seção "${state.sections[sid].title}" em linguagem acadêmica.`
+        ].filter(Boolean).join("\n\n");
+
+        logTerminal(`Worker OK. Etapa: ${etapa}. Seção: ${sid}.`);
+
+        try{
+          const result = await callWorker({
+            endpoint,
+            etapa,
+            text: input,
+            evidenceMode: !!el.evidenceMode.checked,
+          });
+
+          const resposta =
+            result?.resposta ??
+            result?.output ??
+            result?.text ??
+            (typeof result === "string" ? result : JSON.stringify(result, null, 2));
+
+          el.sectionEditorText.value = resposta;
+          state.sections[sid].content = resposta;
+
+          saveState(state);
+          renderSectionsList(state);
+          setProgress(calcProgress(state));
+
+          logTerminal(`Worker OK. Etapa: ${etapa}.\n\n--- Seção gerada ---\n${resposta}`);
+        } catch (err){
+          const msg = err?.name === "AbortError" ? "Timeout ao chamar o Worker." : `Falha ao chamar o Worker: ${err?.message || err}`;
+          logTerminal(`Worker ERROR. Etapa: ${etapa}.\n${msg}`);
+        }
+      });
+
+      // Attachments upload
+      el.fileInput.addEventListener("change", (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        for (const f of files) state.attachments.push(fileMeta(f));
+        saveState(state);
+        renderAttachments(state);
+        setProgress(calcProgress(state));
+        logTerminal(`Anexos adicionados: ${files.length}`);
+        el.fileInput.value = "";
+      });
+
+      // Export
+      el.btnExportPDF.addEventListener("click", () => exportPDF(state));
+      el.btnExportDOCX.addEventListener("click", () => exportDOCX(state));
     })();
   </script>
 </body>
