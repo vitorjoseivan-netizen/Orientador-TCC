@@ -7,305 +7,446 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- PDF.js (leitura real de PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
 
-  <!-- (Opcional) Exportar DOCX -->
+  <!-- Exportar DOCX -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <style>
     :root{
-      --bg:#0b1020; --text:#e8eeff; --muted:#9fb0da;
-      --line:rgba(255,255,255,.10);
-      --accent:#7c5cff; --accent2:#33d69f; --danger:#ff5c7c; --warn:#ffd15c;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius:16px; --radius2:22px;
+      --bg0:#0b1020;
+      --bg1:#0f1630;
+      --card:rgba(255,255,255,.06);
+      --card2:rgba(255,255,255,.08);
+      --line:rgba(255,255,255,.14);
+      --text:#eef3ff;
+      --muted:#b8c4ea;
+
+      --p1:#7c5cff;
+      --p2:#33d69f;
+      --p3:#ffd15c;
+      --danger:#ff5c7c;
+
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --r12:12px;
+      --r16:16px;
+      --r22:22px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.25), transparent 60%),
-        radial-gradient(900px 600px at 90% 15%, rgba(51,214,159,.18), transparent 55%),
-        var(--bg);
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 12% 0%, rgba(124,92,255,.28), transparent 60%),
+        radial-gradient(1000px 700px at 90% 10%, rgba(51,214,159,.18), transparent 55%),
+        radial-gradient(900px 600px at 50% 90%, rgba(255,209,92,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow:hidden;
     }
-    .app{display:grid; grid-template-columns: 340px 1fr; gap:18px; height:100vh; padding:18px;}
-    .sidebar,.main{
+
+    /* topo com glow */
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 18px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .brand .t{font-weight:900;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand .s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .chip{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border-radius:var(--radius2);
+      background:rgba(0,0,0,.18);
+      font-size:12px;
+      color:var(--muted);
+      user-select:none;
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--p3);box-shadow:0 0 0 4px rgba(255,209,92,.15)}
+    .dot.ok{background:var(--p2);box-shadow:0 0 0 4px rgba(51,214,159,.14)}
+    .dot.bad{background:var(--danger);box-shadow:0 0 0 4px rgba(255,92,124,.16)}
+
+    .layout{
+      height:calc(100vh - 64px);
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
+      padding:14px;
+    }
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:var(--r22);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       box-shadow:var(--shadow);
       overflow:hidden;
       min-width:0;
+      display:flex;
+      flex-direction:column;
     }
-    .sidebar{display:flex;flex-direction:column}
-    .main{display:flex;flex-direction:column}
 
-    .sb-top,.main-top{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px; border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.02);
+    .panelHead{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:12px;
     }
-    .brand{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .brand h1{margin:0;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .brand small{color:var(--muted);font-size:12px}
-
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border:1px solid var(--line);
-      border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.02);
-      user-select:none;flex:0 0 auto;
+    .panelHead h3{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:900;
     }
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 3px rgba(255,209,92,.15);}
-    .dot.ok{background:var(--accent2);box-shadow:0 0 0 3px rgba(51,214,159,.15);}
-    .dot.bad{background:var(--danger);box-shadow:0 0 0 3px rgba(255,92,124,.15);}
 
-    .sb-body{padding:14px;overflow:auto}
-    .section{
-      background:rgba(255,255,255,.02);
+    .scroll{overflow:auto; padding:14px;}
+    .card{
       border:1px solid var(--line);
-      border-radius:var(--radius);
+      background:rgba(0,0,0,.18);
+      border-radius:var(--r16);
       padding:12px;
       margin-bottom:12px;
     }
-    .section h3{
+    .card h4{
       margin:0 0 10px;
-      font-size:12px;color:var(--muted);font-weight:700;
-      text-transform:uppercase;letter-spacing:.12em;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
     }
 
     .btn{
-      appearance:none;border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
+      appearance:none;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
       color:var(--text);
-      padding:10px 12px;border-radius:12px;
-      cursor:pointer;font-weight:700;font-size:13px;
-      transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:900;
+      font-size:13px;
+      cursor:pointer;
+      transition:.15s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
       user-select:none;
     }
-    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.20);}
-    .btn.primary{background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));border-color:rgba(124,92,255,.65);}
-    .btn.danger{background:rgba(255,92,124,.10);border-color:rgba(255,92,124,.35);color:#ffdbe2;}
-    .btn.ghost{background:transparent;}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.22)}
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.75));
+      border-color:rgba(124,92,255,.60);
+    }
+    .btn.success{
+      background:linear-gradient(180deg, rgba(51,214,159,.35), rgba(51,214,159,.18));
+      border-color:rgba(51,214,159,.35);
+    }
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(255,92,124,.25), rgba(255,92,124,.10));
+      border-color:rgba(255,92,124,.35);
+    }
+    .btn.ghost{background:transparent}
 
-    .hint{color:var(--muted);font-size:12px;line-height:1.5}
-    input[type="file"]{display:none;}
-
-    .steps{display:flex;flex-direction:column;gap:6px;}
-    .step{
-      display:flex;gap:10px;align-items:flex-start;
-      padding:10px;border-radius:14px;cursor:pointer;transition:.15s ease;
-      background:rgba(255,255,255,.02);border:1px solid transparent;
-    }
-    .step:hover{border-color:rgba(124,92,255,.35);background:rgba(124,92,255,.08);}
-    .step.active{border-color:rgba(124,92,255,.55);background:rgba(124,92,255,.14);}
-    .badge{
-      width:24px;height:24px;border-radius:8px;
-      background:rgba(124,92,255,.22);border:1px solid rgba(124,92,255,.35);
-      display:flex;align-items:center;justify-content:center;
-      font-size:12px;font-weight:800;flex:0 0 auto;
-    }
-    .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .sub{font-size:12px;color:var(--muted)}
-
-    .files{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;padding-right:4px;}
-    .file{
-      display:flex;flex-direction:column;gap:10px;
-      padding:10px;border:1px solid var(--line);border-radius:12px;
-      background:rgba(255,255,255,.02);
-    }
-    .fileTop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;}
-    .fileName{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
-    .fileMeta{font-size:12px;color:var(--muted)}
-    .fileBtns{display:flex;gap:8px;flex-wrap:wrap;}
-    .small{
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:10px;
-    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .hint{font-size:12px;color:var(--muted);line-height:1.45}
     .kbd{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size:11px;
-      color:var(--muted);
+      padding:2px 6px;
+      border-radius:8px;
       border:1px solid var(--line);
-      padding:2px 6px;border-radius:8px;
+      background:rgba(0,0,0,.25);
+      color:var(--muted);
+    }
+
+    /* Etapas */
+    .steps{display:flex;flex-direction:column;gap:8px}
+    .step{
+      display:flex;gap:10px;align-items:flex-start;
+      border:1px solid transparent;
+      background:rgba(255,255,255,.04);
+      padding:10px;
+      border-radius:16px;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .step:hover{border-color:rgba(124,92,255,.45); background:rgba(124,92,255,.12)}
+    .step.active{border-color:rgba(124,92,255,.7); background:rgba(124,92,255,.18)}
+    .num{
+      width:26px;height:26px;border-radius:10px;
+      background:rgba(124,92,255,.25);
+      border:1px solid rgba(124,92,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;font-size:12px;
+      flex:0 0 auto;
+    }
+    .meta{min-width:0}
+    .meta .title{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .meta .sub{font-size:12px;color:var(--muted)}
+
+    /* Main */
+    .mainTop{
+      padding:14px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .mainTop .left{min-width:0}
+    .mainTop .left .h{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .mainTop .left .d{
+      margin:6px 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .toggle{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
       background:rgba(0,0,0,.18);
+      user-select:none;
     }
-
-    .main-top .left{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .main-top h2{margin:0;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .main-top .desc{margin:0;color:var(--muted);font-size:12px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
-
-    .switch{display:flex;align-items:center;gap:10px;user-select:none}
-    .switch input{
-      width:42px;height:24px;appearance:none;border-radius:999px;
-      background:rgba(255,255,255,.08);border:1px solid var(--line);
-      position:relative;cursor:pointer;outline:none;transition:.15s ease;
+    .toggle input{
+      width:44px;height:24px;
+      appearance:none;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      position:relative;
+      cursor:pointer;
+      outline:none;
+      transition:.15s ease;
     }
-    .switch input:checked{background:rgba(51,214,159,.25);border-color:rgba(51,214,159,.35);}
-    .switch input::after{
-      content:"";width:18px;height:18px;border-radius:50%;
-      background:rgba(255,255,255,.85);position:absolute;top:50%;left:4px;transform:translateY(-50%);transition:.15s ease;
+    .toggle input:checked{
+      background:rgba(51,214,159,.22);
+      border-color:rgba(51,214,159,.35);
     }
-    .switch input:checked::after{left:20px;}
-    .switch label{font-size:12px;color:var(--text);font-weight:700}
+    .toggle input::after{
+      content:"";
+      width:18px;height:18px;border-radius:50%;
+      position:absolute;top:50%;left:4px;
+      transform:translateY(-50%);
+      background:rgba(255,255,255,.9);
+      transition:.15s ease;
+    }
+    .toggle input:checked::after{left:22px;}
+    .toggle span{font-size:12px;font-weight:900}
 
     .content{
-      display:grid;grid-template-rows:auto 1fr auto;
-      gap:12px;padding:14px;height:100%;overflow:hidden;
+      display:grid;
+      grid-template-rows: 1fr auto;
+      height:100%;
+      overflow:hidden;
     }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
-    .card{
-      border:1px solid var(--line);background:rgba(255,255,255,.02);
-      border-radius:var(--radius);padding:12px;min-width:0;min-height:0;
-      display:flex;flex-direction:column;gap:10px;
+    .work{
+      padding:14px;
+      overflow:auto;
     }
-    .card h3{
-      margin:0;font-size:12px;color:var(--muted);
-      text-transform:uppercase;letter-spacing:.12em;font-weight:800;
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
     }
-    textarea{
-      width:100%;min-height:250px;resize:vertical;
-      border-radius:14px;border:1px solid var(--line);
-      background:rgba(0,0,0,.18);color:var(--text);
-      padding:12px;font-size:13px;line-height:1.55;outline:none;
-    }
-    textarea:focus{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 3px rgba(124,92,255,.15);}
-    .log{
-      white-space:pre-wrap;word-break:break-word;
-      font-size:12px;line-height:1.45;
+    .box{
       border:1px solid var(--line);
       background:rgba(0,0,0,.18);
-      border-radius:14px;padding:12px;overflow:auto;
-      min-height:250px;
+      border-radius:var(--r16);
+      padding:12px;
+      min-width:0;
     }
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
-    .statusbar{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 14px;border-top:1px solid var(--line);background:rgba(255,255,255,.02);
-      font-size:12px;color:var(--muted);
-    }
-    .statusbar b{color:var(--text);}
-
-    .inline{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-    }
-    .field{
-      display:flex;flex-direction:column;gap:6px;
-      min-width:140px;
-    }
-    .field label{font-size:12px;color:var(--muted);font-weight:700}
-    .field input{
-      width:160px;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      outline:none;
-      font-weight:700;
+    .box h4{
+      margin:0 0 10px;
       font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
     }
+
+    textarea{
+      width:100%;
+      min-height:260px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border-radius:14px;
+      padding:12px;
+      font-size:13px;
+      line-height:1.55;
+      outline:none;
+      resize:vertical;
+    }
+    textarea:focus{
+      border-color:rgba(124,92,255,.7);
+      box-shadow:0 0 0 4px rgba(124,92,255,.15);
+    }
+
+    .out{
+      white-space:pre-wrap;
+      word-break:break-word;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      border-radius:14px;
+      padding:12px;
+      min-height:210px;
+      overflow:auto;
+      font-size:12.5px;
+      line-height:1.55;
+    }
+
+    .statusbar{
+      padding:10px 14px;
+      border-top:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .statusbar b{color:var(--text)}
+
+    /* PDFs list */
+    input[type="file"]{display:none}
+    .fileList{display:flex;flex-direction:column;gap:10px;max-height:260px;overflow:auto;padding-right:4px;}
+    .fileItem{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      border-radius:14px;
+      padding:10px;
+    }
+    .fileTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .fileName{font-size:12px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .fileMeta{font-size:12px;color:var(--muted);margin-top:4px}
+    .small{padding:8px 10px;font-size:12px;border-radius:12px}
 
     @media (max-width: 980px){
-      .app{grid-template-columns:1fr;height:auto;}
-      .grid{grid-template-columns:1fr;}
-      .sidebar{order:2}
-      .main{order:1;min-height:70vh;}
+      body{overflow:auto}
+      .layout{grid-template-columns:1fr;height:auto}
+      .grid2{grid-template-columns:1fr}
     }
 
     @media print{
-      body{background:#fff;color:#000;}
-      .sidebar,.main-top,.statusbar,.toolbar,.btn{display:none!important;}
-      .main{border:none;box-shadow:none;}
-      .content{padding:0;}
-      .grid{grid-template-columns:1fr;}
-      textarea,.log{border:1px solid #ddd;background:#fff;color:#000;min-height:auto;}
+      body{background:#fff;color:#000}
+      .topbar,.panel:first-child,.mainTop,.statusbar,.btn,.toggle{display:none!important}
+      .panel{border:none;box-shadow:none}
+      textarea,.out{background:#fff;border:1px solid #ddd;color:#000}
+      .layout{padding:0}
+      .work{padding:0}
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="sb-top">
-        <div class="brand">
-          <h1>Orientador de TCC Digital</h1>
-          <small>PDF real (PDF.js) + Worker (POST /assist)</small>
-        </div>
-        <div class="pill">
-          <span id="svcDot" class="dot"></span>
-          <span id="svcText">verificando…</span>
-        </div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="t">Orientador de TCC Digital</div>
+      <div class="s">Layout moderno + leitura real de PDF (PDF.js) + Worker Cloudflare (POST /assist)</div>
+    </div>
+    <div class="chip">
+      <span id="svcDot" class="dot"></span>
+      <span>Backend: <b id="svcText">verificando…</b></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="panel">
+      <div class="panelHead">
+        <h3>Etapas</h3>
+        <button class="btn ghost small" id="resetAllBtn" type="button">Reset</button>
       </div>
-
-      <div class="sb-body">
-        <div class="section">
-          <h3>Etapas</h3>
+      <div class="scroll">
+        <div class="card">
+          <h4>Navegação</h4>
           <div class="steps" id="steps"></div>
+          <div class="hint" style="margin-top:10px;">
+            Dica: o progresso é salvo automaticamente no seu navegador.
+          </div>
         </div>
 
-        <div class="section">
-          <h3>Anexos (PDF) — leitura real</h3>
-
-          <div class="inline" style="margin-bottom:10px;">
-            <label class="btn" for="pdfInput">Anexar PDF</label>
+        <div class="card">
+          <h4>Anexos (PDF) — leitura real</h4>
+          <div class="row" style="margin-bottom:10px;">
+            <label class="btn success" for="pdfInput">Anexar PDF</label>
             <input id="pdfInput" type="file" accept="application/pdf" multiple />
-            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar PDFs</button>
+            <button class="btn danger" id="clearPdfsBtn" type="button">Limpar</button>
           </div>
 
-          <div class="inline" style="margin-bottom:10px;">
-            <div class="field">
-              <label for="maxPages">Máx. páginas por PDF</label>
-              <input id="maxPages" type="number" min="1" max="200" value="30" />
+          <div class="row" style="margin-bottom:10px;">
+            <div style="flex:1;min-width:140px;">
+              <div class="hint"><b>Máx. páginas</b></div>
+              <input id="maxPages" type="number" min="1" max="200" value="30"
+                     style="width:100%;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:900;outline:none;">
             </div>
-            <div class="field">
-              <label for="maxChars">Máx. caracteres por extração</label>
-              <input id="maxChars" type="number" min="5000" max="300000" value="60000" />
+            <div style="flex:1;min-width:140px;">
+              <div class="hint"><b>Máx. caracteres</b></div>
+              <input id="maxChars" type="number" min="5000" max="300000" value="60000"
+                     style="width:100%;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:900;outline:none;">
             </div>
           </div>
 
-          <div class="hint">
-            Dica: para extrair páginas específicas, use formato <span class="kbd">1-3, 7, 10-12</span>.
-            PDFs escaneados (imagem) podem extrair pouco ou nada — aí precisa de OCR.
+          <div class="hint" style="margin-bottom:10px;">
+            Extração por páginas: <span class="kbd">1-3, 7, 10-12</span>. PDFs escaneados (imagem) podem vir vazios (precisa OCR).
           </div>
 
-          <div class="files" id="pdfList"></div>
+          <div class="fileList" id="pdfList"></div>
         </div>
 
-        <div class="section">
-          <h3>Exportação</h3>
-          <div class="inline">
+        <div class="card">
+          <h4>Exportação</h4>
+          <div class="row">
             <button class="btn" id="exportPdfBtn" type="button">Exportar PDF</button>
             <button class="btn" id="exportDocxBtn" type="button">Exportar DOCX</button>
-            <button class="btn ghost" id="resetAllBtn" type="button">Reset geral</button>
           </div>
           <div class="hint" style="margin-top:10px;">
-            PDF por impressão do navegador. DOCX gera um Word simples da etapa.
+            PDF é via impressão do navegador. DOCX gera um Word simples da etapa atual.
           </div>
         </div>
       </div>
     </aside>
 
-    <main class="main">
-      <div class="main-top">
+    <!-- MAIN -->
+    <main class="panel">
+      <div class="mainTop">
         <div class="left">
-          <h2 id="stepTitle">—</h2>
-          <p class="desc" id="stepDesc">—</p>
+          <h1 class="h" id="stepTitle">—</h1>
+          <p class="d" id="stepDesc">—</p>
         </div>
-
-        <div class="toolbar">
-          <div class="switch">
+        <div class="row" style="justify-content:flex-end">
+          <div class="toggle">
             <input id="evidenceToggle" type="checkbox" />
-            <label for="evidenceToggle">Modo Evidência</label>
+            <span>Modo Evidência</span>
           </div>
           <button class="btn" id="saveBtn" type="button">Salvar</button>
           <button class="btn primary" id="askBtn" type="button">Orientar com IA</button>
@@ -314,41 +455,49 @@
       </div>
 
       <div class="content">
-        <div class="grid">
-          <section class="card">
-            <h3>Seu texto</h3>
-            <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa..."></textarea>
-            <div class="row">
-              <span class="hint">Último salvamento: <b id="lastSaved">—</b></span>
-              <span class="hint">Progresso: <b id="progress">0%</b></span>
-            </div>
-          </section>
+        <div class="work">
+          <div class="grid2">
+            <section class="box">
+              <h4>Seu texto</h4>
+              <textarea id="userText" placeholder="Escreva aqui o conteúdo desta etapa..."></textarea>
+              <div class="row" style="justify-content:space-between">
+                <div class="hint">Último salvamento: <b id="lastSaved">—</b></div>
+                <div class="hint">Progresso: <b id="progress">0%</b></div>
+              </div>
+            </section>
 
-          <section class="card">
-            <h3>Evidências (auto do PDF ou colar manual)</h3>
-            <textarea id="evidenceText" placeholder="Aqui entram os trechos extraídos do PDF e/ou seus apontamentos..."></textarea>
-            <div class="hint">
-              Use os botões nos PDFs para extrair texto para este campo. No Modo Evidência, a IA deve se apoiar daqui.
-            </div>
+            <section class="box">
+              <h4>Evidências (PDF / anotações)</h4>
+              <textarea id="evidenceText" placeholder="Aqui entram os trechos extraídos do PDF e/ou suas anotações..."></textarea>
+              <div class="hint">
+                Use os botões dos PDFs para extrair texto aqui. No Modo Evidência, a IA deve justificar com base neste campo.
+              </div>
+            </section>
+          </div>
+
+          <section class="box" style="margin-top:12px;">
+            <h4>Resposta da IA</h4>
+            <div id="aiOut" class="out">—</div>
           </section>
         </div>
 
-        <section class="card" style="min-height:0;">
-          <h3>Resposta da IA</h3>
-          <div id="aiOut" class="log">—</div>
-        </section>
-      </div>
-
-      <div class="statusbar">
-        <span>Status: <b id="runtimeStatus">pronto</b></span>
-        <span>Endpoint: <b>/assist</b></span>
+        <footer class="statusbar">
+          <span>Status: <b id="runtimeStatus">pronto</b></span>
+          <span>Endpoint: <b id="endpointText">—</b></span>
+        </footer>
       </div>
     </main>
   </div>
 
   <script>
-    // PDF.js worker
-    // (mantém o pdf.js funcionando bem em produção)
+    /**************************************************************
+     * CONFIGURAÇÃO OBRIGATÓRIA (corrige o HTTP 405)
+     * Cole aqui o link do seu Worker Cloudflare, exemplo:
+     * const WORKER_BASE = "https://orientador-tcc-api.vitorjoselvan.workers.dev";
+     **************************************************************/
+    const WORKER_BASE = "COLE_AQUI_O_LINK_DO_SEU_WORKER"; // <-- TROQUE ISTO
+
+    // PDF.js worker src
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
@@ -366,40 +515,77 @@
       { id: "referencias", title: "Referências", desc: "Lista final em padrão exigido." }
     ];
 
-    const STORE_KEY = "orientador_tcc_v3";
-    const STORE_ACTIVE = "orientador_active_step_v3";
-    const STORE_EVID = "orientador_evidence_v3";
-    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v3";
-    const STORE_PDFS = "orientador_pdfs_v3"; // guarda PDFs em base64 + metadados
+    const STORE_KEY = "orientador_tcc_v4";
+    const STORE_ACTIVE = "orientador_active_step_v4";
+    const STORE_EVID = "orientador_evidence_v4";
+    const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v4";
+    const STORE_PDFS = "orientador_pdfs_v4"; // guarda PDFs em base64 + metadados
 
-    const stepsEl = document.getElementById("steps");
-    const stepTitleEl = document.getElementById("stepTitle");
-    const stepDescEl = document.getElementById("stepDesc");
-    const userTextEl = document.getElementById("userText");
-    const evidenceTextEl = document.getElementById("evidenceText");
-    const aiOutEl = document.getElementById("aiOut");
-    const lastSavedEl = document.getElementById("lastSaved");
-    const progressEl = document.getElementById("progress");
-    const runtimeStatusEl = document.getElementById("runtimeStatus");
+    const $ = (id) => document.getElementById(id);
 
-    const pdfInputEl = document.getElementById("pdfInput");
-    const pdfListEl = document.getElementById("pdfList");
-    const clearPdfsBtn = document.getElementById("clearPdfsBtn");
-    const maxPagesEl = document.getElementById("maxPages");
-    const maxCharsEl = document.getElementById("maxChars");
+    const stepsEl = $("steps");
+    const stepTitleEl = $("stepTitle");
+    const stepDescEl = $("stepDesc");
+    const userTextEl = $("userText");
+    const evidenceTextEl = $("evidenceText");
+    const aiOutEl = $("aiOut");
+    const lastSavedEl = $("lastSaved");
+    const progressEl = $("progress");
+    const runtimeStatusEl = $("runtimeStatus");
+    const endpointTextEl = $("endpointText");
 
-    const saveBtn = document.getElementById("saveBtn");
-    const askBtn = document.getElementById("askBtn");
-    const clearStepBtn = document.getElementById("clearStepBtn");
-    const resetAllBtn = document.getElementById("resetAllBtn");
-    const exportPdfBtn = document.getElementById("exportPdfBtn");
-    const exportDocxBtn = document.getElementById("exportDocxBtn");
+    const pdfInputEl = $("pdfInput");
+    const pdfListEl = $("pdfList");
+    const clearPdfsBtn = $("clearPdfsBtn");
+    const maxPagesEl = $("maxPages");
+    const maxCharsEl = $("maxChars");
 
-    const evidenceToggleEl = document.getElementById("evidenceToggle");
-    const svcDot = document.getElementById("svcDot");
-    const svcText = document.getElementById("svcText");
+    const saveBtn = $("saveBtn");
+    const askBtn = $("askBtn");
+    const clearStepBtn = $("clearStepBtn");
+    const resetAllBtn = $("resetAllBtn");
+    const exportPdfBtn = $("exportPdfBtn");
+    const exportDocxBtn = $("exportDocxBtn");
+    const evidenceToggleEl = $("evidenceToggle");
+
+    const svcDot = $("svcDot");
+    const svcText = $("svcText");
+
+    // Endpoints: sempre no Worker (não no GitHub Pages)
+    const API_BASE = normalizeWorkerBase(WORKER_BASE);
+    const ENDPOINT_ASSIST = API_BASE ? (API_BASE + "/assist") : "/assist";
+    const ENDPOINT_HEALTH = API_BASE ? (API_BASE + "/health") : "/health";
+    endpointTextEl.textContent = ENDPOINT_ASSIST;
 
     let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
+
+    function normalizeWorkerBase(v){
+      const s = (v || "").trim();
+      if(!s || s === "COLE_AQUI_O_LINK_DO_SEU_WORKER") return "";
+      return s.replace(/\/+$/,"");
+    }
+
+    function setSvc(type, text){
+      svcText.textContent = text;
+      svcDot.classList.remove("ok","bad");
+      if(type === "ok") svcDot.classList.add("ok");
+      if(type === "bad") svcDot.classList.add("bad");
+    }
+
+    function escapeHtml(str){
+      return (str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function clampInt(v, min, max, fallback){
+      const n = parseInt(v, 10);
+      if(Number.isNaN(n)) return fallback;
+      return Math.max(min, Math.min(max, n));
+    }
 
     function loadStore(){
       try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch { return {}; }
@@ -408,12 +594,6 @@
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
       lastSavedEl.textContent = new Date().toLocaleString();
       updateProgress();
-    }
-    function setSvc(type, text){
-      svcText.textContent = text;
-      svcDot.classList.remove("ok","bad");
-      if(type === "ok") svcDot.classList.add("ok");
-      if(type === "bad") svcDot.classList.add("bad");
     }
 
     function loadPdfs(){
@@ -424,6 +604,35 @@
       renderPdfs();
     }
 
+    function prettyBytes(bytes){
+      const units = ["B","KB","MB","GB"];
+      let i = 0, n = bytes || 0;
+      while(n >= 1024 && i < units.length-1){ n/=1024; i++; }
+      return `${n.toFixed(i===0?0:1)} ${units[i]}`;
+    }
+
+    function parseRanges(input, max){
+      const clean = (input || "").trim();
+      if(!clean) return null;
+      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
+      const pages = new Set();
+      for(const part of parts){
+        const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+        if(m){
+          let a = parseInt(m[1],10);
+          let b = parseInt(m[2],10);
+          if(Number.isNaN(a)||Number.isNaN(b)) continue;
+          if(a>b) [a,b] = [b,a];
+          a = Math.max(1,a); b = Math.min(max,b);
+          for(let p=a;p<=b;p++) pages.add(p-1);
+        }else{
+          const n = parseInt(part,10);
+          if(!Number.isNaN(n) && n>=1 && n<=max) pages.add(n-1);
+        }
+      }
+      return Array.from(pages).sort((x,y)=>x-y);
+    }
+
     function renderSteps(){
       stepsEl.innerHTML = "";
       const store = loadStore();
@@ -432,7 +641,7 @@
         const el = document.createElement("div");
         el.className = "step" + (s.id === activeStep ? " active" : "");
         el.innerHTML = `
-          <div class="badge">${idx+1}</div>
+          <div class="num">${idx+1}</div>
           <div class="meta">
             <div class="title">${escapeHtml(s.title)}</div>
             <div class="sub">${filled ? "Preenchida" : "Vazia"}</div>
@@ -479,6 +688,7 @@
       renderSteps();
     }
 
+    // autosave
     let autosaveTimer = null;
     function scheduleAutosave(){
       if(autosaveTimer) clearTimeout(autosaveTimer);
@@ -511,12 +721,16 @@
     });
 
     // ---------------------------
-    // HEALTH
+    // HEALTH CHECK
     // ---------------------------
     async function checkHealth(){
+      if(!API_BASE){
+        setSvc("bad", "sem Worker");
+        return;
+      }
       try{
-        const r = await fetch("/health", { method:"GET" });
-        const j = await r.json().catch(() => ({}));
+        const r = await fetch(ENDPOINT_HEALTH, { method:"GET" });
+        const j = await r.json().catch(()=> ({}));
         if(r.ok && j.ok) setSvc("ok","online");
         else setSvc("bad","offline");
       }catch{
@@ -525,9 +739,8 @@
     }
 
     // ---------------------------
-    // PDF: ler e extrair texto real
+    // PDF (base64) + EXTRAÇÃO REAL
     // ---------------------------
-
     async function fileToDataUrl(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -537,68 +750,40 @@
       });
     }
 
-    function prettyBytes(bytes){
-      const units = ["B","KB","MB","GB"];
-      let i = 0, n = bytes;
-      while(n >= 1024 && i < units.length-1){ n/=1024; i++; }
-      return `${n.toFixed(i===0?0:1)} ${units[i]}`;
-    }
-
-    function parseRanges(input, max){
-      // input: "1-3, 7, 10-12"
-      // returns 0-based page indices
-      const clean = (input || "").trim();
-      if(!clean) return null;
-      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
-      const pages = new Set();
-      for(const part of parts){
-        const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
-        if(m){
-          let a = parseInt(m[1],10);
-          let b = parseInt(m[2],10);
-          if(Number.isNaN(a)||Number.isNaN(b)) continue;
-          if(a>b) [a,b] = [b,a];
-          a = Math.max(1,a); b = Math.min(max,b);
-          for(let p=a;p<=b;p++) pages.add(p-1);
-        }else{
-          const n = parseInt(part,10);
-          if(!Number.isNaN(n) && n>=1 && n<=max) pages.add(n-1);
-        }
-      }
-      return Array.from(pages).sort((x,y)=>x-y);
-    }
-
-    async function extractPdfText(pdfItem, opts){
-      // pdfItem: {dataUrl, name}
-      // opts: {maxPages, maxChars, pageIndices?}
-      const { maxPages, maxChars, pageIndices } = opts;
-
-      const dataUrl = pdfItem.dataUrl;
+    async function getPdfNumPages(dataUrl){
       const base64 = dataUrl.split(",")[1] || "";
       const raw = atob(base64);
       const bytes = new Uint8Array(raw.length);
       for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+      return pdf.numPages;
+    }
 
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
+    async function extractPdfText(pdfItem, opts){
+      const { maxPages, maxChars, pageIndices } = opts;
 
+      const base64 = pdfItem.dataUrl.split(",")[1] || "";
+      const raw = atob(base64);
+      const bytes = new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+
+      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
       const totalPages = pdf.numPages;
-      const hardLimit = Math.min(totalPages, maxPages);
 
+      const hardLimit = Math.min(totalPages, maxPages);
       let indices = pageIndices;
+
       if(!indices){
         indices = Array.from({length: hardLimit}, (_,i)=>i);
       }else{
-        // filtra pages acima do maxPages se quiser respeitar limite também
-        indices = indices.filter(i => i >= 0 && i < totalPages);
-        // ainda aplica maxPages para não travar
+        indices = indices.filter(i => i>=0 && i<totalPages);
         if(indices.length > hardLimit) indices = indices.slice(0, hardLimit);
       }
 
       let out = `=== PDF: ${pdfItem.name} ===\n`;
       out += `Páginas no arquivo: ${totalPages}. Extraindo: ${indices.length} página(s).\n\n`;
 
-      let usedChars = out.length;
+      let used = out.length;
 
       for(const idx of indices){
         const pageNo = idx + 1;
@@ -606,18 +791,16 @@
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map(it => (it.str || "")).join(" ").replace(/\s+/g," ").trim();
 
-        // Se a página vier vazia, ainda registra (PDF escaneado, etc.)
         const block = pageText
           ? `--- Página ${pageNo} ---\n${pageText}\n\n`
           : `--- Página ${pageNo} ---\n[Sem texto extraível nesta página]\n\n`;
 
-        if(usedChars + block.length > maxChars){
+        if(used + block.length > maxChars){
           out += `\n[Limite de caracteres atingido (${maxChars}). Interrompendo extração.]\n`;
           break;
         }
-
         out += block;
-        usedChars += block.length;
+        used += block.length;
       }
 
       return { totalPages, extractedPages: indices.length, text: out };
@@ -628,86 +811,74 @@
       pdfListEl.innerHTML = "";
 
       if(list.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "hint";
-        empty.textContent = "Nenhum PDF anexado ainda.";
-        pdfListEl.appendChild(empty);
+        const d = document.createElement("div");
+        d.className = "hint";
+        d.textContent = "Nenhum PDF anexado ainda.";
+        pdfListEl.appendChild(d);
         return;
       }
 
       for(const item of list){
-        const file = document.createElement("div");
-        file.className = "file";
-
         const meta = [];
         meta.push(prettyBytes(item.size || 0));
         if(item.pages) meta.push(`${item.pages} pág.`);
         if(item.lastExtract) meta.push(`extraído: ${new Date(item.lastExtract).toLocaleString()}`);
 
-        file.innerHTML = `
+        const el = document.createElement("div");
+        el.className = "fileItem";
+        el.innerHTML = `
           <div class="fileTop">
             <div style="min-width:0">
               <div class="fileName" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
-              <div class="fileMeta">${meta.join(" • ")}</div>
+              <div class="fileMeta">${escapeHtml(meta.join(" • "))}</div>
             </div>
-            <button class="btn danger small" type="button" data-act="remove">Remover</button>
+            <button class="btn danger small" data-act="remove">Remover</button>
           </div>
 
-          <div class="fileBtns">
-            <button class="btn small" type="button" data-act="extractAll">Extrair tudo p/ Evidências</button>
-            <button class="btn small" type="button" data-act="extractRange">Extrair páginas…</button>
-            <button class="btn small" type="button" data-act="preview">Ver texto extraído</button>
+          <div class="row" style="margin-top:10px">
+            <button class="btn small" data-act="extractAll">Extrair tudo</button>
+            <button class="btn small" data-act="extractRange">Extrair páginas…</button>
+            <button class="btn small" data-act="preview">Ver extração</button>
           </div>
 
-          <div class="hint" data-slot="rangeHint" style="display:none;">
-            Informe páginas no formato <span class="kbd">1-3, 7, 10-12</span> e confirme.
+          <div class="hint" data-slot="rangeHint" style="display:none;margin-top:10px;">
+            Informe páginas no formato <span class="kbd">1-3, 7, 10-12</span> e clique Extrair.
           </div>
 
-          <div class="inline" data-slot="rangeUi" style="display:none;">
-            <div class="field">
-              <label>Páginas</label>
-              <input type="text" value="1-3" data-slot="rangeInput" />
-            </div>
-            <button class="btn primary small" type="button" data-act="confirmRange">Extrair</button>
+          <div class="row" data-slot="rangeUi" style="display:none;margin-top:10px;">
+            <input data-slot="rangeInput" type="text" value="1-3"
+              style="flex:1;min-width:180px;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:900;outline:none;">
+            <button class="btn primary small" data-act="confirmRange">Extrair</button>
           </div>
         `;
 
-        const removeBtn = file.querySelector('[data-act="remove"]');
-        const extractAllBtn = file.querySelector('[data-act="extractAll"]');
-        const extractRangeBtn = file.querySelector('[data-act="extractRange"]');
-        const previewBtn = file.querySelector('[data-act="preview"]');
-        const rangeHint = file.querySelector('[data-slot="rangeHint"]');
-        const rangeUi = file.querySelector('[data-slot="rangeUi"]');
-        const rangeInput = file.querySelector('[data-slot="rangeInput"]');
-        const confirmRangeBtn = file.querySelector('[data-act="confirmRange"]');
-
-        removeBtn.addEventListener("click", () => {
-          const updated = loadPdfs().filter(x => x.id !== item.id);
-          savePdfs(updated);
+        el.querySelector('[data-act="remove"]').addEventListener("click", () => {
+          savePdfs(loadPdfs().filter(x => x.id !== item.id));
         });
 
-        extractAllBtn.addEventListener("click", async () => {
+        el.querySelector('[data-act="extractAll"]').addEventListener("click", async () => {
           await doExtract(item.id, null);
         });
 
-        extractRangeBtn.addEventListener("click", () => {
-          const shown = rangeUi.style.display !== "none";
-          rangeHint.style.display = shown ? "none" : "block";
-          rangeUi.style.display = shown ? "none" : "flex";
+        el.querySelector('[data-act="extractRange"]').addEventListener("click", () => {
+          const rangeHint = el.querySelector('[data-slot="rangeHint"]');
+          const rangeUi = el.querySelector('[data-slot="rangeUi"]');
+          const show = rangeUi.style.display === "none";
+          rangeHint.style.display = show ? "block" : "none";
+          rangeUi.style.display = show ? "flex" : "none";
         });
 
-        confirmRangeBtn.addEventListener("click", async () => {
-          await doExtract(item.id, (rangeInput.value || "").trim());
+        el.querySelector('[data-act="confirmRange"]').addEventListener("click", async () => {
+          const v = el.querySelector('[data-slot="rangeInput"]').value || "";
+          await doExtract(item.id, v.trim());
         });
 
-        previewBtn.addEventListener("click", () => {
-          const listNow = loadPdfs();
-          const it = listNow.find(x => x.id === item.id);
-          const txt = (it && it.extractedText) ? it.extractedText : "Ainda não há texto extraído deste PDF.";
-          aiOutEl.textContent = txt;
+        el.querySelector('[data-act="preview"]').addEventListener("click", () => {
+          const now = loadPdfs().find(x => x.id === item.id);
+          aiOutEl.textContent = (now && now.extractedText) ? now.extractedText : "Ainda não há texto extraído deste PDF.";
         });
 
-        pdfListEl.appendChild(file);
+        pdfListEl.appendChild(el);
       }
     }
 
@@ -723,286 +894,261 @@
       const maxChars = clampInt(maxCharsEl.value, 5000, 300000, 60000);
 
       runtimeStatusEl.textContent = "extraindo PDF…";
-      aiOutEl.textContent = "Extraindo texto do PDF… (isso pode levar alguns segundos)";
+      aiOutEl.textContent = "Extraindo texto do PDF… (pode levar alguns segundos)";
 
       try{
-        // Se ainda não tem páginas (metadata), tenta ler para descobrir
-        // (a extração já traz totalPages, então podemos atualizar)
         let pageIndices = null;
         if(rangeStr){
-          // precisamos do totalPages para validar; faremos uma extração mínima primeiro?
-          // Solução: extrair abrindo o pdf e pegando numPages (dentro de extractPdfText)
-          // Para validar o range, fazemos parse depois do open:
-          // Aqui fazemos um "open" rápido para obter numPages, depois parse e chama extração.
           const numPages = await getPdfNumPages(item.dataUrl);
           pageIndices = parseRanges(rangeStr, numPages);
-          if(!pageIndices || pageIndices.length === 0
-             ){
-            aiOutEl.textContent = "Intervalo de páginas inválido. Use formato: 1-3, 7, 10-12";
+          if(!pageIndices || pageIndices.length === 0){
             runtimeStatusEl.textContent = "pronto";
+            aiOutEl.textContent = "Faixa inválida. Use por exemplo: 1-3, 7, 10-12";
             return;
           }
         }
 
-        const result = await extractPdfText(item, { maxPages, maxChars, pageIndices });
+        const res = await extractPdfText(item, { maxPages, maxChars, pageIndices });
 
-        // Atualiza item no storage com texto extraído
-        item.pages = result.totalPages;
-        item.lastExtract = Date.now();
-        item.extractedText = result.text;
+        //  atualiza metadados + cache de extração
+        const updated = loadPdfs().map(x => {
+          if(x.id !== item.id) return x;
+          return {
+            ...x,
+            pages: res.totalPages,
+            extractedText: res.text,
+            lastExtract: Date.now()
+          };
+        });
+        savePdfs(updated);
 
-        // Salva no storage
-        savePdfs(list);
-
-        // Injeta no campo Evidências (append)
-        const current = (evidenceTextEl.value || "").trim();
-        const appended = (current ? (current + "\n\n") : "") + result.text;
-        evidenceTextEl.value = appended;
+        // joga o texto extraído para o campo de evidências (append)
+        const current = evidenceTextEl.value || "";
+        evidenceTextEl.value = (current ? (current.trimEnd() + "\n\n") : "") + res.text;
         localStorage.setItem(STORE_EVID, evidenceTextEl.value);
 
-        aiOutEl.textContent = `Texto extraído com sucesso de "${item.name}".\n\n` +
-          `Páginas no PDF: ${result.totalPages}\n` +
-          `Páginas extraídas: ${result.extractedPages}\n` +
-          `Caracteres atuais em Evidências: ${evidenceTextEl.value.length}\n\n` +
-          `Dica: ative "Modo Evidência" e clique em "Orientar com IA".`;
-
         runtimeStatusEl.textContent = "pronto";
-      } catch (e) {
-        aiOutEl.textContent = "Falha ao extrair texto do PDF: " + (e?.message || e);
+        aiOutEl.textContent = "Texto extraído e inserido em Evidências com sucesso.";
+      }catch(err){
         runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao extrair PDF: " + (err?.message || String(err));
       }
     }
 
-    async function getPdfNumPages(dataUrl){
-      const base64 = dataUrl.split(",")[1] || "";
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+    // Upload PDFs
+    pdfInputEl.addEventListener("change", async (ev) => {
+      const files = Array.from(ev.target.files || []);
+      if(files.length === 0) return;
 
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
-      return pdf.numPages || 0;
-    }
-
-    function clampInt(value, min, max, fallback){
-      const n = parseInt(value, 10);
-      if(Number.isNaN(n)) return fallback;
-      return Math.max(min, Math.min(max, n));
-    }
-
-    // ---------------------------
-    // IA (POST /assist)
-    // ---------------------------
-    async function callAssist(){
-      saveCurrent();
-
-      const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
-      const evidenceMode = evidenceToggleEl.checked;
-
-      const userText = (userTextEl.value || "").trim();
-      const evid = (evidenceTextEl.value || "").trim();
-
-      if(!userText){
-        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
-        return;
-      }
-
-      if(evidenceMode && !evid){
-        aiOutEl.textContent =
-          "Modo Evidência está ativo, mas você não forneceu evidências.\n\n" +
-          "Anexe um PDF e use 'Extrair tudo p/ Evidências' ou cole trechos relevantes na área de Evidências.";
-        return;
-      }
-
-      runtimeStatusEl.textContent = "consultando IA…";
-      aiOutEl.textContent = "Gerando orientação…";
-
-      const systemGuide =
-`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
-Entregue orientação clara e didática, sem linguagem robótica.
-Regras:
-- Não invente referências.
-- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e explique como foram usados.
-- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
-- Linguagem em português do Brasil.`;
-
-      // Observação:
-      // Seu Worker pode esperar {prompt} ou {text}. Para evitar erro, enviamos ambos.
-      const payload = {
-        step: activeStep,
-        stepId: activeStep,
-        stepTitle: stepInfo.title,
-        evidenceMode,
-        guide: systemGuide,
-        prompt:
-          systemGuide +
-          "\n\nTEXTO DO ALUNO:\n" + userText +
-          (evidenceMode ? ("\n\nEVIDÊNCIAS:\n" + evid) : ""),
-        text: userText,
-        evidences: evid
-      };
+      runtimeStatusEl.textContent = "anexando PDFs…";
+      aiOutEl.textContent = "Anexando PDFs…";
 
       try{
-        const res = await fetch("/assist", {
+        const list = loadPdfs();
+        for(const file of files){
+          if(file.type !== "application/pdf") continue;
+
+          const dataUrl = await fileToDataUrl(file);
+          list.push({
+            id: crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + "_" + Math.random().toString(16).slice(2)),
+            name: file.name,
+            size: file.size,
+            dataUrl,
+            pages: null,
+            extractedText: "",
+            lastExtract: null
+          });
+        }
+        savePdfs(list);
+        runtimeStatusEl.textContent = "pronto";
+        aiOutEl.textContent = "PDF(s) anexado(s). Agora você pode extrair texto para Evidências.";
+      }catch(err){
+        runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao anexar PDF: " + (err?.message || String(err));
+      }finally{
+        // permite anexar o mesmo arquivo novamente
+        pdfInputEl.value = "";
+      }
+    });
+
+    clearPdfsBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORE_PDFS);
+      renderPdfs();
+      aiOutEl.textContent = "PDFs removidos.";
+    });
+
+    // ---------------------------
+    // CHAMADA IA (POST /assist)
+    // ---------------------------
+    function buildPrompt(){
+      const s = STEPS.find(x => x.id === activeStep) || STEPS[0];
+      const userText = (userTextEl.value || "").trim();
+      const evid = (evidenceTextEl.value || "").trim();
+      const useEvidence = evidenceToggleEl.checked;
+
+      // Prompt bem objetivo e "humano" (sem robô)
+      let prompt = `Você é um orientador acadêmico. Ajude o aluno na etapa: "${s.title}".\n`;
+      prompt += `Descrição da etapa: ${s.desc}\n\n`;
+      prompt += `Texto do aluno:\n${userText || "[vazio]"}\n\n`;
+
+      if(useEvidence){
+        prompt += `Use APENAS as evidências abaixo como base para citações e justificativas.`;
+        prompt += ` Se faltar evidência, diga claramente o que falta.\n\n`;
+        prompt += `Evidências:\n${evid || "[sem evidências fornecidas]"}\n\n`;
+      }else if(evid){
+        prompt += `Observação: há evidências/anotações, mas você pode usar também conhecimento geral.\n\n`;
+        prompt += `Anotações/Evidências:\n${evid}\n\n`;
+      }
+
+      prompt += `Entregue:\n`;
+      prompt += `1) Diagnóstico curto (o que está bom e o que falta)\n`;
+      prompt += `2) Uma versão reescrita/melhorada do texto (mantendo autoria do aluno)\n`;
+      prompt += `3) Lista de próximos passos práticos\n`;
+      return prompt;
+    }
+
+    async function callAssist(){
+      if(!API_BASE){
+        runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Você não configurou o WORKER_BASE. Cole o link do Worker Cloudflare na constante WORKER_BASE.";
+        return;
+      }
+
+      const prompt = buildPrompt();
+
+      runtimeStatusEl.textContent = "consultando IA…";
+      aiOutEl.textContent = "Chamando a IA…";
+
+      try{
+        const r = await fetch(ENDPOINT_ASSIST, {
           method: "POST",
           headers: { "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            prompt,
+            step: activeStep,
+            evidence_mode: evidenceToggleEl.checked
+          })
         });
 
-        const data = await res.json().catch(() => ({}));
+        const text = await r.text(); // primeiro lê texto (pode vir HTML em erro)
+        let data = null;
+        try{ data = JSON.parse(text); }catch{ /* pode não ser JSON */ }
 
-        if(!res.ok){
-          const msg = data?.error || `Erro HTTP ${res.status}`;
-          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
+        if(!r.ok){
           runtimeStatusEl.textContent = "erro";
+
+          // Erro 405 clássico: está indo para o lugar errado ou método errado
+          if(r.status === 405){
+            aiOutEl.textContent =
+              "Falha ao chamar /assist (HTTP 405)\n\n" +
+              "Isso acontece quando:\n" +
+              "1) Você está chamando o endpoint do GitHub Pages (relativo) e não o Worker.\n" +
+              "2) O WORKER_BASE não foi preenchido corretamente.\n\n" +
+              "Confira:\n" +
+              "- WORKER_BASE precisa ser algo como: https://SEU-WORKER.workers.dev\n" +
+              "- E o endpoint final deve aparecer no rodapé (Endpoint).\n\n" +
+              "Resposta recebida:\n" + text;
+            return;
+          }
+
+          aiOutEl.textContent =
+            `Erro HTTP ${r.status}\n\n` +
+            (data?.error ? `Mensagem: ${data.error}\n\n` : "") +
+            "Resposta:\n" + text;
           return;
         }
 
-        // formatos aceitos (depende do Worker)
-        const out = data.response || data.text || data.output || data.answer || data.result || "";
-        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
+        // Sucesso: tenta extrair um campo "text"/"response"/"output"
+        const out =
+          data?.text ||
+          data?.response ||
+          data?.output ||
+          data?.message ||
+          text;
+
         runtimeStatusEl.textContent = "pronto";
+        aiOutEl.textContent = out;
       }catch(err){
-        aiOutEl.textContent =
-          "Erro de rede ao chamar /assist.\n\n" +
-          "Verifique:\n" +
-          "1) Se o Worker está online\n" +
-          "2) Se o endpoint correto é /assist\n" +
-          "3) Se o seu domínio está apontando corretamente\n\n" +
-          "Detalhe: " + (err?.message || err);
         runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao chamar a IA: " + (err?.message || String(err));
       }
     }
 
     askBtn.addEventListener("click", callAssist);
 
     // ---------------------------
-    // Exportações
+    // EXPORTAÇÃO
     // ---------------------------
     exportPdfBtn.addEventListener("click", () => {
-      saveCurrent();
+      // Export PDF via print
       window.print();
     });
 
     exportDocxBtn.addEventListener("click", async () => {
       try{
-        saveCurrent();
-
         if(!window.docx || !window.saveAs){
-          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
+          aiOutEl.textContent = "Bibliotecas DOCX não carregaram. Recarregue a página e tente novamente.";
           return;
         }
 
-        const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
-        const text = userTextEl.value || "";
-        const evid = evidenceTextEl.value || "";
+        const s = STEPS.find(x => x.id === activeStep) || STEPS[0];
+        const userText = (userTextEl.value || "").trim();
+        const evid = (evidenceTextEl.value || "").trim();
+        const ai = (aiOutEl.textContent || "").trim();
 
-        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+        const { Document, Packer, Paragraph, HeadingLevel } = window.docx;
 
         const doc = new Document({
           sections: [{
             properties: {},
             children: [
               new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
-              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
-              new Paragraph({ children: [ new TextRun(text) ] }),
+              new Paragraph({ text: `Etapa: ${s.title}`, heading: HeadingLevel.HEADING_1 }),
+              new Paragraph({ text: s.desc }),
               new Paragraph({ text: "" }),
-              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
-              new Paragraph({ children: [ new TextRun(evid || "—") ] })
-            ]
-          }]
+
+              new Paragraph({ text: "Texto do aluno", heading: HeadingLevel.HEADING_2 }),
+              ...splitToParagraphs(userText || "[vazio]").map(t => new Paragraph(t)),
+
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "Evidências / Anotações", heading: HeadingLevel.HEADING_2 }),
+              ...splitToParagraphs(evid || "[vazio]").map(t => new Paragraph(t)),
+
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "Resposta da IA", heading: HeadingLevel.HEADING_2 }),
+              ...splitToParagraphs(ai || "[vazio]").map(t => new Paragraph(t)),
+            ],
+          }],
         });
 
         const blob = await Packer.toBlob(doc);
-        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
-      }catch(e){
-        alert("Falha ao exportar DOCX: " + (e?.message || e));
-      }
-    });
-
-    // ---------------------------
-    // Upload PDFs (armazenando DataURL)
-    // ---------------------------
-    pdfInputEl.addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files || []);
-      if(files.length === 0) return;
-
-      const list = loadPdfs();
-
-      runtimeStatusEl.textContent = "carregando PDF(s)…";
-      aiOutEl.textContent = "Carregando PDF(s) no navegador…";
-
-      try{
-        for(const f of files){
-          // Atenção: localStorage tem limite (~5MB-10MB dependendo do navegador).
-          // PDFs grandes podem falhar. Ideal: IndexedDB (posso migrar depois).
-          const dataUrl = await fileToDataUrl(f);
-
-          list.push({
-            id: crypto.randomUUID(),
-            name: f.name,
-            size: f.size,
-            dataUrl,
-            addedAt: Date.now(),
-            pages: null,
-            extractedText: ""
-          });
-        }
-
-        savePdfs(list);
-        pdfInputEl.value = "";
-
-        aiOutEl.textContent =
-          "PDF(s) anexado(s) com sucesso.\n\n" +
-          "Agora você pode:\n" +
-          "- 'Extrair tudo p/ Evidências'\n" +
-          "- 'Extrair páginas…' (1-3, 7, 10-12)\n\n" +
-          "Depois, use 'Orientar com IA'.";
-
-        runtimeStatusEl.textContent = "pronto";
+        window.saveAs(blob, `orientador-${activeStep}.docx`);
+        aiOutEl.textContent = "DOCX gerado com sucesso.";
       }catch(err){
-        aiOutEl.textContent =
-          "Falha ao anexar PDF.\n\n" +
-          "Possível causa: PDF muito grande para o limite do navegador (localStorage).\n\n" +
-          "Detalhe: " + (err?.message || err);
-        runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao exportar DOCX: " + (err?.message || String(err));
       }
     });
 
-    clearPdfsBtn.addEventListener("click", () => {
-      savePdfs([]);
-      aiOutEl.textContent = "Lista de PDFs apagada.";
-    });
-
-    // ---------------------------
-    // Util
-    // ---------------------------
-    function escapeHtml(str){
-      return (str||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+    function splitToParagraphs(text){
+      return String(text || "")
+        .replace(/\r/g,"")
+        .split("\n")
+        .map(l => l.trimEnd())
+        .filter(l => l.length > 0);
     }
 
     // ---------------------------
-    // Init
+    // INIT
     // ---------------------------
-    (function init(){
+    function init(){
       renderSteps();
       renderPdfs();
       openStep(activeStep);
-
-      const existing = localStorage.getItem(STORE_KEY);
-      if(existing) lastSavedEl.textContent = "carregado do navegador";
-
       checkHealth();
-      setInterval(checkHealth, 15000);
+      setInterval(checkHealth, 20000);
+    }
 
-      // status inicial
-      runtimeStatusEl.textContent = "pronto";
-    })();
+    init();
   </script>
 </body>
 </html>
