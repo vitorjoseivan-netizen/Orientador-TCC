@@ -1611,3 +1611,47 @@
   </script>
 </body>
 </html>
+/* ===== TEMA BRANCO DEFINITIVO ===== */
+:root{
+  --bgA:#ffffff;
+  --bgB:#f3f4f6;
+
+  --text:#111827;
+  --muted:#4b5563;
+
+  --card: #ffffff;
+  --card2:#ffffff;
+  --line: rgba(17,24,39,.12);
+
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+body{
+  background: linear-gradient(180deg, #ffffff, #f3f4f6);
+  color: var(--text);
+}
+
+.panel,
+.card,
+.box,
+.viewer,
+.side,
+.statusChip,
+.toggle,
+.out{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border-color:rgba(17,24,39,.12) !important;
+}
+
+textarea,
+input[type="text"],
+input[type="number"]{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border-color:rgba(17,24,39,.18) !important;
+}
+
+.topbar{
+  background:#ffffff !important;
+}
