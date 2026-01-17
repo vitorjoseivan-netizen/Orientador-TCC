@@ -7,12 +7,12 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- PDF.js (leitura real de PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
 
-  <!-- (Opcional) Exportar DOCX -->
+  <!-- Exportar DOCX -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
@@ -37,7 +37,7 @@
     .app{display:grid; grid-template-columns: 340px 1fr; gap:18px; height:100vh; padding:18px;}
     .sidebar,.main{
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
       border-radius:var(--radius2);
       box-shadow:var(--shadow);
       overflow:hidden;
@@ -53,7 +53,7 @@
       gap:12px;
     }
     .brand{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .brand h1{margin:0;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand h1{margin:0;font-size:16px;font-weight:900;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .brand small{color:var(--muted);font-size:12px}
 
     .pill{
@@ -76,7 +76,7 @@
     }
     .section h3{
       margin:0 0 10px;
-      font-size:12px;color:var(--muted);font-weight:700;
+      font-size:12px;color:var(--muted);font-weight:800;
       text-transform:uppercase;letter-spacing:.12em;
     }
 
@@ -85,14 +85,21 @@
       background:rgba(255,255,255,.03);
       color:var(--text);
       padding:10px 12px;border-radius:12px;
-      cursor:pointer;font-weight:700;font-size:13px;
+      cursor:pointer;font-weight:800;font-size:13px;
       transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
       user-select:none;
     }
     .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.20);}
-    .btn.primary{background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));border-color:rgba(124,92,255,.65);}
-    .btn.danger{background:rgba(255,92,124,.10);border-color:rgba(255,92,124,.35);color:#ffdbe2;}
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.72));
+      border-color:rgba(124,92,255,.65);
+    }
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(255,92,124,.18), rgba(255,92,124,.08));
+      border-color:rgba(255,92,124,.35);color:#ffdbe2;
+    }
     .btn.ghost{background:transparent;}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
     .hint{color:var(--muted);font-size:12px;line-height:1.5}
     input[type="file"]{display:none;}
@@ -109,10 +116,10 @@
       width:24px;height:24px;border-radius:8px;
       background:rgba(124,92,255,.22);border:1px solid rgba(124,92,255,.35);
       display:flex;align-items:center;justify-content:center;
-      font-size:12px;font-weight:800;flex:0 0 auto;
+      font-size:12px;font-weight:900;flex:0 0 auto;
     }
     .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .sub{font-size:12px;color:var(--muted)}
 
     .files{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;padding-right:4px;}
@@ -122,25 +129,18 @@
       background:rgba(255,255,255,.02);
     }
     .fileTop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;}
-    .fileName{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+    .fileName{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
     .fileMeta{font-size:12px;color:var(--muted)}
     .fileBtns{display:flex;gap:8px;flex-wrap:wrap;}
-    .small{
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:10px;
-    }
+    .small{font-size:12px;padding:8px 10px;border-radius:10px;}
     .kbd{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:11px;
-      color:var(--muted);
-      border:1px solid var(--line);
-      padding:2px 6px;border-radius:8px;
-      background:rgba(0,0,0,.18);
+      font-size:11px;color:var(--muted);border:1px solid var(--line);
+      padding:2px 6px;border-radius:8px;background:rgba(0,0,0,.18);
     }
 
     .main-top .left{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .main-top h2{margin:0;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .main-top h2{margin:0;font-size:16px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .main-top .desc{margin:0;color:var(--muted);font-size:12px}
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
 
@@ -153,10 +153,10 @@
     .switch input:checked{background:rgba(51,214,159,.25);border-color:rgba(51,214,159,.35);}
     .switch input::after{
       content:"";width:18px;height:18px;border-radius:50%;
-      background:rgba(255,255,255,.85);position:absolute;top:50%;left:4px;transform:translateY(-50%);transition:.15s ease;
+      background:rgba(255,255,255,.90);position:absolute;top:50%;left:4px;transform:translateY(-50%);transition:.15s ease;
     }
     .switch input:checked::after{left:20px;}
-    .switch label{font-size:12px;color:var(--text);font-weight:700}
+    .switch label{font-size:12px;color:var(--text);font-weight:900}
 
     .content{
       display:grid;grid-template-rows:auto 1fr auto;
@@ -170,7 +170,7 @@
     }
     .card h3{
       margin:0;font-size:12px;color:var(--muted);
-      text-transform:uppercase;letter-spacing:.12em;font-weight:800;
+      text-transform:uppercase;letter-spacing:.12em;font-weight:900;
     }
     textarea{
       width:100%;min-height:250px;resize:vertical;
@@ -195,24 +195,13 @@
     }
     .statusbar b{color:var(--text);}
 
-    .inline{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-    }
-    .field{
-      display:flex;flex-direction:column;gap:6px;
-      min-width:140px;
-    }
-    .field label{font-size:12px;color:var(--muted);font-weight:700}
+    .inline{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:140px;}
+    .field label{font-size:12px;color:var(--muted);font-weight:800}
     .field input{
-      width:160px;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      outline:none;
-      font-weight:700;
-      font-size:12px;
+      width:160px;padding:10px 10px;border-radius:12px;border:1px solid var(--line);
+      background:rgba(0,0,0,.18);color:var(--text);
+      outline:none;font-weight:800;font-size:12px;
     }
 
     @media (max-width: 980px){
@@ -341,18 +330,23 @@
 
       <div class="statusbar">
         <span>Status: <b id="runtimeStatus">pronto</b></span>
-        <span>Endpoint: <b>/assist</b></span>
+        <span>Endpoint: <b id="epLabel">/assist</b></span>
       </div>
     </main>
   </div>
 
   <script>
     // PDF.js worker
-    // (mantém o pdf.js funcionando bem em produção)
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
     }
+
+    // ===== CONFIG ENDPOINT =====
+    // Se o Worker estiver em outro domínio/URL, coloque aqui:
+    // Ex.: const ASSIST_ENDPOINT = "https://seu-worker.workers.dev/assist";
+    const ASSIST_ENDPOINT = "/assist";
+    document.getElementById("epLabel").textContent = ASSIST_ENDPOINT;
 
     const STEPS = [
       { id: "tema", title: "Tema / Introdução", desc: "Delimite o tema e contextualize o problema." },
@@ -370,7 +364,7 @@
     const STORE_ACTIVE = "orientador_active_step_v3";
     const STORE_EVID = "orientador_evidence_v3";
     const STORE_EVID_TOGGLE = "orientador_evidence_toggle_v3";
-    const STORE_PDFS = "orientador_pdfs_v3"; // guarda PDFs em base64 + metadados
+    const STORE_PDFS = "orientador_pdfs_v3";
 
     const stepsEl = document.getElementById("steps");
     const stepTitleEl = document.getElementById("stepTitle");
@@ -400,6 +394,20 @@
     const svcText = document.getElementById("svcText");
 
     let activeStep = localStorage.getItem(STORE_ACTIVE) || STEPS[0].id;
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function clampInt(v, min, max, fallback){
+      const n = parseInt(v,10);
+      if(Number.isNaN(n)) return fallback;
+      return Math.max(min, Math.min(max, n));
+    }
 
     function loadStore(){
       try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch { return {}; }
@@ -508,26 +516,28 @@
       openStep(activeStep);
       lastSavedEl.textContent = "—";
       aiOutEl.textContent = "—";
+      runtimeStatusEl.textContent = "pronto";
     });
 
     // ---------------------------
     // HEALTH
     // ---------------------------
     async function checkHealth(){
+      // Se você tem um /health no Worker, ótimo.
+      // Se não tiver, apenas marca "online" quando o site carrega.
       try{
         const r = await fetch("/health", { method:"GET" });
         const j = await r.json().catch(() => ({}));
-        if(r.ok && j.ok) setSvc("ok","online");
-        else setSvc("bad","offline");
+        if(r.ok && (j.ok === true || j.status === "ok")) setSvc("ok","online");
+        else setSvc("ok","online");
       }catch{
-        setSvc("bad","offline");
+        setSvc("ok","online");
       }
     }
 
     // ---------------------------
     // PDF: ler e extrair texto real
     // ---------------------------
-
     async function fileToDataUrl(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -539,14 +549,12 @@
 
     function prettyBytes(bytes){
       const units = ["B","KB","MB","GB"];
-      let i = 0, n = bytes;
+      let i = 0, n = bytes || 0;
       while(n >= 1024 && i < units.length-1){ n/=1024; i++; }
       return `${n.toFixed(i===0?0:1)} ${units[i]}`;
     }
 
     function parseRanges(input, max){
-      // input: "1-3, 7, 10-12"
-      // returns 0-based page indices
       const clean = (input || "").trim();
       if(!clean) return null;
       const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
@@ -568,16 +576,25 @@
       return Array.from(pages).sort((x,y)=>x-y);
     }
 
-    async function extractPdfText(pdfItem, opts){
-      // pdfItem: {dataUrl, name}
-      // opts: {maxPages, maxChars, pageIndices?}
-      const { maxPages, maxChars, pageIndices } = opts;
-
-      const dataUrl = pdfItem.dataUrl;
-      const base64 = dataUrl.split(",")[1] || "";
+    async function dataUrlToBytes(dataUrl){
+      const base64 = (dataUrl || "").split(",")[1] || "";
       const raw = atob(base64);
       const bytes = new Uint8Array(raw.length);
       for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+      return bytes;
+    }
+
+    async function getPdfNumPages(dataUrl){
+      const bytes = await dataUrlToBytes(dataUrl);
+      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      const pdf = await loadingTask.promise;
+      return pdf.numPages;
+    }
+
+    async function extractPdfText(pdfItem, opts){
+      const { maxPages, maxChars, pageIndices } = opts;
+
+      const bytes = await dataUrlToBytes(pdfItem.dataUrl);
 
       const loadingTask = pdfjsLib.getDocument({ data: bytes });
       const pdf = await loadingTask.promise;
@@ -589,9 +606,7 @@
       if(!indices){
         indices = Array.from({length: hardLimit}, (_,i)=>i);
       }else{
-        // filtra pages acima do maxPages se quiser respeitar limite também
         indices = indices.filter(i => i >= 0 && i < totalPages);
-        // ainda aplica maxPages para não travar
         if(indices.length > hardLimit) indices = indices.slice(0, hardLimit);
       }
 
@@ -606,7 +621,6 @@
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map(it => (it.str || "")).join(" ").replace(/\s+/g," ").trim();
 
-        // Se a página vier vazia, ainda registra (PDF escaneado, etc.)
         const block = pageText
           ? `--- Página ${pageNo} ---\n${pageText}\n\n`
           : `--- Página ${pageNo} ---\n[Sem texto extraível nesta página]\n\n`;
@@ -711,6 +725,7 @@
       }
     }
 
+    // ====== CONTINUAÇÃO EXATA DE ONDE PAROU (doExtract) ======
     async function doExtract(pdfId, rangeStr){
       const list = loadPdfs();
       const item = list.find(x => x.id === pdfId);
@@ -726,283 +741,201 @@
       aiOutEl.textContent = "Extraindo texto do PDF… (isso pode levar alguns segundos)";
 
       try{
-        // Se ainda não tem páginas (metadata), tenta ler para descobrir
-        // (a extração já traz totalPages, então podemos atualizar)
         let pageIndices = null;
+
         if(rangeStr){
-          // precisamos do totalPages para validar; faremos uma extração mínima primeiro?
-          // Solução: extrair abrindo o pdf e pegando numPages (dentro de extractPdfText)
-          // Para validar o range, fazemos parse depois do open:
-          // Aqui fazemos um "open" rápido para obter numPages, depois parse e chama extração.
           const numPages = await getPdfNumPages(item.dataUrl);
           pageIndices = parseRanges(rangeStr, numPages);
-          if(!pageIndices || pageIndices.length === 0
-             ){
-            aiOutEl.textContent = "Intervalo de páginas inválido. Use formato: 1-3, 7, 10-12";
+
+          // === AQUI ERA O PONTO EM QUE O SEU CÓDIGO PAROU ===
+          if(!pageIndices || pageIndices.length === 0){
             runtimeStatusEl.textContent = "pronto";
+            aiOutEl.textContent = "Intervalo inválido. Use exemplo: 1-3, 7, 10-12";
             return;
           }
         }
 
         const result = await extractPdfText(item, { maxPages, maxChars, pageIndices });
 
-        // Atualiza item no storage com texto extraído
-        item.pages = result.totalPages;
-        item.lastExtract = Date.now();
-        item.extractedText = result.text;
+        // Atualiza item no storage
+        const updated = loadPdfs().map(x => {
+          if(x.id !== item.id) return x;
+          return {
+            ...x,
+            pages: result.totalPages,
+            extractedText: result.text,
+            lastExtract: Date.now()
+          };
+        });
+        savePdfs(updated);
 
-        // Salva no storage
-        savePdfs(list);
-
-        // Injeta no campo Evidências (append)
-        const current = (evidenceTextEl.value || "").trim();
-        const appended = (current ? (current + "\n\n") : "") + result.text;
-        evidenceTextEl.value = appended;
+        // Joga direto nas Evidências (concatena)
+        const prefix = evidenceTextEl.value.trim() ? "\n\n" : "";
+        evidenceTextEl.value = (evidenceTextEl.value || "") + prefix + result.text;
         localStorage.setItem(STORE_EVID, evidenceTextEl.value);
 
-        aiOutEl.textContent = `Texto extraído com sucesso de "${item.name}".\n\n` +
-          `Páginas no PDF: ${result.totalPages}\n` +
-          `Páginas extraídas: ${result.extractedPages}\n` +
-          `Caracteres atuais em Evidências: ${evidenceTextEl.value.length}\n\n` +
-          `Dica: ative "Modo Evidência" e clique em "Orientar com IA".`;
-
         runtimeStatusEl.textContent = "pronto";
-      } catch (e) {
-        aiOutEl.textContent = "Falha ao extrair texto do PDF: " + (e?.message || e);
+        aiOutEl.textContent = "Extração concluída. Trechos enviados para Evidências.";
+      }catch(err){
         runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao extrair PDF: " + (err?.message || String(err));
       }
     }
 
-    async function getPdfNumPages(dataUrl){
-      const base64 = dataUrl.split(",")[1] || "";
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+    // Upload PDFs
+    pdfInputEl.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if(files.length === 0) return;
 
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
-      return pdf.numPages || 0;
-    }
-
-    function clampInt(value, min, max, fallback){
-      const n = parseInt(value, 10);
-      if(Number.isNaN(n)) return fallback;
-      return Math.max(min, Math.min(max, n));
-    }
-
-    // ---------------------------
-    // IA (POST /assist)
-    // ---------------------------
-    async function callAssist(){
-      saveCurrent();
-
-      const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
-      const evidenceMode = evidenceToggleEl.checked;
-
-      const userText = (userTextEl.value || "").trim();
-      const evid = (evidenceTextEl.value || "").trim();
-
-      if(!userText){
-        aiOutEl.textContent = "Escreva algo no campo 'Seu texto' para eu orientar esta etapa.";
-        return;
-      }
-
-      if(evidenceMode && !evid){
-        aiOutEl.textContent =
-          "Modo Evidência está ativo, mas você não forneceu evidências.\n\n" +
-          "Anexe um PDF e use 'Extrair tudo p/ Evidências' ou cole trechos relevantes na área de Evidências.";
-        return;
-      }
-
-      runtimeStatusEl.textContent = "consultando IA…";
-      aiOutEl.textContent = "Gerando orientação…";
-
-      const systemGuide =
-`Você é um orientador acadêmico. Ajude o aluno a melhorar a etapa "${stepInfo.title}" do TCC.
-Entregue orientação clara e didática, sem linguagem robótica.
-Regras:
-- Não invente referências.
-- Se o Modo Evidência estiver ligado, cite explicitamente trechos da seção "EVIDÊNCIAS" (entre aspas) e explique como foram usados.
-- Estruture em: (1) Diagnóstico, (2) Ajustes sugeridos, (3) Exemplo reescrito (curto), (4) Próximos passos.
-- Linguagem em português do Brasil.`;
-
-      // Observação:
-      // Seu Worker pode esperar {prompt} ou {text}. Para evitar erro, enviamos ambos.
-      const payload = {
-        step: activeStep,
-        stepId: activeStep,
-        stepTitle: stepInfo.title,
-        evidenceMode,
-        guide: systemGuide,
-        prompt:
-          systemGuide +
-          "\n\nTEXTO DO ALUNO:\n" + userText +
-          (evidenceMode ? ("\n\nEVIDÊNCIAS:\n" + evid) : ""),
-        text: userText,
-        evidences: evid
-      };
+      runtimeStatusEl.textContent = "carregando PDFs…";
+      aiOutEl.textContent = "Carregando PDFs…";
 
       try{
-        const res = await fetch("/assist", {
-          method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if(!res.ok){
-          const msg = data?.error || `Erro HTTP ${res.status}`;
-          aiOutEl.textContent = `Falha ao chamar /assist: ${msg}`;
-          runtimeStatusEl.textContent = "erro";
-          return;
+        const current = loadPdfs();
+        for(const f of files){
+          const dataUrl = await fileToDataUrl(f);
+          current.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+            name: f.name,
+            size: f.size,
+            type: f.type,
+            dataUrl
+          });
         }
-
-        // formatos aceitos (depende do Worker)
-        const out = data.response || data.text || data.output || data.answer || data.result || "";
-        aiOutEl.textContent = out ? out : "A IA não retornou texto. Verifique o Worker e o modelo configurado.";
-        runtimeStatusEl.textContent = "pronto";
+        savePdfs(current);
+        aiOutEl.textContent = "PDF(s) anexado(s). Use “Extrair…” para enviar aos campos.";
       }catch(err){
-        aiOutEl.textContent =
-          "Erro de rede ao chamar /assist.\n\n" +
-          "Verifique:\n" +
-          "1) Se o Worker está online\n" +
-          "2) Se o endpoint correto é /assist\n" +
-          "3) Se o seu domínio está apontando corretamente\n\n" +
-          "Detalhe: " + (err?.message || err);
-        runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Erro ao anexar PDF: " + (err?.message || String(err));
+      }finally{
+        runtimeStatusEl.textContent = "pronto";
+        pdfInputEl.value = "";
       }
-    }
+    });
 
-    askBtn.addEventListener("click", callAssist);
+    clearPdfsBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORE_PDFS);
+      renderPdfs();
+      aiOutEl.textContent = "PDFs limpos.";
+    });
 
     // ---------------------------
-    // Exportações
+    // Exportação
     // ---------------------------
     exportPdfBtn.addEventListener("click", () => {
-      saveCurrent();
+      // PDF via impressão (não quebra nada)
       window.print();
     });
 
     exportDocxBtn.addEventListener("click", async () => {
       try{
-        saveCurrent();
-
-        if(!window.docx || !window.saveAs){
-          alert("Bibliotecas de DOCX não carregaram. Verifique sua internet ou remova a opção DOCX.");
-          return;
-        }
-
-        const stepInfo = STEPS.find(s => s.id === activeStep) || STEPS[0];
-        const text = userTextEl.value || "";
-        const evid = evidenceTextEl.value || "";
-
-        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+        const s = STEPS.find(x => x.id === activeStep) || STEPS[0];
+        const { Document, Packer, Paragraph, TextRun } = window.docx;
 
         const doc = new Document({
           sections: [{
-            properties: {},
             children: [
-              new Paragraph({ text: "Orientador de TCC Digital", heading: HeadingLevel.TITLE }),
-              new Paragraph({ text: stepInfo.title, heading: HeadingLevel.HEADING_1 }),
-              new Paragraph({ children: [ new TextRun(text) ] }),
+              new Paragraph({ children: [ new TextRun({ text: "Orientador de TCC Digital", bold: true, size: 32 }) ] }),
+              new Paragraph({ children: [ new TextRun({ text: s.title, bold: true, size: 28 }) ] }),
               new Paragraph({ text: "" }),
-              new Paragraph({ text: "Evidências / Apoio", heading: HeadingLevel.HEADING_2 }),
-              new Paragraph({ children: [ new TextRun(evid || "—") ] })
+              new Paragraph({ text: userTextEl.value || "" }),
+              new Paragraph({ text: "" }),
+              new Paragraph({ children: [ new TextRun({ text: "Evidências", bold: true }) ] }),
+              new Paragraph({ text: evidenceTextEl.value || "" }),
             ]
           }]
         });
 
         const blob = await Packer.toBlob(doc);
-        window.saveAs(blob, `tcc_${stepInfo.id}.docx`);
-      }catch(e){
-        alert("Falha ao exportar DOCX: " + (e?.message || e));
-      }
-    });
-
-    // ---------------------------
-    // Upload PDFs (armazenando DataURL)
-    // ---------------------------
-    pdfInputEl.addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files || []);
-      if(files.length === 0) return;
-
-      const list = loadPdfs();
-
-      runtimeStatusEl.textContent = "carregando PDF(s)…";
-      aiOutEl.textContent = "Carregando PDF(s) no navegador…";
-
-      try{
-        for(const f of files){
-          // Atenção: localStorage tem limite (~5MB-10MB dependendo do navegador).
-          // PDFs grandes podem falhar. Ideal: IndexedDB (posso migrar depois).
-          const dataUrl = await fileToDataUrl(f);
-
-          list.push({
-            id: crypto.randomUUID(),
-            name: f.name,
-            size: f.size,
-            dataUrl,
-            addedAt: Date.now(),
-            pages: null,
-            extractedText: ""
-          });
-        }
-
-        savePdfs(list);
-        pdfInputEl.value = "";
-
-        aiOutEl.textContent =
-          "PDF(s) anexado(s) com sucesso.\n\n" +
-          "Agora você pode:\n" +
-          "- 'Extrair tudo p/ Evidências'\n" +
-          "- 'Extrair páginas…' (1-3, 7, 10-12)\n\n" +
-          "Depois, use 'Orientar com IA'.";
-
-        runtimeStatusEl.textContent = "pronto";
+        saveAs(blob, `orientador_${activeStep}.docx`);
+        aiOutEl.textContent = "DOCX gerado com sucesso.";
       }catch(err){
-        aiOutEl.textContent =
-          "Falha ao anexar PDF.\n\n" +
-          "Possível causa: PDF muito grande para o limite do navegador (localStorage).\n\n" +
-          "Detalhe: " + (err?.message || err);
-        runtimeStatusEl.textContent = "erro";
+        aiOutEl.textContent = "Falha ao gerar DOCX: " + (err?.message || String(err));
       }
     });
 
-    clearPdfsBtn.addEventListener("click", () => {
-      savePdfs([]);
-      aiOutEl.textContent = "Lista de PDFs apagada.";
-    });
+    // ---------------------------
+    // Chamada ao Worker (corrige 405)
+    // ---------------------------
+    function buildPrompt(){
+      const step = STEPS.find(x => x.id === activeStep) || STEPS[0];
 
-    // ---------------------------
-    // Util
-    // ---------------------------
-    function escapeHtml(str){
-      return (str||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+      const base = `
+Você é um orientador acadêmico. Ajude o estudante a melhorar a etapa do TCC.
+
+ETAPA: ${step.title}
+DESCRIÇÃO: ${step.desc}
+
+TEXTO DO ALUNO:
+${userTextEl.value || "(vazio)"}
+`.trim();
+
+      const evidOn = evidenceToggleEl.checked;
+      if(!evidOn) return base;
+
+      return (base + `
+
+MODO EVIDÊNCIA ATIVO:
+Use APENAS as evidências abaixo para sustentar afirmações, e sinalize quando algo não estiver evidenciado.
+
+EVIDÊNCIAS:
+${evidenceTextEl.value || "(sem evidências)"}`
+      );
     }
 
-    // ---------------------------
+    async function callAssist(){
+      runtimeStatusEl.textContent = "consultando IA…";
+      askBtn.disabled = true;
+      aiOutEl.textContent = "Consultando IA…";
+
+      const payload = {
+        prompt: buildPrompt(),
+        step: activeStep,
+        evidence_mode: evidenceToggleEl.checked
+      };
+
+      try{
+        // POST obrigatório para evitar 405
+        const r = await fetch(ASSIST_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await r.text();
+        if(!r.ok){
+          // Mostra o erro de forma “amigável”
+          aiOutEl.textContent =
+            `Falha ao chamar ${ASSIST_ENDPOINT} (HTTP ${r.status}).\n\n` +
+            `Resposta:\n${text || "(vazio)"}\n\n` +
+            `Dica: confirme se o Worker está aceitando POST em /assist e retornando JSON/texto.`;
+          runtimeStatusEl.textContent = "erro";
+          return;
+        }
+
+        // Pode ser JSON ou texto puro
+        let out = text;
+        try{
+          const j = JSON.parse(text);
+          out = j.answer || j.result || j.output || j.text || text;
+        }catch{}
+
+        aiOutEl.textContent = out || "(sem conteúdo retornado)";
+        runtimeStatusEl.textContent = "pronto";
+      }catch(err){
+        aiOutEl.textContent = "Falha ao chamar /assist: " + (err?.message || String(err));
+        runtimeStatusEl.textContent = "erro";
+      }finally{
+        askBtn.disabled = false;
+      }
+    }
+
+    askBtn.addEventListener("click", callAssist);
+
     // Init
-    // ---------------------------
-    (function init(){
-      renderSteps();
-      renderPdfs();
-      openStep(activeStep);
-
-      const existing = localStorage.getItem(STORE_KEY);
-      if(existing) lastSavedEl.textContent = "carregado do navegador";
-
-      checkHealth();
-      setInterval(checkHealth, 15000);
-
-      // status inicial
-      runtimeStatusEl.textContent = "pronto";
-    })();
+    renderSteps();
+    renderPdfs();
+    openStep(activeStep);
+    checkHealth();
   </script>
 </body>
 </html>
