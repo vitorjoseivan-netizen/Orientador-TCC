@@ -1611,37 +1611,56 @@
   </script>
 </body>
 </html>
-/* ===== TEMA BRANCO DEFINITIVO ===== */
+/* ===== TEMA BRANCO FORCADO (FINAL DO CSS) ===== */
+html, body {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+body {
+  background-image: none !important;
+}
+
 :root{
-  --bgA:#ffffff;
-  --bgB:#f3f4f6;
-
-  --text:#111827;
-  --muted:#4b5563;
-
-  --card: #ffffff;
-  --card2:#ffffff;
-  --line: rgba(17,24,39,.12);
-
-  --shadow: 0 8px 24px rgba(0,0,0,.08);
+  --bgA:#ffffff !important;
+  --bgB:#ffffff !important;
+  --text:#111827 !important;
+  --muted:#4b5563 !important;
+  --card:#ffffff !important;
+  --card2:#ffffff !important;
+  --line: rgba(17,24,39,.14) !important;
+  --shadow: 0 10px 30px rgba(0,0,0,.10) !important;
 }
 
-body{
-  background: linear-gradient(180deg, #ffffff, #f3f4f6);
-  color: var(--text);
-}
-
+.topbar,
 .panel,
+.panelHead,
+.scroll,
 .card,
 .box,
-.viewer,
-.side,
+.statusbar,
 .statusChip,
 .toggle,
-.out{
-  background:#ffffff !important;
-  color:#111827 !important;
-  border-color:rgba(17,24,39,.12) !important;
+.out,
+.viewer,
+.side,
+.modal,
+.modalHead,
+.modalBody,
+.fileItem {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-color: rgba(17,24,39,.14) !important;
+}
+
+.hint,
+.brand .subtitle,
+.statusChip,
+.fileMeta,
+.meta .s,
+.mainDesc,
+.statusbar {
+  color: #4b5563 !important;
 }
 
 textarea,
@@ -1649,9 +1668,36 @@ input[type="text"],
 input[type="number"]{
   background:#ffffff !important;
   color:#111827 !important;
-  border-color:rgba(17,24,39,.18) !important;
+  border:1px solid rgba(17,24,39,.20) !important;
 }
 
-.topbar{
-  background:#ffffff !important;
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus{
+  box-shadow: 0 0 0 4px rgba(124,92,255,.18) !important;
+  border-color: rgba(124,92,255,.55) !important;
+}
+
+/* Botões continuam coloridos, mas com fundo claro geral */
+.btn{
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  border-color: rgba(17,24,39,.18) !important;
+}
+.btn.primary{
+  background: linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.75)) !important;
+  color: #ffffff !important;
+  border-color: rgba(124,92,255,.55) !important;
+}
+.btn.success{
+  background: linear-gradient(180deg, rgba(51,214,159,.45), rgba(51,214,159,.25)) !important;
+  color: #064e3b !important;
+}
+.btn.info{
+  background: linear-gradient(180deg, rgba(74,163,255,.45), rgba(74,163,255,.25)) !important;
+  color: #0b3b74 !important;
+}
+.btn.danger{
+  background: linear-gradient(180deg, rgba(255,92,124,.35), rgba(255,92,124,.18)) !important;
+  color: #7f1d1d !important;
 }
