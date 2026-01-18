@@ -27,7 +27,6 @@
     html,body{ height:100%; }
     body{ margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
 
-    /* Top bar */
     .topbar{
       position: sticky; top:0; z-index:10;
       display:grid; grid-template-columns:auto 1fr auto;
@@ -43,7 +42,6 @@
     .evidence{ display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:14px; user-select:none; }
     .evidence input{ transform: translateY(1px); }
 
-    /* Buttons */
     .btn{
       border:1px solid rgba(31,41,55,.12);
       background:#fff;
@@ -65,7 +63,6 @@
 
     .menu-btn{ border-radius:12px; padding:10px 12px; font-weight:700; }
 
-    /* Layout */
     .container{ max-width: 980px; margin: 0 auto; padding: 14px 14px 28px; }
 
     .grid{
@@ -78,7 +75,6 @@
       .grid{ grid-template-columns: 1fr; }
     }
 
-    /* Progress */
     .progress{ margin-top: 10px; margin-bottom: 14px; }
     .progress-row{ display:flex; justify-content:flex-start; align-items:baseline; margin-bottom: 8px; }
     .progress-label{ font-size:14px; color:var(--muted); }
@@ -94,7 +90,6 @@
       transition: width .25s ease;
     }
 
-    /* Cards */
     .card{
       position:relative;
       background:var(--card);
@@ -119,7 +114,6 @@
     }
     .card-subtitle{ margin:0 0 10px; font-size:18px; font-weight:800; }
 
-    /* Inputs */
     .input, .textarea, select{
       width:100%;
       border-radius: 14px;
@@ -140,7 +134,6 @@
     .actions{ display:flex; gap:10px; margin-top:12px; flex-wrap: wrap; }
     .actions .btn{ flex: 0 0 auto; }
 
-    /* Terminal */
     .terminal{
       margin-top: 12px;
       background:#0b1220;
@@ -155,7 +148,6 @@
       white-space: pre-wrap;
     }
 
-    /* Sections list */
     .sections-head{
       display:flex; align-items:center; justify-content:space-between;
       gap:10px; margin-bottom: 10px;
@@ -183,9 +175,9 @@
     }
     .section-title{ font-weight:900; font-size:14px; margin-bottom: 2px; }
     .section-meta{ font-size:12px; color: var(--muted); }
-    .section-right{ font-weight:900; color	pc: var(--text); min-width: 18px; text-align:right; }
+    /* CORRIGIDO: color: */
+    .section-right{ font-weight:900; color: var(--text); min-width: 18px; text-align:right; }
 
-    /* Attachments */
     .attachment-row{
       display:flex; justify-content:space-between; align-items:center;
       gap:10px;
@@ -199,7 +191,6 @@
     .attachment-meta{ font-size:12px; color: var(--muted); }
     .muted{ color: var(--muted); font-size: 13px; }
 
-    /* Drawer */
     .drawer{ position:fixed; inset:0; display:none; z-index:50; }
     .drawer[data-open="true"]{ display:block; }
     .drawer-overlay{ position:absolute; inset:0; background: rgba(0,0,0,.35); }
@@ -219,7 +210,6 @@
     .drawer-title{ font-weight:900; font-size:16px; }
     .drawer-content{ padding: 14px; overflow:auto; }
 
-    /* Minor */
     .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 720px){ .row2{ grid-template-columns: 1fr; } }
     .divider{ height:1px; background: rgba(31,41,55,.10); margin: 14px 0; }
@@ -231,8 +221,8 @@
     <button class="btn menu-btn" id="btnMenu" type="button">Menu</button>
 
     <div class="brand">
-      <div class="brand-title">T.</div>
-      <div class="brand-subtitle">D..</div>
+      <div class="brand-title">Orientador</div>
+      <div class="brand-subtitle">TCC Digital</div>
     </div>
 
     <label class="evidence">
@@ -262,7 +252,6 @@
     </section>
 
     <div class="grid">
-      <!-- Coluna esquerda: Estrutura + anexos -->
       <section class="card">
         <div class="card-body">
           <div class="sections-head">
@@ -301,7 +290,6 @@
         </div>
       </section>
 
-      <!-- Coluna direita: Editor da seção + briefing + terminal -->
       <section class="card card-editor">
         <div class="card-body">
           <h3 class="card-subtitle" id="sectionEditorTitle">Seção</h3>
@@ -331,7 +319,7 @@
           <div style="height:10px"></div>
 
           <label class="hint" style="display:block;margin-bottom:6px">Briefing do aluno (o que você quer que a IA escreva nesta seção)</label>
-          <textarea id="studentText" class="textarea" rows="4" placeholder="Ex.: Faça uma introdução sobre Gestão da Informação em bibliotecas universitárias, com recorte em orientação de TCC e tecnologia educacional."></textarea>
+          <textarea id="studentText" class="textarea" rows="4" placeholder="Ex.: Faça uma introdução sobre Gestão da Informação..."></textarea>
 
           <div class="actions">
             <button class="btn primary" id="btnGenerateSection" type="button">Gerar com IA (seção atual)</button>
@@ -351,7 +339,6 @@
     </div>
   </main>
 
-  <!-- Drawer/Menu -->
   <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-overlay" id="drawerOverlay"></div>
     <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
@@ -363,12 +350,7 @@
       <div class="drawer-content">
         <div class="field">
           <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker (com /assist)</label>
-          <input
-            id="workerEndpointMenu"
-            class="input"
-            type="url"
-            placeholder="https://orientador-tcc-api.seudominio.workers.dev/assist"
-          />
+          <input id="workerEndpointMenu" class="input" type="url" placeholder="https://seu-worker.workers.dev/assist" />
           <p class="hint">Cole aqui o link do seu Worker finalizando em <code>/assist</code>.</p>
         </div>
 
@@ -390,17 +372,14 @@
         <div class="divider"></div>
 
         <p class="hint">
-          Dica: se sua chamada ao Worker falhar por CORS, habilite CORS no Worker (Access-Control-Allow-Origin).
+          Se “Failed to fetch”: quase sempre é CORS no Worker. O Worker precisa responder OPTIONS e retornar
+          <code>Access-Control-Allow-Origin</code>.
         </p>
       </div>
     </div>
   </aside>
 
   <script>
-    /* =========================================================
-       ORIENTADOR TCC - APP
-    ========================================================= */
-
     const $ = (sel) => document.querySelector(sel);
 
     const el = {
@@ -438,7 +417,6 @@
       btnExportPDF: $("#btnExportPDF"),
       btnExportDOCX: $("#btnExportDOCX"),
 
-      // Menu fields
       workerEndpointMenu: $("#workerEndpointMenu"),
       projectTitleMenu: $("#projectTitleMenu"),
       authorNameMenu: $("#authorNameMenu"),
@@ -587,7 +565,6 @@
           state.attachments.splice(idx, 1);
           saveState(state);
           renderAttachments(state);
-          setProgress(calcProgress(state));
         });
         el.attachmentsList.appendChild(row);
       });
@@ -613,8 +590,9 @@
 
     async function callWorker({ endpoint, etapa, text, evidenceMode }){
       const payload = { etapa, texto: text, modo_evidencia: !!evidenceMode };
+
       const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 20000);
+      const t = setTimeout(() => controller.abort(), 25000);
 
       try{
         const res = await fetch(endpoint, {
@@ -623,13 +601,50 @@
           body: JSON.stringify(payload),
           signal: controller.signal,
         });
+
         const ct = res.headers.get("content-type") || "";
         const data = ct.includes("application/json") ? await res.json() : { text: await res.text() };
-        if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+
+        if (!res.ok){
+          const msg = data?.error || data?.message || data?.text || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
         return data;
+      } catch (err){
+        const msg = String(err?.message || err);
+        // “Failed to fetch” costuma ser CORS/OPTIONS ou Worker offline
+        if (msg.toLowerCase().includes("failed to fetch")){
+          throw new Error(
+            "Failed to fetch. Possíveis causas:\n" +
+            "1) CORS no Worker (precisa responder OPTIONS e Allow-Origin)\n" +
+            "2) Endpoint errado (verifique se termina em /assist)\n" +
+            "3) Worker fora do ar\n"
+          );
+        }
+        if (msg.toLowerCase().includes("aborted")){
+          throw new Error("Timeout ao chamar o Worker (25s).");
+        }
+        throw err;
       } finally {
         clearTimeout(t);
       }
+    }
+
+    function getAllTextForExport(state){
+      const lines = [];
+      lines.push(state.meta.projectTitle || "Sem título");
+      lines.push(`Autor: ${state.meta.authorName || "-"}`);
+      lines.push(`Instituição: ${state.meta.institutionName || "-"}`);
+      lines.push("");
+      for (const s of TCC_STRUCTURE){
+        lines.push(s.title.toUpperCase());
+        lines.push((state.sections?.[s.id]?.content || "").trim() || "[Vazio]");
+        lines.push("");
+      }
+      lines.push("LISTA DE ANEXOS");
+      if (!state.attachments.length) lines.push("Nenhum anexo.");
+      else state.attachments.forEach((a, i) => lines.push(`${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)`));
+      return lines.join("\n");
     }
 
     async function exportPDF(state){
@@ -643,307 +658,296 @@
       const maxWidth = pageWidth - margin * 2;
       let y = margin;
 
-      function addTitle(txt){
+      function ensureSpace(extra=18){
+        if (y + extra > pageHeight - margin){
+          doc.addPage();
+          y = margin;
+        }
+      }
+
+      function addH1(txt){
         doc.setFont("helvetica","bold");
         doc.setFontSize(16);
-        const lines = doc.splitTextToSize(txt, maxWidth);
-        doc.text(lines, margin, y);
-        y += lines.length * 18 + 8;
-        doc.setFont("helvetica","normal");
-        doc.setFontSize(11);
+        const split = doc.splitTextToSize(txt, maxWidth);
+        ensureSpace(split.length * 18 + 10);
+        doc.text(split, margin, y);
+        y += split.length * 18 + 10;
       }
-      function addParagraph(txt){
+
+      function addH2(txt){
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(12);
+        const split = doc.splitTextToSize(txt, maxWidth);
+        ensureSpace(split.length * 14 + 8);
+        doc.text(split, margin, y);
+        y += split.length * 14 + 8;
+      }
+
+      function addBody(txt){
         doc.setFont("helvetica","normal");
         doc.setFontSize(11);
-        const lines = doc.splitTextToSize(txt, maxWidth);
-        for (const line of lines){
-          if (y > pageHeight - margin){ doc.addPage(); y = margin; }
+        const split = doc.splitTextToSize(txt, maxWidth);
+        for (const line of split){
+          ensureSpace(14);
           doc.text(line, margin, y);
           y += 14;
         }
-        y += 10;
+        y += 8;
       }
 
-      addTitle(state.meta.projectTitle || "Trabalho");
-      addParagraph(`Autor: ${state.meta.authorName || ""}`);
-      addParagraph(`Instituição: ${state.meta.institutionName || ""}`);
-      addParagraph(`Data: ${new Date().toLocaleDateString("pt-BR")}`);
-
-      doc.addPage(); y = margin;
-      addTitle("Sumário");
-      for (const s of TCC_STRUCTURE) addParagraph(s.title);
+      addH1(state.meta.projectTitle || "Orientador de TCC");
+      addBody(`Autor: ${state.meta.authorName || "-"}`);
+      addBody(`Instituição: ${state.meta.institutionName || "-"}`);
 
       for (const s of TCC_STRUCTURE){
-        const content = (state.sections?.[s.id]?.content || "").trim();
-        if (!content) continue;
-        doc.addPage(); y = margin;
-        addTitle(s.title);
-        addParagraph(content);
+        addH2(s.title);
+        addBody((state.sections?.[s.id]?.content || "").trim() || "[Vazio]");
       }
 
-      if (state.attachments.length){
-        doc.addPage(); y = margin;
-        addTitle("Lista de Anexos");
-        for (const a of state.attachments){
-          addParagraph(`- ${a.name} (${a.type || "arquivo"}, ${(a.size/1024).toFixed(1)} KB)`);
-        }
+      addH2("Lista de Anexos");
+      if (!state.attachments.length){
+        addBody("Nenhum anexo.");
+      } else {
+        const txt = state.attachments.map((a, i) => `${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)`).join("\n");
+        addBody(txt);
       }
 
-      const name = (state.meta.projectTitle || "tcc").replace(/[^\w\-]+/g,"_");
-      doc.save(`${name}.pdf`);
+      doc.save("tcc-orientador.pdf");
+      logTerminal("PDF exportado com sucesso.");
     }
 
     async function exportDOCX(state){
       const docx = window.docx;
-      if (!docx || !window.saveAs){ logTerminal("Erro: docx/FileSaver não carregou (CDN)."); return; }
+      if (!docx || !docx.Document){ logTerminal("Erro: biblioteca DOCX não carregou (CDN)."); return; }
 
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+      const { Document, Packer, Paragraph, TextRun } = docx;
+
       const children = [];
 
+      const title = state.meta.projectTitle || "Orientador de TCC";
       children.push(new Paragraph({
-        heading: HeadingLevel.TITLE,
-        children: [new TextRun({ text: state.meta.projectTitle || "Trabalho", bold:true })],
+        children: [new TextRun({ text: title, bold: true, size: 32 })],
+        spacing: { after: 280 },
       }));
-      children.push(new Paragraph(`Autor: ${state.meta.authorName || ""}`));
-      children.push(new Paragraph(`Instituição: ${state.meta.institutionName || ""}`));
-      children.push(new Paragraph(`Data: ${new Date().toLocaleDateString("pt-BR")}`));
-      children.push(new Paragraph(""));
-
-      children.push(new Paragraph({
-        heading: HeadingLevel.HEADING_1,
-        children: [new TextRun({ text: "Sumário", bold:true })],
-      }));
-      for (const s of TCC_STRUCTURE) children.push(new Paragraph(`- ${s.title}`));
-      children.push(new Paragraph(""));
+      children.push(new Paragraph({ text: `Autor: ${state.meta.authorName || "-"}` }));
+      children.push(new Paragraph({ text: `Instituição: ${state.meta.institutionName || "-"}`, spacing: { after: 280 } }));
 
       for (const s of TCC_STRUCTURE){
-        const content = (state.sections?.[s.id]?.content || "").trim();
-        if (!content) continue;
-
         children.push(new Paragraph({
-          heading: HeadingLevel.HEADING_1,
-          children: [new TextRun({ text: s.title, bold:true })],
+          children: [new TextRun({ text: s.title, bold: true })],
+          spacing: { before: 220, after: 120 },
         }));
-
-        const parts = content.split(/\n{2,}/g).map(p => p.trim()).filter(Boolean);
-        for (const p of parts) children.push(new Paragraph(p));
-        children.push(new Paragraph(""));
+        const content = (state.sections?.[s.id]?.content || "").trim() || "[Vazio]";
+        content.split("\n").forEach(line => {
+          children.push(new Paragraph({ text: line }));
+        });
       }
 
-      if (state.attachments.length){
-        children.push(new Paragraph({
-          heading: HeadingLevel.HEADING_1,
-          children: [new TextRun({ text: "Lista de Anexos", bold:true })],
-        }));
-        for (const a of state.attachments){
-          children.push(new Paragraph(`- ${a.name} (${a.type || "arquivo"}, ${(a.size/1024).toFixed(1)} KB)`));
-        }
+      children.push(new Paragraph({
+        children: [new TextRun({ text: "Lista de Anexos", bold: true })],
+        spacing: { before: 220, after: 120 },
+      }));
+
+      if (!state.attachments.length){
+        children.push(new Paragraph({ text: "Nenhum anexo." }));
+      } else {
+        state.attachments.forEach((a, i) => {
+          children.push(new Paragraph({ text: `${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)` }));
+        });
       }
 
-      const doc = new Document({ sections: [{ children }] });
-      const blob = await Packer.toBlob(doc);
-      const name = (state.meta.projectTitle || "tcc").replace(/[^\w\-]+/g,"_");
-      window.saveAs(blob, `${name}.docx`);
+      const document = new Document({ sections: [{ properties: {}, children }] });
+      const blob = await Packer.toBlob(document);
+      saveAs(blob, "tcc-orientador.docx");
+      logTerminal("DOCX exportado com sucesso.");
     }
 
-    function fileMeta(file){
-      return { name:file.name, type:file.type, size:file.size, lastModified:file.lastModified };
-    }
-
-    // INIT
-    (function init(){
-      const state = loadState();
-
-      // Populate fields
-      el.workerEndpoint.value = normalizeEndpoint(state.config.workerEndpoint || "");
-      el.evidenceMode.checked = !!state.config.evidenceMode;
-
+    function applyMetaToInputs(state){
       el.projectTitle.value = state.meta.projectTitle || "";
       el.authorName.value = state.meta.authorName || "";
       el.institutionName.value = state.meta.institutionName || "";
+      el.workerEndpoint.value = state.config.workerEndpoint || "";
+      el.evidenceMode.checked = !!state.config.evidenceMode;
 
-      // Menu mirrors
-      el.workerEndpointMenu.value = el.workerEndpoint.value;
-      el.projectTitleMenu.value = el.projectTitle.value;
-      el.authorNameMenu.value = el.authorName.value;
-      el.institutionNameMenu.value = el.institutionName.value;
+      el.projectTitleMenu.value = state.meta.projectTitle || "";
+      el.authorNameMenu.value = state.meta.authorName || "";
+      el.institutionNameMenu.value = state.meta.institutionName || "";
+      el.workerEndpointMenu.value = state.config.workerEndpoint || "";
+    }
 
+    function pullMetaFromInputs(state){
+      state.meta.projectTitle = (el.projectTitle.value || "").trim();
+      state.meta.authorName = (el.authorName.value || "").trim();
+      state.meta.institutionName = (el.institutionName.value || "").trim();
+      state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
+      state.config.evidenceMode = !!el.evidenceMode.checked;
+    }
+
+    function init(){
+      const state = loadState();
+
+      applyMetaToInputs(state);
       renderSectionsList(state);
       syncSectionEditor(state);
       renderAttachments(state);
       setProgress(calcProgress(state));
-      logTerminal("Aguardando...");
+      logTerminal("Pronto.");
 
-      // Drawer handlers
+      // Drawer
       el.btnMenu.addEventListener("click", () => setDrawer(true));
-      el.btnCloseDrawer.addEventListener("click", () => setDrawer(false));
       el.drawerOverlay.addEventListener("click", () => setDrawer(false));
+      el.btnCloseDrawer.addEventListener("click", () => setDrawer(false));
 
-      // Evidence mode
+      // Evidence
       el.evidenceMode.addEventListener("change", () => {
         state.config.evidenceMode = !!el.evidenceMode.checked;
         saveState(state);
       });
 
-      function persistMetaConfig(){
-        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
-        state.meta.projectTitle = el.projectTitle.value || "";
-        state.meta.authorName = el.authorName.value || "";
-        state.meta.institutionName = el.institutionName.value || "";
-        saveState(state);
-
-        // keep menu in sync
-        el.workerEndpointMenu.value = state.config.workerEndpoint;
-        el.projectTitleMenu.value = state.meta.projectTitle;
-        el.authorNameMenu.value = state.meta.authorName;
-        el.institutionNameMenu.value = state.meta.institutionName;
-      }
-
-      el.workerEndpoint.addEventListener("change", persistMetaConfig);
-      el.projectTitle.addEventListener("input", persistMetaConfig);
-      el.authorName.addEventListener("input", persistMetaConfig);
-      el.institutionName.addEventListener("input", persistMetaConfig);
-
-      // Menu save/reset
-      el.btnSaveConfig.addEventListener("click", () => {
-        el.workerEndpoint.value = normalizeEndpoint(el.workerEndpointMenu.value);
-        el.projectTitle.value = el.projectTitleMenu.value || "";
-        el.authorName.value = el.authorNameMenu.value || "";
-        el.institutionName.value = el.institutionNameMenu.value || "";
-
-        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
-        state.meta.projectTitle = el.projectTitle.value;
-        state.meta.authorName = el.authorName.value;
-        state.meta.institutionName = el.institutionName.value;
-
-        saveState(state);
-        logTerminal("Configuração salva.");
-        setDrawer(false);
+      // Etapa select (apenas informativo)
+      el.etapaSelect.addEventListener("change", () => {
+        logTerminal(`Etapa geral selecionada: ${el.etapaSelect.value}`);
       });
 
-      el.btnResetConfig.addEventListener("click", () => {
-        state.config.workerEndpoint = DEFAULT_STATE.config.workerEndpoint;
-        state.config.evidenceMode = DEFAULT_STATE.config.evidenceMode;
-        state.meta = { ...DEFAULT_STATE.meta };
-
-        el.workerEndpoint.value = state.config.workerEndpoint;
-        el.evidenceMode.checked = state.config.evidenceMode;
-        el.projectTitle.value = state.meta.projectTitle;
-        el.authorName.value = state.meta.authorName;
-        el.institutionName.value = state.meta.institutionName;
-
-        el.workerEndpointMenu.value = state.config.workerEndpoint;
-        el.projectTitleMenu.value = state.meta.projectTitle;
-        el.authorNameMenu.value = state.meta.authorName;
-        el.institutionNameMenu.value = state.meta.institutionName;
-
+      // Editor: salvamento rápido no blur
+      el.sectionEditorText.addEventListener("input", () => {
+        const sid = state.selectedSectionId;
+        state.sections[sid].content = el.sectionEditorText.value;
         saveState(state);
         setProgress(calcProgress(state));
-        logTerminal("Restaurado para o padrão.");
+        renderSectionsList(state);
       });
 
-      // Save section
+      // Buttons save
       el.btnSaveSection.addEventListener("click", () => {
         const sid = state.selectedSectionId;
-        state.sections[sid].content = el.sectionEditorText.value || "";
+        state.sections[sid].content = el.sectionEditorText.value;
+        pullMetaFromInputs(state);
         saveState(state);
+        setProgress(calcProgress(state));
         renderSectionsList(state);
-        setProgress(calcProgress(state));
-        logTerminal(`Seção salva: ${state.sections[sid].title}`);
+        logTerminal("Seção salva.");
       });
 
-      // Quick save
       el.btnSalvar.addEventListener("click", () => {
+        pullMetaFromInputs(state);
+        saveState(state);
+        logTerminal("Salvo (rápido).");
+      });
+
+      // Apply briefing -> textarea
+      el.btnOrientar.addEventListener("click", () => {
+        const b = (el.studentText.value || "").trim();
+        if (!b){ logTerminal("Escreva um briefing primeiro."); return; }
         const sid = state.selectedSectionId;
-        state.sections[sid].content = el.sectionEditorText.value || "";
+        const current = (state.sections[sid].content || "").trim();
+        const prefix = current ? (current + "\n\n") : "";
+        state.sections[sid].content = prefix + "Briefing do aluno:\n" + b + "\n";
+        el.sectionEditorText.value = state.sections[sid].content;
         saveState(state);
         setProgress(calcProgress(state));
-        logTerminal(`Salvo. Seção: ${state.sections[sid].title}`);
+        renderSectionsList(state);
+        logTerminal("Briefing aplicado na seção (texto local).");
       });
 
-      // Apply briefing (does not overwrite long content)
-      el.btnOrientar.addEventListener("click", () => {
-        const sid = state.selectedSectionId;
-        const briefing = (el.studentText.value || "").trim();
-        if (!briefing){ logTerminal("Digite um briefing antes de aplicar."); return; }
-
-        const current = (state.sections[sid].content || "").trim();
-        if (current.length < 50){
-          state.sections[sid].content = briefing;
-          el.sectionEditorText.value = briefing;
-          saveState(state);
-          renderSectionsList(state);
-          setProgress(calcProgress(state));
-          logTerminal(`Briefing aplicado na seção: ${state.sections[sid].title}`);
-        } else {
-          logTerminal("Esta seção já tem conteúdo. Use 'Gerar com IA' para aprimorar sem perder o texto.");
-        }
-      });
-
-      // Generate with IA (section)
+      // Generate with IA
       el.btnGenerateSection.addEventListener("click", async () => {
-        const endpoint = normalizeEndpoint(el.workerEndpoint.value);
-        if (!endpoint){ logTerminal("Configure o endpoint do Worker (com /assist)."); return; }
+        pullMetaFromInputs(state);
+        state.config.workerEndpoint = normalizeEndpoint(state.config.workerEndpoint);
+        el.workerEndpoint.value = state.config.workerEndpoint;
+
+        const endpoint = state.config.workerEndpoint;
+        if (!endpoint){ logTerminal("Configure o Endpoint do Worker primeiro (Menu ou campo ao lado)."); return; }
 
         const sid = state.selectedSectionId;
         const etapa = sectionToEtapa(sid);
         const briefing = (el.studentText.value || "").trim();
-        const current = (el.sectionEditorText.value || "").trim();
 
-        const input = [
-          briefing ? `Briefing do aluno:\n${briefing}` : "",
-          current ? `Rascunho atual da seção:\n${current}` : "",
-          `Meta:\nTítulo: ${state.meta.projectTitle}\nAutor: ${state.meta.authorName}\nInstituição: ${state.meta.institutionName}`,
-          `Tarefa: produzir/aperfeiçoar a seção "${state.sections[sid].title}" em linguagem acadêmica.`
-        ].filter(Boolean).join("\n\n");
+        if (!briefing){
+          logTerminal("Escreva um briefing do aluno antes de gerar.");
+          return;
+        }
 
-        logTerminal(`Worker OK. Etapa: ${etapa}. Seção: ${sid}.`);
+        logTerminal(`Chamando IA...\nEtapa: ${etapa}\nEndpoint: ${endpoint}\n(Se der 'Failed to fetch', é CORS/OPTIONS no Worker.)`);
 
+        el.btnGenerateSection.disabled = true;
         try{
-          const result = await callWorker({
+          const data = await callWorker({
             endpoint,
             etapa,
-            text: input,
-            evidenceMode: !!el.evidenceMode.checked,
+            text: briefing,
+            evidenceMode: state.config.evidenceMode,
           });
 
-          const resposta =
-            result?.resposta ??
-            result?.output ??
-            result?.text ??
-            (typeof result === "string" ? result : JSON.stringify(result, null, 2));
+          const text = (data?.texto || data?.text || data?.result || "").toString().trim();
+          if (!text){
+            throw new Error("Worker respondeu, mas não retornou texto.");
+          }
 
-          el.sectionEditorText.value = resposta;
-          state.sections[sid].content = resposta;
+          state.sections[sid].content = text;
+          el.sectionEditorText.value = text;
 
           saveState(state);
-          renderSectionsList(state);
           setProgress(calcProgress(state));
+          renderSectionsList(state);
 
-          logTerminal(`Worker OK. Etapa: ${etapa}.\n\n--- Seção gerada ---\n${resposta}`);
-        } catch (err){
-          const msg = err?.name === "AbortError" ? "Timeout ao chamar o Worker." : `Falha ao chamar o Worker: ${err?.message || err}`;
-          logTerminal(`Worker ERROR. Etapa: ${etapa}.\n${msg}`);
+          logTerminal("IA OK. Seção preenchida.");
+        } catch (e){
+          logTerminal("ERRO ao chamar o Worker:\n" + (e?.message || String(e)));
+        } finally {
+          el.btnGenerateSection.disabled = false;
         }
       });
 
-      // Attachments upload
-      el.fileInput.addEventListener("change", (e) => {
-        const files = Array.from(e.target.files || []);
+      // Attachments
+      el.fileInput.addEventListener("change", () => {
+        const files = Array.from(el.fileInput.files || []);
         if (!files.length) return;
 
-        for (const f of files) state.attachments.push(fileMeta(f));
+        for (const f of files){
+          state.attachments.push({
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            addedAt: Date.now(),
+          });
+        }
+        el.fileInput.value = "";
         saveState(state);
         renderAttachments(state);
-        setProgress(calcProgress(state));
-        logTerminal(`Anexos adicionados: ${files.length}`);
-        el.fileInput.value = "";
+        logTerminal(`${files.length} anexo(s) adicionado(s).`);
       });
 
       // Export
       el.btnExportPDF.addEventListener("click", () => exportPDF(state));
       el.btnExportDOCX.addEventListener("click", () => exportDOCX(state));
-    })();
+
+      // Menu save config
+      el.btnSaveConfig.addEventListener("click", () => {
+        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpointMenu.value);
+        state.meta.projectTitle = (el.projectTitleMenu.value || "").trim();
+        state.meta.authorName = (el.authorNameMenu.value || "").trim();
+        state.meta.institutionName = (el.institutionNameMenu.value || "").trim();
+
+        saveState(state);
+        applyMetaToInputs(state);
+        setDrawer(false);
+        logTerminal("Configurações salvas.");
+      });
+
+      el.btnResetConfig.addEventListener("click", () => {
+        const fresh = structuredClone(DEFAULT_STATE);
+        // preserva textos do usuário
+        fresh.sections = state.sections;
+        fresh.attachments = state.attachments;
+        fresh.selectedSectionId = state.selectedSectionId;
+
+        saveState(fresh);
+        location.reload();
+      });
+    }
+
+    init();
   </script>
 </body>
 </html>
