@@ -1,348 +1,299 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orientador de TCC Digital</title>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width,initial-scale=1" />
+ <title>Orientador de TCC Digital</title>
+ 
+ <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+ 
+ <style>
+   :root {
+     --bg: #ffffff; /* Fundo totalmente branco */
+     --card: #ffffff;
+     --text: #1e293b;
+     --muted: #64748b;
+     --border: #e2e8f0;
+     --brand: #ffb100;
+     --brand-blue: #2563eb;
+     --sans: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+   }
 
-  <!-- Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+   * { box-sizing: border-box; }
+   body { 
+     margin: 0; 
+     font-family: var(--sans); 
+     background-color: var(--bg); 
+     color: var(--text);
+   }
 
-  <!-- PDF.js (leitura real de PDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
+   .topbar {
+     background: #fff;
+     border-bottom: 2px solid var(--brand);
+     padding: 1rem;
+     position: sticky;
+     top: 0;
+     z-index: 100;
+   }
 
-  <!-- Exportar PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+   .topbar-inner {
+     max-width: 1200px;
+     margin: 0 auto;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+   }
 
-  <!-- Exportar DOCX -->
-  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+   .container {
+     max-width: 1200px;
+     margin: 20px auto;
+     padding: 0 15px;
+   }
 
-  <style>
-    :root{
-      --bg:#f4f7fb; --surface:#ffffff; --text:#111827; --muted:#6b7280;
-      --border:rgba(17,24,39,.12); --shadow:0 18px 45px rgba(17,24,39,.10);
-      --primary:#2563eb; --accent:#f59e0b; --ok:#10b981; --danger:#ef4444;
-      --radius:18px; --radiusLg:24px;
-      --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:var(--sans); color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(245,158,11,.16), transparent 55%),
-        radial-gradient(1200px 600px at 90% 0%, rgba(37,99,235,.18), transparent 55%),
-        radial-gradient(900px 500px at 55% 110%, rgba(16,185,129,.14), transparent 60%),
-        var(--bg);
-    }
-    .container{max-width:1100px;margin:0 auto;padding:18px 14px 30px}
-    .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
-    .topbar-inner{max-width:1100px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;gap:12px;justify-content:space-between}
-    .brand{display:flex;align-items:center;gap:10px}
-    .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#f59e0b);box-shadow:0 12px 25px rgba(37,99,235,.25)}
-    .brand h1{font-size:15px;margin:0;font-weight:900}
-    .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
-    .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;font-weight:800;font-size:13px}
-    .dot{width:10px;height:10px;border-radius:999px;background:var(--ok);box-shadow:0 0 0 5px rgba(16,185,129,.14)}
-    .btn{border:1px solid var(--border);background:#fff;color:var(--text);padding:11px 14px;border-radius:14px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(17,24,39,.08)}
-    .btn.blue{background:linear-gradient(135deg,#2563eb,#2563ebcc);color:#fff}
-    .btn.primary{background:linear-gradient(135deg,#f59e0b,#f59e0bcc)}
-    .btn.ghost{background:rgba(255,255,255,.85)}
-    .btn.small{padding:8px 10px;border-radius:12px;font-size:13px}
-    .hero{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
-    @media(max-width:980px){.hero{grid-template-columns:1fr}}
-    .card{background:rgba(255,255,255,.9);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radiusLg)}
-    .card-body{padding:18px}
-    .card-title{margin:0 0 6px;font-size:18px;font-weight:900}
-    .card-desc{margin:0;color:var(--muted)}
-    .progress{width:100%;height:12px;background:rgba(17,24,39,.08);border-radius:999px;overflow:hidden}
-    .progress>div{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#10b981)}
-    .grid{margin-top:14px;display:grid;grid-template-columns:360px 1fr;gap:14px}
-    @media(max-width:980px){.grid{grid-template-columns:1fr}}
-    .input,.textarea,select{width:100%;border:1px solid rgba(17,24,39,.16);border-radius:14px;padding:11px 12px;background:#fff}
-    .textarea{resize:vertical}
-    .sections-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .section-item{width:100%;text-align:left;border-radius:16px;border:1px solid rgba(17,24,39,.12);background:#fff;padding:12px;cursor:pointer;display:flex;justify-content:space-between;margin-bottom:10px}
-    .section-item.active{border-color:#2563eb}
-    .terminal{margin-top:12px;background:#0b1220;color:#e5e7eb;border-radius:16px;padding:12px;font-family:var(--mono);font-size:13px;min-height:80px}
-    .drawer{position:fixed;inset:0;display:none;z-index:50}
-    .drawer[data-open="true"]{display:block}
-    .drawer-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35)}
-    .drawer-panel{position:absolute;top:0;bottom:0;left:0;width:min(440px,92vw);background:#fff;border-right:1px solid var(--border)}
-  </style>
+   .grid {
+     display: grid;
+     grid-template-columns: 300px 1fr;
+     gap: 20px;
+   }
+
+   .card {
+     background: #fff;
+     border: 1px solid var(--border);
+     border-radius: 12px;
+     padding: 20px;
+     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+   }
+
+   .btn {
+     padding: 10px 16px;
+     border-radius: 8px;
+     border: 1px solid var(--border);
+     cursor: pointer;
+     font-weight: 600;
+     transition: 0.2s;
+   }
+
+   .btn-primary { background: var(--brand); border: none; }
+   .btn-blue { background: var(--brand-blue); color: #fff; border: none; }
+   
+   .section-item {
+     width: 100%;
+     text-align: left;
+     padding: 12px;
+     margin-bottom: 8px;
+     border-radius: 8px;
+     border: 1px solid var(--border);
+     background: #f8fafc;
+     cursor: pointer;
+   }
+
+   .section-item.active {
+     border-color: var(--brand-blue);
+     background: #eff6ff;
+   }
+
+   textarea, input {
+     width: 100%;
+     padding: 12px;
+     border: 1px solid var(--border);
+     border-radius: 8px;
+     margin-top: 8px;
+     font-family: inherit;
+   }
+
+   .terminal {
+     background: #0f172a;
+     color: #38bdf8;
+     padding: 15px;
+     border-radius: 8px;
+     font-family: monospace;
+     margin-top: 15px;
+     font-size: 12px;
+     max-height: 150px;
+     overflow-y: auto;
+   }
+ </style>
 </head>
-
 <body>
+
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">
-      <div class="logo"></div>
-      <div>
-        <h1>Orientador de TCC Digital</h1>
-        <p>Escreva por seções, gere com IA, exporte PDF/Word.</p>
-      </div>
-    </div>
-    <div class="top-actions">
-      <span class="badge" id="statusBadge"><span class="dot"></span>Pronto</span>
-      <button class="btn ghost" id="btnMenu">Configurações</button>
-      <button class="btn blue" id="btnExportPDF">Exportar PDF</button>
-      <button class="btn ghost" id="btnExportDOCX">Exportar Word</button>
+    <div><strong>Orientador TCC Digital</strong></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-blue" onclick="exportDOCX()">Exportar Word</button>
+      <button class="btn btn-blue" onclick="exportPDF()">Exportar PDF</button>
     </div>
   </div>
 </header>
 
 <main class="container">
-  <section class="hero">
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">Como usar</h2>
-        <p class="card-desc">Escolha a seção, escreva o briefing, gere com IA, edite e exporte.</p>
-        <div class="progress" style="margin-top:10px"><div id="progressFill"></div></div>
-        <p class="card-desc" style="margin-top:6px">Progresso: <b id="progressValue">0%</b></p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">Modo Evidência</h2>
-        <p class="card-desc">Envia <code>modo_evidencia: true</code> ao Worker.</p>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
-          <input id="evidenceMode" type="checkbox"> Ativar
-        </label>
-      </div>
-    </div>
-  </section>
-
-  <section class="grid">
-    <div class="card">
-      <div class="card-body">
-        <div class="sections-head">
-          <strong>Estrutura do TCC</strong>
-          <select id="etapaSelect" class="input">
-            <option value="tema">tema</option>
-            <option value="introducao">introducao</option>
-            <option value="problema">problema</option>
-            <option value="objetivo_geral">objetivo_geral</option>
-            <option value="objetivos_especificos">objetivos_especificos</option>
-            <option value="justificativa">justificativa</option>
-            <option value="referencial">referencial</option>
-            <option value="metodologia">metodologia</option>
-            <option value="resultados">resultados</option>
-            <option value="consideracoes_finais">consideracoes_finais</option>
-            <option value="referencias">referencias</option>
-          </select>
-        </div>
+  <div class="grid">
+    <aside>
+      <div class="card">
+        <h3>Estrutura</h3>
         <div id="sectionsList"></div>
       </div>
-    </div>
+    </aside>
 
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title" id="sectionEditorTitle">Seção</h2>
-        <input id="projectTitle" class="input" placeholder="Título do Projeto">
-        <input id="authorName" class="input" placeholder="Autor" style="margin-top:8px">
-        <input id="institutionName" class="input" placeholder="Instituição" style="margin-top:8px">
-        <input id="workerEndpoint" class="input" placeholder="https://seu-worker.workers.dev/assist" style="margin-top:8px">
-        <textarea id="studentText" class="textarea" rows="4" placeholder="Briefing do aluno..." style="margin-top:8px"></textarea>
-
-        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <button class="btn primary" id="btnGenerateSection">Gerar com IA</button>
-          <button class="btn ghost" id="btnSaveSection">Salvar seção</button>
+    <section>
+      <div class="card">
+        <h2 id="sectionTitle">Selecione uma seção</h2>
+        
+        <label>Título do Trabalho</label>
+        <input type="text" id="projectTitle" placeholder="Ex: Gestão Estratégica em PMEs">
+        
+        <label style="margin-top:15px; display:block;">O que a IA deve escrever aqui? (Briefing)</label>
+        <textarea id="studentBrief" rows="3" placeholder="Descreva o que deseja nesta parte..."></textarea>
+        
+        <div style="margin: 15px 0;">
+          <button class="btn btn-primary" onclick="generateWithIA()">Gerar com IA</button>
+          <button class="btn" onclick="saveCurrentSection()">Salvar Texto</button>
         </div>
 
-        <textarea id="sectionEditorText" class="textarea" rows="12" placeholder="Conteúdo da seção..." style="margin-top:8px"></textarea>
-        <pre class="terminal" id="terminal">Aguardando...</pre>
+        <label>Conteúdo da Seção</label>
+        <textarea id="sectionContent" rows="15"></textarea>
+        
+        <div id="terminal" class="terminal">Status: Aguardando comando...</div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </main>
 
-<aside class="drawer" id="drawer">
-  <div class="drawer-overlay" id="drawerOverlay"></div>
-  <div class="drawer-panel">
-    <div style="padding:14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
-      <strong>Configurações</strong>
-      <button class="btn small" id="btnCloseDrawer">Fechar</button>
-    </div>
-    <div style="padding:14px">
-      <input id="workerEndpointMenu" class="input" placeholder="Endpoint do Worker">
-      <button class="btn primary" id="btnSaveConfig" style="margin-top:8px">Salvar</button>
-    </div>
-  </div>
-</aside>
 <script>
-/* =================== APP =================== */
+  // Configurações e Estado
+  const API_URL = "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist";
+  
+  const sections = [
+    { id: 'intro', title: '1. Introdução' },
+    { id: 'prob', title: '2. Problema' },
+    { id: 'obj', title: '3. Objetivos' },
+    { id: 'ref', title: '4. Referencial Teórico' },
+    { id: 'meto', title: '5. Metodologia' },
+    { id: 'concl', title: '6. Conclusão' }
+  ];
 
-const LS_KEY = "orientador_tcc_v1";
+  let currentState = JSON.parse(localStorage.getItem('tcc_data')) || {
+    projectTitle: "",
+    content: {}
+  };
 
-const TCC = [
-  {id:"introducao", title:"Introdução", required:true},
-  {id:"problema", title:"Problema", required:true},
-  {id:"objetivo_geral", title:"Objetivo Geral", required:true},
-  {id:"objetivos_especificos", title:"Objetivos Específicos", required:true},
-  {id:"justificativa", title:"Justificativa", required:true},
-  {id:"referencial", title:"Referencial Teórico", required:true},
-  {id:"metodologia", title:"Metodologia", required:true},
-  {id:"resultados", title:"Resultados", required:false},
-  {id:"consideracoes_finais", title:"Considerações Finais", required:true},
-  {id:"referencias", title:"Referências", required:true}
-];
+  let activeSection = 'intro';
 
-const el = {
-  btnMenu: document.getElementById("btnMenu"),
-  drawer: document.getElementById("drawer"),
-  drawerOverlay: document.getElementById("drawerOverlay"),
-  btnCloseDrawer: document.getElementById("btnCloseDrawer"),
-  btnSaveConfig: document.getElementById("btnSaveConfig"),
-
-  statusBadge: document.getElementById("statusBadge"),
-  evidenceMode: document.getElementById("evidenceMode"),
-
-  etapaSelect: document.getElementById("etapaSelect"),
-  sectionsList: document.getElementById("sectionsList"),
-
-  projectTitle: document.getElementById("projectTitle"),
-  authorName: document.getElementById("authorName"),
-  institutionName: document.getElementById("institutionName"),
-  workerEndpoint: document.getElementById("workerEndpoint"),
-
-  studentText: document.getElementById("studentText"),
-  sectionEditorTitle: document.getElementById("sectionEditorTitle"),
-  sectionEditorText: document.getElementById("sectionEditorText"),
-
-  btnGenerateSection: document.getElementById("btnGenerateSection"),
-  btnSaveSection: document.getElementById("btnSaveSection"),
-
-  progressFill: document.getElementById("progressFill"),
-  progressValue: document.getElementById("progressValue"),
-
-  terminal: document.getElementById("terminal"),
-
-  workerEndpointMenu: document.getElementById("workerEndpointMenu"),
-};
-
-let state = loadState();
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return {
-      selected:"introducao",
-      meta:{title:"",author:"",inst:""},
-      config:{endpoint:"", evidence:false},
-      sections:{}
-    };
-    return JSON.parse(raw);
-  }catch{
-    return {selected:"introducao", meta:{}, config:{}, sections:{}};
-  }
-}
-
-function saveState(){
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
-}
-
-function setDrawer(open){
-  el.drawer.dataset.open = open ? "true" : "false";
-}
-
-function render(){
-  el.sectionsList.innerHTML = "";
-  TCC.forEach(s=>{
-    const content = (state.sections[s.id]||"").trim();
-    const done = content.length>30;
-    const b = document.createElement("button");
-    b.className = "section-item"+(state.selected===s.id?" active":"");
-    b.innerHTML = `<div>${s.title}<br><small>${s.required?"Obrigatória":"Opcional"} • ${done?"Preenchida":"Vazia"}</small></div><div>${done?"✓":""}</div>`;
-    b.onclick=()=>{
-      state.selected=s.id;
-      saveState();
-      syncEditor();
-      render();
-    };
-    el.sectionsList.appendChild(b);
-  });
-  syncProgress();
-}
-
-function syncEditor(){
-  el.sectionEditorTitle.textContent = TCC.find(s=>s.id===state.selected)?.title||"Seção";
-  el.sectionEditorText.value = state.sections[state.selected]||"";
-}
-
-function syncProgress(){
-  const req = TCC.filter(s=>s.required);
-  const done = req.filter(s=>(state.sections[s.id]||"").trim().length>30).length;
-  const pct = Math.round(done/req.length*100);
-  el.progressFill.style.width = pct+"%";
-  el.progressValue.textContent = pct+"%";
-}
-
-async function callWorker(){
-  const endpoint = el.workerEndpoint.value.trim();
-  if(!endpoint){
-    el.terminal.textContent="Informe o endpoint do Worker.";
-    return;
-  }
-  const briefing = el.studentText.value.trim();
-  if(!briefing){
-    el.terminal.textContent="Escreva um briefing.";
-    return;
+  function init() {
+    renderMenu();
+    loadSection('intro');
+    document.getElementById('projectTitle').value = currentState.projectTitle;
   }
 
-  el.terminal.textContent="Chamando IA...";
-  try{
-    const r = await fetch(endpoint,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        etapa: el.etapaSelect.value,
-        texto: briefing,
-        modo_evidencia: el.evidenceMode.checked
-      })
+  function renderMenu() {
+    const list = document.getElementById('sectionsList');
+    list.innerHTML = "";
+    sections.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = `section-item ${activeSection === s.id ? 'active' : ''}`;
+      btn.innerText = s.title;
+      btn.onclick = () => loadSection(s.id);
+      list.appendChild(btn);
     });
-    const j = await r.json();
-    const txt = j.texto || j.text || j.result || "";
-    if(!txt) throw new Error("Resposta vazia");
-    el.sectionEditorText.value = txt;
-    el.terminal.textContent="Texto gerado com sucesso.";
-  }catch(e){
-    el.terminal.textContent="Erro: "+e.message;
   }
-}
 
-el.btnMenu.onclick=()=>setDrawer(true);
-el.drawerOverlay.onclick=()=>setDrawer(false);
-el.btnCloseDrawer.onclick=()=>setDrawer(false);
+  function loadSection(id) {
+    activeSection = id;
+    document.getElementById('sectionTitle').innerText = sections.find(s => s.id === id).title;
+    document.getElementById('sectionContent').value = currentState.content[id] || "";
+    renderMenu();
+  }
 
-el.btnSaveConfig.onclick=()=>{
-  state.config.endpoint = el.workerEndpointMenu.value.trim();
-  el.workerEndpoint.value = state.config.endpoint;
-  saveState();
-  setDrawer(false);
-};
+  function saveCurrentSection() {
+    currentState.projectTitle = document.getElementById('projectTitle').value;
+    currentState.content[activeSection] = document.getElementById('sectionContent').value;
+    localStorage.setItem('tcc_data', JSON.stringify(currentState));
+    log("Salvo localmente com sucesso!");
+  }
 
-el.btnGenerateSection.onclick=callWorker;
+  function log(msg) {
+    document.getElementById('terminal').innerText = `> ${msg}`;
+  }
 
-el.btnSaveSection.onclick=()=>{
-  state.sections[state.selected]=el.sectionEditorText.value;
-  saveState();
-  render();
-  el.terminal.textContent="Seção salva.";
-};
+  async function generateWithIA() {
+    const brief = document.getElementById('studentBrief').value;
+    if(!brief) return log("Erro: Escreva o briefing primeiro!");
 
-function init(){
-  el.workerEndpoint.value = state.config.endpoint||"";
-  el.workerEndpointMenu.value = state.config.endpoint||"";
-  render();
-  syncEditor();
-}
-init();
+    log("Conectando à IA... aguarde.");
+    
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          etapa: activeSection,
+          texto: brief,
+          meta: { titulo: currentState.projectTitle }
+        })
+      });
+
+      const data = await response.json();
+      const textResponse = data.text || data.resultado || "Erro ao processar resposta.";
+      
+      document.getElementById('sectionContent').value = textResponse;
+      saveCurrentSection();
+      log("IA finalizou a escrita!");
+    } catch (err) {
+      log("Erro de conexão: " + err.message);
+    }
+  }
+
+  // EXPORTAÇÃO WORD
+  async function exportDOCX() {
+    const { Document, Packer, Paragraph, TextRun } = window.docx;
+    const children = [
+      new Paragraph({ children: [new TextRun({ text: currentState.projectTitle || "TCC", bold: true, size: 40 })] }),
+      new Paragraph({ text: "" })
+    ];
+
+    sections.forEach(s => {
+      if(currentState.content[s.id]) {
+        children.push(new Paragraph({ children: [new TextRun({ text: s.title, bold: true, size: 28 })] }));
+        children.push(new Paragraph({ text: currentState.content[s.id] }));
+        children.push(new Paragraph({ text: "" }));
+      }
+    });
+
+    const doc = new Document({ sections: [{ children }] });
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, "meu_tcc.docx");
+  }
+
+  // EXPORTAÇÃO PDF
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 20;
+
+    doc.setFontSize(18);
+    doc.text(currentState.projectTitle || "Meu TCC", 20, y);
+    y += 15;
+
+    sections.forEach(s => {
+      if(currentState.content[s.id]) {
+        doc.setFontSize(14);
+        doc.text(s.title, 20, y);
+        y += 10;
+        doc.setFontSize(11);
+        const splitText = doc.splitTextToSize(currentState.content[s.id], 170);
+        doc.text(splitText, 20, y);
+        y += (splitText.length * 7) + 10;
+        
+        if(y > 270) { doc.addPage(); y = 20; }
+      }
+    });
+
+    doc.save("meu_tcc.pdf");
+  }
+
+  init();
 </script>
-
 </body>
 </html>
