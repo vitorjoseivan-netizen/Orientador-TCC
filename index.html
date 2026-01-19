@@ -448,7 +448,30 @@
     </div>
   </aside>
 
-  <script>
+<section class="card">
+  <h3>Briefing do Aluno</h3>
+
+  <label class="hint" for="studentBrief">
+    Descreva o tema, problema, objetivos e metodologia do TCC:
+  </label>
+
+  <textarea id="studentBrief" class="textarea" rows="6"
+    placeholder="Ex: Tema: Educação Inclusiva. Problema: dificuldade de acesso..."></textarea>
+
+  <div class="actions">
+    <button class="btn primary" id="btnGenerate" type="button">
+      Gerar com IA
+    </button>
+  </div>
+
+  <pre class="log" id="logBox"></pre>
+</section>
+
+<script>
+  // ===== ESTADO (SEM BAGUNÇA) =====
+  const $ = (sel) => document.querySelector(sel);
+  ...
+</script>
     /* =============================
        ESTADO (SEM BAGUNÇA)
     ============================== */
