@@ -217,7 +217,8 @@
                 })
             });
             const data = await response.json();
-            const aiText = data.text || data.resultado || data.answer;
+// Esta linha abaixo é a mais importante:
+const aiText = data.text || data.answer || data.resultado || data.response;
             
             if(aiText) {
                 document.getElementById('mainContent').value = aiText;
