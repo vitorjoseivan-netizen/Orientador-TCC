@@ -448,7 +448,8 @@
 
     const DEFAULT_STATE = {
       config: {
-        workerEndpoint: "https://orientador-api.vitor.workers.dev/assist",
+        workerEndpoint: "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist",
+        localStorage.removeItem("orientador_tcc_state_ready_v1");
         evidenceMode: false,
       },
       meta: {
