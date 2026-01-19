@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orientador de TCC</title>
+  <title>Orientador de TCC Digital</title>
 
   <!-- PDF (jsPDF) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -14,131 +14,244 @@
 
   <style>
     :root{
-      --bg:#eef3f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
-      --blue:#2b6cb0; --blue-soft:#d7ecff;
-      --yellow:#f2b300;
-      --shadow:0 10px 25px rgba(0,0,0,.08);
-      --radius:16px; --radius-lg:22px;
-      --border:rgba(31,41,55,.12);
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:rgba(15,23,42,.12);
+      --shadow:0 12px 30px rgba(2,6,23,.08);
+      --radius:18px;
+      --radius-lg:24px;
+
+      --brand:#ffb100;            /* amarelo */
+      --brand-2:#2563eb;          /* azul */
+      --brand-3:#22c55e;          /* verde */
+
       --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
+
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
-    body{ margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(900px 420px at 10% 0%, rgba(255,177,0,.18), transparent 60%),
+        radial-gradient(900px 420px at 90% 10%, rgba(37,99,235,.14), transparent 60%),
+        radial-gradient(900px 420px at 40% 100%, rgba(34,197,94,.10), transparent 55%),
+        var(--bg);
+    }
 
     .topbar{
-      position: sticky; top:0; z-index:10;
-      display:grid; grid-template-columns:auto 1fr auto;
-      gap:12px; align-items:center;
-      padding:12px 14px;
-      background:#f7fafc;
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(246,248,251,.75);
       border-bottom:1px solid var(--border);
     }
-    .brand{ display:grid; gap:2px; min-width:44px; }
-    .brand-title{ font-weight:800; letter-spacing:.5px; }
-    .brand-subtitle{ font-size:12px; color:var(--muted); }
+    .topbar-inner{
+      max-width:1100px;
+      margin:0 auto;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 220px;
+    }
+    .logo{
+      width:42px; height:42px;
+      border-radius:14px;
+      background: linear-gradient(135deg, var(--brand), #ffd36a);
+      box-shadow: 0 10px 22px rgba(255,177,0,.25);
+      display:grid; place-items:center;
+      font-weight:900;
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+    }
 
-    .evidence{ display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:14px; user-select:none; }
-    .evidence input{ transform: translateY(1px); }
+    .toolbar{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
     .btn{
-      border:1px solid rgba(31,41,55,.12);
-      background:#fff;
+      border:1px solid var(--border);
+      background: #fff;
       color:var(--text);
-      padding:12px 14px;
+      padding:10px 12px;
       border-radius:14px;
       font-weight:800;
       cursor:pointer;
-      box-shadow:0 6px 14px rgba(0,0,0,.06);
-      transition: transform .05s ease, opacity .2s ease, background .2s ease;
+      box-shadow: 0 8px 18px rgba(2,6,23,.06);
+      transition: transform .05s ease, background .15s ease, opacity .15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
     .btn:active{ transform: translateY(1px); }
     .btn:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
-    .btn.primary{ background: var(--yellow); border-color: rgba(0,0,0,.05); }
-    .btn.primary:hover{ background:#ffc733; }
-    .btn.ghost{ background: rgba(255,255,255,.65); }
-    .btn.icon{ width:40px; height:40px; padding:0; border-radius:12px; }
-    .btn.small{ padding:8px 10px; border-radius:12px; font-weight:800; }
+    .btn.primary{
+      background: var(--brand);
+      border-color: rgba(0,0,0,.06);
+    }
+    .btn.primary:hover{ background:#ffc02a; }
+    .btn.blue{
+      background: rgba(37,99,235,.10);
+      border-color: rgba(37,99,235,.22);
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.65);
+    }
 
-    .menu-btn{ border-radius:12px; padding:10px 12px; font-weight:700; }
+    .pill{
+      display:flex; align-items:center; gap:8px;
+      font-size:13px;
+      color:var(--muted);
+      user-select:none;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.70);
+      border:1px solid var(--border);
+    }
+    .pill input{ transform: translateY(1px); }
 
-    .container{ max-width: 980px; margin: 0 auto; padding: 14px 14px 28px; }
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:14px 14px 28px;
+    }
 
     .grid{
+      margin-top: 14px;
       display:grid;
-      grid-template-columns: 340px 1fr;
-      gap: 14px;
-      margin-top: 10px;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
     }
-    @media (max-width: 920px){
+    @media (max-width: 960px){
       .grid{ grid-template-columns: 1fr; }
-    }
-
-    .progress{ margin-top: 10px; margin-bottom: 14px; }
-    .progress-row{ display:flex; justify-content:flex-start; align-items:baseline; margin-bottom: 8px; }
-    .progress-label{ font-size:14px; color:var(--muted); }
-    .progress-bar{
-      width:100%; height:10px;
-      background: rgba(31,41,55,.08);
-      border-radius:999px; overflow:hidden;
-    }
-    .progress-fill{
-      height:100%;
-      background: rgba(59,130,246,.65);
-      border-radius:999px;
-      transition: width .25s ease;
+      .brand{ min-width: unset; }
     }
 
     .card{
-      position:relative;
-      background:var(--card);
-      border-radius: var(--radius-lg);
+      background: var(--card);
+      border:1px solid rgba(2,6,23,.08);
       box-shadow: var(--shadow);
-      border:1px solid rgba(31,41,55,.08);
+      border-radius: var(--radius-lg);
       overflow:hidden;
     }
-    .card-body{ padding: 18px 16px 16px; }
-    .card-title{ margin:0 0 6px; font-size:20px; font-weight:800; }
-    .card-text{ margin:0; color:var(--muted); line-height:1.35; font-size:16px; }
+    .card-body{ padding: 16px; }
 
-    .card-orientador{ margin-top:10px; }
-    .card-accent{
-      position:absolute; left:0; top:0; bottom:0;
-      width:10px; background: var(--yellow);
+    .card-header{
+      padding: 16px 16px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .card-title{
+      margin:0;
+      font-size:16px;
+      font-weight:900;
+    }
+    .card-desc{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
     }
 
-    .card-editor{
-      border:2px solid rgba(59,130,246,.35);
-      background: linear-gradient(0deg, var(--blue-soft), rgba(255,255,255,.92));
+    .accent{
+      height: 10px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2), var(--brand-3));
     }
-    .card-subtitle{ margin:0 0 10px; font-size:18px; font-weight:800; }
 
     .input, .textarea, select{
       width:100%;
       border-radius: 14px;
-      border:1px solid rgba(31,41,55,.18);
+      border:1px solid rgba(15,23,42,.16);
       padding: 10px 12px;
       font-size: 14px;
       outline:none;
       background:#fff;
     }
-    .textarea{ font-size:16px; resize: vertical; }
+    .textarea{ resize:vertical; font-size:15px; }
     .textarea:focus, .input:focus, select:focus{
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.15);
+      border-color: rgba(37,99,235,.5);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
     }
-    .hint{ margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.35; }
-    code{ background: rgba(31,41,55,.06); padding:2px 6px; border-radius: 8px; }
+    .hint{
+      margin:6px 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    code{ background: rgba(2,6,23,.06); padding:2px 6px; border-radius: 8px; }
 
-    .actions{ display:flex; gap:10px; margin-top:12px; flex-wrap: wrap; }
-    .actions .btn{ flex: 0 0 auto; }
+    .sections{
+      margin-top: 12px;
+      display:grid;
+      gap:10px;
+    }
+    .section-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.85);
+      cursor:pointer;
+      box-shadow: 0 6px 14px rgba(2,6,23,.05);
+    }
+    .section-item.active{
+      border-color: rgba(37,99,235,.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+      background:#fff;
+    }
+    .section-left{ min-width:0; }
+    .section-title{ font-weight:900; font-size:14px; margin:0; }
+    .section-meta{ font-size:12px; color: var(--muted); margin-top:2px; }
+    .section-right{
+      font-weight:900;
+      min-width: 22px;
+      text-align:right;
+      color: rgba(34,197,94,1);
+    }
+
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 720px){ .row2{ grid-template-columns: 1fr; } }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
 
     .terminal{
       margin-top: 12px;
-      background:#0b1220;
+      background: #0b1220;
       color:#e5e7eb;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 12px;
       font-family: var(--mono);
       font-size: 13px;
@@ -146,186 +259,148 @@
       min-height: 92px;
       overflow:auto;
       white-space: pre-wrap;
+      border: 1px solid rgba(255,255,255,.08);
     }
 
-    .sections-head{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin-bottom: 10px;
+    .progress{
+      display:flex; align-items:center; gap:12px;
+      margin-top: 12px;
     }
-    .sections-title{ font-weight:900; font-size:16px; }
-    .section-item{
-      width:100%;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      text-align:left;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(31,41,55,.12);
-      background: rgba(255,255,255,.85);
-      cursor:pointer;
-      box-shadow: 0 6px 14px rgba(0,0,0,.05);
-      margin-bottom: 10px;
+    .progress-bar{
+      flex:1;
+      height: 10px;
+      background: rgba(15,23,42,.08);
+      border-radius:999px;
+      overflow:hidden;
     }
-    .section-item.active{
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-      background: #fff;
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(37,99,235,.85), rgba(255,177,0,.85));
+      border-radius:999px;
+      transition: width .25s ease;
     }
-    .section-title{ font-weight:900; font-size:14px; margin-bottom: 2px; }
-    .section-meta{ font-size:12px; color: var(--muted); }
-    /* CORRIGIDO: color: */
-    .section-right{ font-weight:900; color: var(--text); min-width: 18px; text-align:right; }
+    .progress-label{
+      font-size: 13px;
+      color: var(--muted);
+      min-width: 120px;
+      text-align:right;
+    }
 
-    .attachment-row{
-      display:flex; justify-content:space-between; align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(31,41,55,.12);
-      background:#fff;
-      margin-bottom: 10px;
-    }
-    .attachment-name{ font-weight:900; font-size: 13px; }
-    .attachment-meta{ font-size:12px; color: var(--muted); }
-    .muted{ color: var(--muted); font-size: 13px; }
-
+    /* Drawer */
     .drawer{ position:fixed; inset:0; display:none; z-index:50; }
     .drawer[data-open="true"]{ display:block; }
-    .drawer-overlay{ position:absolute; inset:0; background: rgba(0,0,0,.35); }
+    .drawer-overlay{ position:absolute; inset:0; background: rgba(2,6,23,.35); }
     .drawer-panel{
       position:absolute; top:0; bottom:0; left:0;
-      width: min(420px, 92vw);
+      width: min(440px, 92vw);
       background:#fff;
-      box-shadow: 30px 0 60px rgba(0,0,0,.18);
+      box-shadow: 30px 0 60px rgba(2,6,23,.18);
       border-right:1px solid var(--border);
       display:flex; flex-direction:column;
     }
     .drawer-header{
-      display:flex; justify-content:space-between; align-items:center;
       padding: 14px 14px;
+      display:flex; justify-content:space-between; align-items:center;
       border-bottom:1px solid var(--border);
     }
     .drawer-title{ font-weight:900; font-size:16px; }
     .drawer-content{ padding: 14px; overflow:auto; }
 
-    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 720px){ .row2{ grid-template-columns: 1fr; } }
-    .divider{ height:1px; background: rgba(31,41,55,.10); margin: 14px 0; }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+      line-height:1.35;
+    }
   </style>
 </head>
 
 <body>
   <header class="topbar">
-    <button class="btn menu-btn" id="btnMenu" type="button">Menu</button>
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">OD</div>
+        <div>
+          <h1>Orientador de TCC Digital</h1>
+          <p>Editor por seções + IA (Worker) + exportação</p>
+        </div>
+      </div>
 
-    <div class="brand">
-      <div class="brand-title">Orientador</div>
-      <div class="brand-subtitle">TCC Digital</div>
+      <div class="toolbar">
+        <label class="pill">
+          <input type="checkbox" id="evidenceMode" />
+          <span>Modo Evidência</span>
+        </label>
+        <button class="btn ghost" id="btnMenu" type="button">Configurações</button>
+        <button class="btn blue" id="btnExportPDF" type="button">Exportar PDF</button>
+        <button class="btn blue" id="btnExportDOCX" type="button">Exportar Word</button>
+      </div>
     </div>
-
-    <label class="evidence">
-      <input type="checkbox" id="evidenceMode" />
-      <span>Modo Evidência (citar apenas fontes)</span>
-    </label>
   </header>
 
   <main class="container">
-    <section class="progress">
-      <div class="progress-row">
-        <div class="progress-label">Progresso do TCC: <span id="progressValue">0%</span></div>
-      </div>
-      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-    </section>
 
-    <section class="card card-orientador">
-      <div class="card-accent"></div>
+    <div class="card">
+      <div class="accent"></div>
       <div class="card-body">
-        <h2 class="card-title">Orientador:</h2>
-        <p class="card-text">
-          Escolha a seção, escreva um briefing curto e clique em “Gerar com IA” para preencher a seção com linguagem acadêmica.
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-label"><span id="progressValue">0%</span> completo</div>
+        </div>
+        <p class="hint" style="margin-top:10px">
+          Dica: escreva um briefing e clique em <b>Gerar com IA</b>. O texto gerado entra na seção atual.
         </p>
       </div>
-    </section>
+    </div>
 
     <div class="grid">
+      <!-- Esquerda -->
       <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Estrutura do TCC</h2>
+            <p class="card-desc">Clique numa seção para editar. “Preenchido” aparece quando a seção tiver texto.</p>
+          </div>
+        </div>
         <div class="card-body">
-          <div class="sections-head">
-            <div class="sections-title">Estrutura do TCC</div>
-            <select id="etapaSelect" class="input" title="Etapa geral">
-              <option value="tema">tema</option>
-              <option value="introducao">introducao</option>
-              <option value="problema">problema</option>
-              <option value="objetivo_geral">objetivo_geral</option>
-              <option value="objetivos_especificos">objetivos_especificos</option>
-              <option value="justificativa">justificativa</option>
-              <option value="referencial">referencial</option>
-              <option value="metodologia">metodologia</option>
-              <option value="resultados">resultados</option>
-              <option value="consideracoes_finais">consideracoes_finais</option>
-              <option value="referencias">referencias</option>
-            </select>
-          </div>
-
-          <div id="sectionsList"></div>
-
-          <div class="divider"></div>
-
-          <div class="sections-title">Anexar arquivos</div>
-          <p class="hint">Os anexos ficam listados e entram na “Lista de Anexos” no PDF/Word. (O conteúdo do arquivo não é enviado ao Worker.)</p>
-          <input id="fileInput" class="input" type="file" multiple />
-          <div style="height:10px"></div>
-          <div id="attachmentsList"></div>
-
-          <div class="divider"></div>
-
-          <div class="actions">
-            <button class="btn ghost" id="btnExportPDF" type="button">Exportar PDF</button>
-            <button class="btn ghost" id="btnExportDOCX" type="button">Exportar Word</button>
-          </div>
+          <div id="sectionsList" class="sections"></div>
         </div>
       </section>
 
-      <section class="card card-editor">
-        <div class="card-body">
-          <h3 class="card-subtitle" id="sectionEditorTitle">Seção</h3>
+      <!-- Direita -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" id="sectionEditorTitle">Seção</h2>
+            <p class="card-desc" id="sectionEditorDesc">Edite o texto e salve. A IA usa o briefing para gerar conteúdo.</p>
+          </div>
+        </div>
 
+        <div class="card-body">
           <div class="row2">
-            <div class="field">
+            <div>
               <label class="hint" style="display:block;margin-bottom:6px">Título do Projeto</label>
               <input id="projectTitle" class="input" type="text" placeholder="Título do trabalho" />
             </div>
-            <div class="field">
-              <label class="hint" style="display:block;margin-bottom:6px">Instituição</label>
-              <input id="institutionName" class="input" type="text" placeholder="Universidade / Faculdade" />
-            </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
-            <div class="field">
+            <div>
               <label class="hint" style="display:block;margin-bottom:6px">Autor</label>
               <input id="authorName" class="input" type="text" placeholder="Seu nome" />
-            </div>
-            <div class="field">
-              <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker</label>
-              <input id="workerEndpoint" class="input" type="url" placeholder="https://seu-worker.workers.dev/assist" />
             </div>
           </div>
 
           <div style="height:10px"></div>
 
-          <label class="hint" style="display:block;margin-bottom:6px">Briefing do aluno (o que você quer que a IA escreva nesta seção)</label>
-          <textarea id="studentText" class="textarea" rows="4" placeholder="Ex.: Faça uma introdução sobre Gestão da Informação..."></textarea>
+          <label class="hint" style="display:block;margin-bottom:6px">Briefing do aluno (o que a IA deve escrever nesta seção)</label>
+          <textarea id="studentBrief" class="textarea" rows="4" placeholder="Ex.: Faça uma introdução acadêmica sobre Gestão da Informação em bibliotecas universitárias, com foco em tecnologia educacional."></textarea>
 
           <div class="actions">
-            <button class="btn primary" id="btnGenerateSection" type="button">Gerar com IA (seção atual)</button>
-            <button class="btn ghost" id="btnSaveSection" type="button">Salvar seção</button>
-            <button class="btn ghost" id="btnOrientar" type="button">Aplicar briefing na seção</button>
-            <button class="btn ghost" id="btnSalvar" type="button">Salvar (rápido)</button>
+            <button class="btn primary" id="btnGenerate" type="button">Gerar com IA (seção atual)</button>
+            <button class="btn" id="btnApplyBrief" type="button">Aplicar briefing na seção</button>
+            <button class="btn" id="btnSave" type="button">Salvar seção</button>
+            <button class="btn ghost" id="btnQuickSave" type="button">Salvar (rápido)</button>
           </div>
 
           <div style="height:10px"></div>
@@ -333,104 +408,55 @@
           <label class="hint" style="display:block;margin-bottom:6px">Conteúdo da seção (editável)</label>
           <textarea id="sectionEditorText" class="textarea" rows="14" placeholder="O texto da seção selecionada aparece aqui..."></textarea>
 
-          <pre class="terminal" id="terminal" aria-live="polite">Aguardando...</pre>
+          <pre class="terminal" id="terminal" aria-live="polite">Pronto. Se aparecer “Failed to fetch”, o problema está no Worker (CORS/OPTIONS) ou endpoint.</pre>
         </div>
       </section>
     </div>
   </main>
 
+  <!-- Drawer -->
   <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-overlay" id="drawerOverlay"></div>
-    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Configurações">
       <div class="drawer-header">
         <div class="drawer-title">Configurações</div>
-        <button class="btn icon" id="btnCloseDrawer" type="button" aria-label="Fechar">✕</button>
+        <button class="btn" id="btnCloseDrawer" type="button">Fechar</button>
       </div>
 
       <div class="drawer-content">
-        <div class="field">
-          <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker (com /assist)</label>
-          <input id="workerEndpointMenu" class="input" type="url" placeholder="https://seu-worker.workers.dev/assist" />
-          <p class="hint">Cole aqui o link do seu Worker finalizando em <code>/assist</code>.</p>
+        <label class="hint" style="display:block;margin-bottom:6px">Endpoint do Worker (precisa terminar em <code>/assist</code>)</label>
+        <input id="workerEndpoint" class="input" type="url" placeholder="https://SEU-WORKER.workers.dev/assist" />
+        <div class="small">
+          Se você usa Cloudflare Worker deste pacote, o endpoint será algo como:
+          <code>https://orientador-tcc-api.SEU-USUARIO.workers.dev/assist</code>
         </div>
 
-        <div class="field">
-          <label class="hint" style="display:block;margin-bottom:6px">Meta (salva no documento)</label>
-          <div class="row2">
-            <input id="projectTitleMenu" class="input" type="text" placeholder="Título do projeto" />
-            <input id="authorNameMenu" class="input" type="text" placeholder="Autor" />
-          </div>
-          <div style="height:10px"></div>
-          <input id="institutionNameMenu" class="input" type="text" placeholder="Instituição" />
-        </div>
+        <div style="height:14px"></div>
+
+        <label class="hint" style="display:block;margin-bottom:6px">Instituição</label>
+        <input id="institutionName" class="input" type="text" placeholder="Universidade / Faculdade" />
 
         <div class="actions">
           <button class="btn primary" id="btnSaveConfig" type="button">Salvar</button>
-          <button class="btn ghost" id="btnResetConfig" type="button">Restaurar padrão</button>
+          <button class="btn ghost" id="btnResetAll" type="button">Resetar tudo</button>
         </div>
 
-        <div class="divider"></div>
-
-        <p class="hint">
-          Se “Failed to fetch”: quase sempre é CORS no Worker. O Worker precisa responder OPTIONS e retornar
-          <code>Access-Control-Allow-Origin</code>.
+        <p class="small">
+          Resetar tudo apaga os dados salvos do navegador deste site (localStorage) e volta ao padrão.
         </p>
       </div>
     </div>
   </aside>
 
   <script>
+    /* =============================
+       ESTADO (SEM BAGUNÇA)
+    ============================== */
     const $ = (sel) => document.querySelector(sel);
 
-    const el = {
-      btnMenu: $("#btnMenu"),
-      drawer: $("#drawer"),
-      drawerOverlay: $("#drawerOverlay"),
-      btnCloseDrawer: $("#btnCloseDrawer"),
-
-      evidenceMode: $("#evidenceMode"),
-      progressValue: $("#progressValue"),
-      progressFill: $("#progressFill"),
-
-      etapaSelect: $("#etapaSelect"),
-
-      workerEndpoint: $("#workerEndpoint"),
-      projectTitle: $("#projectTitle"),
-      authorName: $("#authorName"),
-      institutionName: $("#institutionName"),
-
-      studentText: $("#studentText"),
-      terminal: $("#terminal"),
-
-      sectionsList: $("#sectionsList"),
-      sectionEditorTitle: $("#sectionEditorTitle"),
-      sectionEditorText: $("#sectionEditorText"),
-
-      btnGenerateSection: $("#btnGenerateSection"),
-      btnSaveSection: $("#btnSaveSection"),
-      btnOrientar: $("#btnOrientar"),
-      btnSalvar: $("#btnSalvar"),
-
-      fileInput: $("#fileInput"),
-      attachmentsList: $("#attachmentsList"),
-
-      btnExportPDF: $("#btnExportPDF"),
-      btnExportDOCX: $("#btnExportDOCX"),
-
-      workerEndpointMenu: $("#workerEndpointMenu"),
-      projectTitleMenu: $("#projectTitleMenu"),
-      authorNameMenu: $("#authorNameMenu"),
-      institutionNameMenu: $("#institutionNameMenu"),
-      btnSaveConfig: $("#btnSaveConfig"),
-      btnResetConfig: $("#btnResetConfig"),
-    };
-
-    const LS_KEY = "orientador_tcc_state_ready_v1";
+    const LS_KEY = "od_state_v2";
 
     const TCC_STRUCTURE = [
-      { id: "capa", title: "Capa (informações)", required: true },
-      { id: "resumo", title: "Resumo", required: true },
-      { id: "abstract", title: "Abstract", required: false },
       { id: "introducao", title: "1. Introdução", required: true },
       { id: "problema", title: "2. Problema de Pesquisa", required: true },
       { id: "objetivo_geral", title: "3. Objetivo Geral", required: true },
@@ -438,85 +464,83 @@
       { id: "justificativa", title: "5. Justificativa", required: true },
       { id: "referencial", title: "6. Referencial Teórico", required: true },
       { id: "metodologia", title: "7. Metodologia", required: true },
-      { id: "resultados", title: "8. Resultados (ou Resultados Esperados)", required: false },
-      { id: "cronograma", title: "9. Cronograma", required: false },
-      { id: "consideracoes", title: "10. Considerações Finais", required: true },
+      { id: "resultados", title: "8. Resultados/Resultados Esperados", required: false },
+      { id: "consideracoes_finais", title: "9. Considerações Finais", required: true },
       { id: "referencias", title: "Referências", required: true },
-      { id: "apendices", title: "Apêndices", required: false },
       { id: "anexos", title: "Anexos", required: false },
     ];
 
     const DEFAULT_STATE = {
       config: {
-        workerEndpoint: "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist",
-        localStorage.removeItem("orientador_tcc_state_ready_v1");
-        evidenceMode: false,
+        workerEndpoint: "https://orientador-tcc-api.SEU-USUARIO.workers.dev/assist",
+        evidenceMode: false
       },
       meta: {
         projectTitle: "Orientador de TCC Digital",
         authorName: "José Ivan Vitor Cordeiro",
-        institutionName: "Universidade Estadual do Ceará (UECE)",
+        institutionName: "Universidade Estadual do Ceará (UECE)"
       },
       selectedSectionId: "introducao",
       sections: TCC_STRUCTURE.reduce((acc, s) => {
         acc[s.id] = { title: s.title, content: "" };
         return acc;
-      }, {}),
-      attachments: [],
+      }, {})
     };
 
-    function safeParse(raw){ try{ return JSON.parse(raw); }catch{ return null; } }
+    function safeParse(raw){ try{ return JSON.parse(raw); } catch{ return null; } }
+
     function normalizeEndpoint(url){
       const u = (url || "").trim();
       if (!u) return "";
       if (!u.endsWith("/assist")) return u.replace(/\/+$/, "") + "/assist";
       return u;
     }
+
     function loadState(){
       const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return structuredClone(DEFAULT_STATE);
-      const parsed = safeParse(raw);
-      if (!parsed) return structuredClone(DEFAULT_STATE);
-
+      const parsed = raw ? safeParse(raw) : null;
       const s = structuredClone(DEFAULT_STATE);
-      s.config = { ...s.config, ...(parsed.config || {}) };
-      s.meta = { ...s.meta, ...(parsed.meta || {}) };
-      s.selectedSectionId = parsed.selectedSectionId || s.selectedSectionId;
-      s.sections = { ...s.sections, ...(parsed.sections || {}) };
-      s.attachments = Array.isArray(parsed.attachments) ? parsed.attachments : [];
+
+      if (parsed){
+        if (parsed.config) s.config = { ...s.config, ...parsed.config };
+        if (parsed.meta) s.meta = { ...s.meta, ...parsed.meta };
+        if (parsed.selectedSectionId) s.selectedSectionId = parsed.selectedSectionId;
+        if (parsed.sections) s.sections = { ...s.sections, ...parsed.sections };
+      }
+      s.config.workerEndpoint = normalizeEndpoint(s.config.workerEndpoint);
       return s;
     }
-    function saveState(state){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
-    function setDrawer(open){
-      el.drawer.dataset.open = open ? "true" : "false";
-      el.drawer.setAttribute("aria-hidden", open ? "false" : "true");
+    function saveState(){
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
     }
 
-    function logTerminal(msg, append=false){
-      if (!append) el.terminal.textContent = String(msg ?? "");
-      else el.terminal.textContent = el.terminal.textContent + "\n" + String(msg ?? "");
+    function log(msg, append=false){
+      const t = $("#terminal");
+      if (!append) t.textContent = String(msg ?? "");
+      else t.textContent = t.textContent + "\n" + String(msg ?? "");
     }
 
-    function calcProgress(state){
+    function calcProgress(){
       const required = TCC_STRUCTURE.filter(s => s.required);
       const total = required.length || 1;
-      const done = required.filter(s => (state.sections?.[s.id]?.content || "").trim().length > 30).length;
+      const done = required.filter(s => (state.sections?.[s.id]?.content || "").trim().length > 40).length;
       return Math.round((done / total) * 100);
     }
-    function setProgress(pct){
-      const v = Math.max(0, Math.min(100, Number(pct) || 0));
-      el.progressValue.textContent = `${v}%`;
-      el.progressFill.style.width = `${v}%`;
-      const pb = document.querySelector(".progress-bar");
-      if (pb) pb.setAttribute("aria-valuenow", String(v));
+
+    function setProgress(){
+      const pct = calcProgress();
+      $("#progressValue").textContent = pct + "%";
+      $("#progressFill").style.width = pct + "%";
+      document.querySelector(".progress-bar")?.setAttribute("aria-valuenow", String(pct));
     }
 
-    function renderSectionsList(state){
-      el.sectionsList.innerHTML = "";
+    function renderSections(){
+      const root = $("#sectionsList");
+      root.innerHTML = "";
       for (const s of TCC_STRUCTURE){
-        const content = (state.sections?.[s.id]?.content || "").trim();
-        const isDone = content.length > 30;
+        const content = (state.sections[s.id]?.content || "").trim();
+        const done = content.length > 40;
 
         const btn = document.createElement("button");
         btn.type = "button";
@@ -524,431 +548,283 @@
         btn.innerHTML = `
           <div class="section-left">
             <div class="section-title">${s.title}</div>
-            <div class="section-meta">${s.required ? "Obrigatório" : "Opcional"} • ${isDone ? "Preenchido" : "Vazio"}</div>
+            <div class="section-meta">${s.required ? "Obrigatório" : "Opcional"} • ${done ? "Preenchido" : "Vazio"}</div>
           </div>
-          <div class="section-right">${isDone ? "✓" : ""}</div>
+          <div class="section-right">${done ? "✓" : ""}</div>
         `;
         btn.addEventListener("click", () => {
           state.selectedSectionId = s.id;
-          saveState(state);
-          syncSectionEditor(state);
-          renderSectionsList(state);
+          syncEditor();
+          renderSections();
+          saveState();
         });
-
-        el.sectionsList.appendChild(btn);
+        root.appendChild(btn);
       }
     }
 
-    function syncSectionEditor(state){
-      const sid = state.selectedSectionId;
-      const sec = state.sections?.[sid] || { title: sid, content: "" };
-      el.sectionEditorTitle.textContent = sec.title || sid;
-      el.sectionEditorText.value = sec.content || "";
+    function syncEditor(){
+      const sec = state.sections[state.selectedSectionId] || { title: "Seção", content: "" };
+      $("#sectionEditorTitle").textContent = sec.title || "Seção";
+      $("#sectionEditorText").value = sec.content || "";
+      $("#projectTitle").value = state.meta.projectTitle || "";
+      $("#authorName").value = state.meta.authorName || "";
     }
 
-    function renderAttachments(state){
-      el.attachmentsList.innerHTML = "";
-      if (!state.attachments.length){
-        el.attachmentsList.innerHTML = `<div class="muted">Nenhum anexo ainda.</div>`;
-        return;
-      }
-      state.attachments.forEach((a, idx) => {
-        const row = document.createElement("div");
-        row.className = "attachment-row";
-        row.innerHTML = `
-          <div>
-            <div class="attachment-name">${a.name}</div>
-            <div class="attachment-meta">${a.type || "arquivo"} • ${(a.size/1024).toFixed(1)} KB</div>
-          </div>
-          <button class="btn small ghost" type="button">Remover</button>
-        `;
-        row.querySelector("button").addEventListener("click", () => {
-          state.attachments.splice(idx, 1);
-          saveState(state);
-          renderAttachments(state);
-        });
-        el.attachmentsList.appendChild(row);
-      });
+    function syncConfigUI(){
+      $("#workerEndpoint").value = state.config.workerEndpoint || "";
+      $("#institutionName").value = state.meta.institutionName || "";
+      $("#evidenceMode").checked = !!state.config.evidenceMode;
+    }
+
+    function saveSection(){
+      const text = $("#sectionEditorText").value || "";
+      state.sections[state.selectedSectionId].content = text;
+      saveState();
+      renderSections();
+      setProgress();
+      log("Seção salva.");
+    }
+
+    function quickSave(){
+      state.meta.projectTitle = ($("#projectTitle").value || "").trim();
+      state.meta.authorName = ($("#authorName").value || "").trim();
+      state.meta.institutionName = (state.meta.institutionName || "").trim();
+      saveSection();
+    }
+
+    function openDrawer(open){
+      $("#drawer").dataset.open = open ? "true" : "false";
+      $("#drawer").setAttribute("aria-hidden", open ? "false" : "true");
     }
 
     function sectionToEtapa(sectionId){
-      const map = {
-        introducao: "introducao",
-        problema: "problema",
-        objetivo_geral: "objetivo_geral",
-        objetivos_especificos: "objetivos_especificos",
-        justificativa: "justificativa",
-        referencial: "referencial",
-        metodologia: "metodologia",
-        resultados: "resultados",
-        consideracoes: "consideracoes_finais",
-        referencias: "referencias",
-        resumo: "resumo",
-        abstract: "abstract",
-      };
-      return map[sectionId] || "tema";
+      return sectionId; // agora é direto e simples
     }
 
-    async function callWorker({ endpoint, etapa, text, evidenceMode }){
-      const payload = { etapa, texto: text, modo_evidencia: !!evidenceMode };
+    async function callWorker(etapa, texto){
+      const endpoint = normalizeEndpoint(state.config.workerEndpoint);
+      if (!endpoint) throw new Error("Endpoint vazio.");
+      const payload = {
+        etapa,
+        texto,
+        modo_evidencia: !!state.config.evidenceMode,
+        meta: {
+          titulo: state.meta.projectTitle,
+          autor: state.meta.authorName,
+          instituicao: state.meta.institutionName
+        }
+      };
 
       const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 25000);
+      const timeout = setTimeout(() => controller.abort(), 25000);
 
       try{
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-          signal: controller.signal,
+          signal: controller.signal
         });
-
         const ct = res.headers.get("content-type") || "";
         const data = ct.includes("application/json") ? await res.json() : { text: await res.text() };
-
-        if (!res.ok){
-          const msg = data?.error || data?.message || data?.text || `HTTP ${res.status}`;
-          throw new Error(msg);
-        }
+        if (!res.ok) throw new Error(data?.error || data?.message || ("HTTP " + res.status));
         return data;
-      } catch (err){
-        const msg = String(err?.message || err);
-        // “Failed to fetch” costuma ser CORS/OPTIONS ou Worker offline
-        if (msg.toLowerCase().includes("failed to fetch")){
-          throw new Error(
-            "Failed to fetch. Possíveis causas:\n" +
-            "1) CORS no Worker (precisa responder OPTIONS e Allow-Origin)\n" +
-            "2) Endpoint errado (verifique se termina em /assist)\n" +
-            "3) Worker fora do ar\n"
-          );
-        }
-        if (msg.toLowerCase().includes("aborted")){
-          throw new Error("Timeout ao chamar o Worker (25s).");
-        }
-        throw err;
       } finally {
-        clearTimeout(t);
+        clearTimeout(timeout);
       }
     }
 
-    function getAllTextForExport(state){
-      const lines = [];
-      lines.push(state.meta.projectTitle || "Sem título");
-      lines.push(`Autor: ${state.meta.authorName || "-"}`);
-      lines.push(`Instituição: ${state.meta.institutionName || "-"}`);
-      lines.push("");
-      for (const s of TCC_STRUCTURE){
-        lines.push(s.title.toUpperCase());
-        lines.push((state.sections?.[s.id]?.content || "").trim() || "[Vazio]");
-        lines.push("");
+    async function generateWithIA(){
+      const briefing = ($("#studentBrief").value || "").trim();
+      if (briefing.length < 5){
+        log("Escreva um briefing do aluno antes de gerar.");
+        return;
       }
-      lines.push("LISTA DE ANEXOS");
-      if (!state.attachments.length) lines.push("Nenhum anexo.");
-      else state.attachments.forEach((a, i) => lines.push(`${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)`));
-      return lines.join("\n");
+
+      state.meta.projectTitle = ($("#projectTitle").value || "").trim();
+      state.meta.authorName = ($("#authorName").value || "").trim();
+
+      const etapa = sectionToEtapa(state.selectedSectionId);
+
+      log("Chamando o Worker... etapa: " + etapa);
+
+      try{
+        const data = await callWorker(etapa, briefing);
+        const out = (data?.text || data?.resultado || data?.content || "").trim();
+        if (!out) throw new Error("Worker respondeu sem texto (campo text vazio).");
+
+        $("#sectionEditorText").value = out;
+        state.sections[state.selectedSectionId].content = out;
+
+        saveState();
+        renderSections();
+        setProgress();
+
+        log("Texto gerado e aplicado na seção.");
+      }catch(err){
+        log(
+`ERRO ao chamar o Worker:
+${String(err?.message || err)}
+
+Possíveis causas:
+1) CORS no Worker (precisa responder OPTIONS e enviar Access-Control-Allow-Origin)
+2) Endpoint errado (tem que terminar em /assist)
+3) Worker offline ou com erro interno`
+        );
+      }
     }
 
-    async function exportPDF(state){
+    function applyBrief(){
+      const briefing = ($("#studentBrief").value || "").trim();
+      if (!briefing){
+        log("Não há briefing para aplicar.");
+        return;
+      }
+      const current = ($("#sectionEditorText").value || "").trim();
+      const merged = current ? (current + "\n\n[Briefing]\n" + briefing) : briefing;
+      $("#sectionEditorText").value = merged;
+      log("Briefing aplicado na seção (não gerou IA; apenas inseriu o texto).");
+    }
+
+    async function exportPDF(){
       const { jsPDF } = window.jspdf || {};
-      if (!jsPDF){ logTerminal("Erro: jsPDF não carregou (CDN)."); return; }
+      if (!jsPDF){ log("Erro: jsPDF não carregou (CDN)."); return; }
+
+      quickSave();
 
       const doc = new jsPDF({ unit:"pt", format:"a4" });
       const margin = 48;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       const maxWidth = pageWidth - margin * 2;
+
       let y = margin;
 
-      function ensureSpace(extra=18){
-        if (y + extra > pageHeight - margin){
-          doc.addPage();
-          y = margin;
-        }
-      }
-
-      function addH1(txt){
-        doc.setFont("helvetica","bold");
-        doc.setFontSize(16);
-        const split = doc.splitTextToSize(txt, maxWidth);
-        ensureSpace(split.length * 18 + 10);
-        doc.text(split, margin, y);
-        y += split.length * 18 + 10;
-      }
-
-      function addH2(txt){
-        doc.setFont("helvetica","bold");
-        doc.setFontSize(12);
-        const split = doc.splitTextToSize(txt, maxWidth);
-        ensureSpace(split.length * 14 + 8);
-        doc.text(split, margin, y);
-        y += split.length * 14 + 8;
-      }
-
-      function addBody(txt){
-        doc.setFont("helvetica","normal");
-        doc.setFontSize(11);
-        const split = doc.splitTextToSize(txt, maxWidth);
-        for (const line of split){
-          ensureSpace(14);
+      function addLine(txt, size=12, bold=false){
+        doc.setFont("helvetica", bold ? "bold" : "normal");
+        doc.setFontSize(size);
+        const lines = doc.splitTextToSize(txt, maxWidth);
+        for (const line of lines){
+          if (y > pageHeight - margin){
+            doc.addPage(); y = margin;
+          }
           doc.text(line, margin, y);
-          y += 14;
+          y += size + 6;
         }
-        y += 8;
       }
 
-      addH1(state.meta.projectTitle || "Orientador de TCC");
-      addBody(`Autor: ${state.meta.authorName || "-"}`);
-      addBody(`Instituição: ${state.meta.institutionName || "-"}`);
+      addLine(state.meta.projectTitle || "Título do Projeto", 16, true);
+      addLine(`Autor: ${state.meta.authorName || "-"}`, 11);
+      addLine(`Instituição: ${state.meta.institutionName || "-"}`, 11);
+      y += 8;
 
       for (const s of TCC_STRUCTURE){
-        addH2(s.title);
-        addBody((state.sections?.[s.id]?.content || "").trim() || "[Vazio]");
+        const content = (state.sections[s.id]?.content || "").trim();
+        if (!content) continue;
+        y += 8;
+        addLine(s.title, 13, true);
+        addLine(content, 11, false);
       }
 
-      addH2("Lista de Anexos");
-      if (!state.attachments.length){
-        addBody("Nenhum anexo.");
-      } else {
-        const txt = state.attachments.map((a, i) => `${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)`).join("\n");
-        addBody(txt);
-      }
-
-      doc.save("tcc-orientador.pdf");
-      logTerminal("PDF exportado com sucesso.");
+      doc.save("orientador_tcc.pdf");
+      log("PDF exportado.");
     }
 
-    async function exportDOCX(state){
-      const docx = window.docx;
-      if (!docx || !docx.Document){ logTerminal("Erro: biblioteca DOCX não carregou (CDN)."); return; }
+    async function exportDOCX(){
+      quickSave();
 
-      const { Document, Packer, Paragraph, TextRun } = docx;
+      const { Document, Packer, Paragraph, TextRun } = window.docx || {};
+      if (!Document){ log("Erro: docx não carregou (CDN)."); return; }
 
       const children = [];
-
-      const title = state.meta.projectTitle || "Orientador de TCC";
       children.push(new Paragraph({
-        children: [new TextRun({ text: title, bold: true, size: 32 })],
-        spacing: { after: 280 },
+        children: [new TextRun({ text: state.meta.projectTitle || "Título do Projeto", bold:true, size:32 })]
       }));
       children.push(new Paragraph({ text: `Autor: ${state.meta.authorName || "-"}` }));
-      children.push(new Paragraph({ text: `Instituição: ${state.meta.institutionName || "-"}`, spacing: { after: 280 } }));
+      children.push(new Paragraph({ text: `Instituição: ${state.meta.institutionName || "-"}` }));
+      children.push(new Paragraph({ text: "" }));
 
       for (const s of TCC_STRUCTURE){
+        const content = (state.sections[s.id]?.content || "").trim();
+        if (!content) continue;
+
         children.push(new Paragraph({
-          children: [new TextRun({ text: s.title, bold: true })],
-          spacing: { before: 220, after: 120 },
+          children: [new TextRun({ text: s.title, bold:true, size:26 })]
         }));
-        const content = (state.sections?.[s.id]?.content || "").trim() || "[Vazio]";
-        content.split("\n").forEach(line => {
-          children.push(new Paragraph({ text: line }));
-        });
+
+        const parts = content.split(/\n{2,}/g);
+        for (const p of parts){
+          children.push(new Paragraph({ text: p.trim() }));
+        }
+        children.push(new Paragraph({ text: "" }));
       }
 
-      children.push(new Paragraph({
-        children: [new TextRun({ text: "Lista de Anexos", bold: true })],
-        spacing: { before: 220, after: 120 },
-      }));
-
-      if (!state.attachments.length){
-        children.push(new Paragraph({ text: "Nenhum anexo." }));
-      } else {
-        state.attachments.forEach((a, i) => {
-          children.push(new Paragraph({ text: `${i+1}. ${a.name} (${(a.size/1024).toFixed(1)} KB)` }));
-        });
-      }
-
-      const document = new Document({ sections: [{ properties: {}, children }] });
-      const blob = await Packer.toBlob(document);
-      saveAs(blob, "tcc-orientador.docx");
-      logTerminal("DOCX exportado com sucesso.");
+      const doc = new Document({ sections: [{ properties: {}, children }] });
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, "orientador_tcc.docx");
+      log("Word exportado.");
     }
 
-    function applyMetaToInputs(state){
-      el.projectTitle.value = state.meta.projectTitle || "";
-      el.authorName.value = state.meta.authorName || "";
-      el.institutionName.value = state.meta.institutionName || "";
-      el.workerEndpoint.value = state.config.workerEndpoint || "";
-      el.evidenceMode.checked = !!state.config.evidenceMode;
+    /* =============================
+       BOOT
+    ============================== */
+    let state = loadState();
 
-      el.projectTitleMenu.value = state.meta.projectTitle || "";
-      el.authorNameMenu.value = state.meta.authorName || "";
-      el.institutionNameMenu.value = state.meta.institutionName || "";
-      el.workerEndpointMenu.value = state.config.workerEndpoint || "";
-    }
+    // UI wiring
+    $("#btnMenu").addEventListener("click", () => openDrawer(true));
+    $("#btnCloseDrawer").addEventListener("click", () => openDrawer(false));
+    $("#drawerOverlay").addEventListener("click", () => openDrawer(false));
 
-    function pullMetaFromInputs(state){
-      state.meta.projectTitle = (el.projectTitle.value || "").trim();
-      state.meta.authorName = (el.authorName.value || "").trim();
-      state.meta.institutionName = (el.institutionName.value || "").trim();
-      state.config.workerEndpoint = normalizeEndpoint(el.workerEndpoint.value);
-      state.config.evidenceMode = !!el.evidenceMode.checked;
-    }
+    $("#btnSave").addEventListener("click", saveSection);
+    $("#btnQuickSave").addEventListener("click", quickSave);
+    $("#btnApplyBrief").addEventListener("click", applyBrief);
+    $("#btnGenerate").addEventListener("click", generateWithIA);
 
-    function init(){
-      const state = loadState();
+    $("#btnExportPDF").addEventListener("click", exportPDF);
+    $("#btnExportDOCX").addEventListener("click", exportDOCX);
 
-      applyMetaToInputs(state);
-      renderSectionsList(state);
-      syncSectionEditor(state);
-      renderAttachments(state);
-      setProgress(calcProgress(state));
-      logTerminal("Pronto.");
+    $("#evidenceMode").addEventListener("change", (e) => {
+      state.config.evidenceMode = !!e.target.checked;
+      saveState();
+      log("Modo Evidência " + (state.config.evidenceMode ? "ativado." : "desativado."));
+    });
 
-      // Drawer
-      el.btnMenu.addEventListener("click", () => setDrawer(true));
-      el.drawerOverlay.addEventListener("click", () => setDrawer(false));
-      el.btnCloseDrawer.addEventListener("click", () => setDrawer(false));
+    $("#btnSaveConfig").addEventListener("click", () => {
+      state.config.workerEndpoint = normalizeEndpoint($("#workerEndpoint").value);
+      state.meta.institutionName = ($("#institutionName").value || "").trim();
+      saveState();
+      log("Configurações salvas.");
+      openDrawer(false);
+    });
 
-      // Evidence
-      el.evidenceMode.addEventListener("change", () => {
-        state.config.evidenceMode = !!el.evidenceMode.checked;
-        saveState(state);
-      });
+    $("#btnResetAll").addEventListener("click", () => {
+      localStorage.removeItem(LS_KEY);
+      state = loadState();
+      renderSections();
+      syncEditor();
+      syncConfigUI();
+      setProgress();
+      log("Tudo resetado para o padrão.");
+      openDrawer(false);
+    });
 
-      // Etapa select (apenas informativo)
-      el.etapaSelect.addEventListener("change", () => {
-        logTerminal(`Etapa geral selecionada: ${el.etapaSelect.value}`);
-      });
+    // Autosave (texto)
+    let autosaveTimer = null;
+    $("#sectionEditorText").addEventListener("input", () => {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(() => {
+        state.sections[state.selectedSectionId].content = $("#sectionEditorText").value || "";
+        saveState();
+        renderSections();
+        setProgress();
+      }, 600);
+    });
 
-      // Editor: salvamento rápido no blur
-      el.sectionEditorText.addEventListener("input", () => {
-        const sid = state.selectedSectionId;
-        state.sections[sid].content = el.sectionEditorText.value;
-        saveState(state);
-        setProgress(calcProgress(state));
-        renderSectionsList(state);
-      });
-
-      // Buttons save
-      el.btnSaveSection.addEventListener("click", () => {
-        const sid = state.selectedSectionId;
-        state.sections[sid].content = el.sectionEditorText.value;
-        pullMetaFromInputs(state);
-        saveState(state);
-        setProgress(calcProgress(state));
-        renderSectionsList(state);
-        logTerminal("Seção salva.");
-      });
-
-      el.btnSalvar.addEventListener("click", () => {
-        pullMetaFromInputs(state);
-        saveState(state);
-        logTerminal("Salvo (rápido).");
-      });
-
-      // Apply briefing -> textarea
-      el.btnOrientar.addEventListener("click", () => {
-        const b = (el.studentText.value || "").trim();
-        if (!b){ logTerminal("Escreva um briefing primeiro."); return; }
-        const sid = state.selectedSectionId;
-        const current = (state.sections[sid].content || "").trim();
-        const prefix = current ? (current + "\n\n") : "";
-        state.sections[sid].content = prefix + "Briefing do aluno:\n" + b + "\n";
-        el.sectionEditorText.value = state.sections[sid].content;
-        saveState(state);
-        setProgress(calcProgress(state));
-        renderSectionsList(state);
-        logTerminal("Briefing aplicado na seção (texto local).");
-      });
-
-      // Generate with IA
-      el.btnGenerateSection.addEventListener("click", async () => {
-        pullMetaFromInputs(state);
-        state.config.workerEndpoint = normalizeEndpoint(state.config.workerEndpoint);
-        el.workerEndpoint.value = state.config.workerEndpoint;
-
-        const endpoint = state.config.workerEndpoint;
-        if (!endpoint){ logTerminal("Configure o Endpoint do Worker primeiro (Menu ou campo ao lado)."); return; }
-
-        const sid = state.selectedSectionId;
-        const etapa = sectionToEtapa(sid);
-        const briefing = (el.studentText.value || "").trim();
-
-        if (!briefing){
-          logTerminal("Escreva um briefing do aluno antes de gerar.");
-          return;
-        }
-
-        logTerminal(`Chamando IA...\nEtapa: ${etapa}\nEndpoint: ${endpoint}\n(Se der 'Failed to fetch', é CORS/OPTIONS no Worker.)`);
-
-        el.btnGenerateSection.disabled = true;
-        try{
-          const data = await callWorker({
-            endpoint,
-            etapa,
-            text: briefing,
-            evidenceMode: state.config.evidenceMode,
-          });
-
-          const text = (data?.texto || data?.text || data?.result || "").toString().trim();
-          if (!text){
-            throw new Error("Worker respondeu, mas não retornou texto.");
-          }
-
-          state.sections[sid].content = text;
-          el.sectionEditorText.value = text;
-
-          saveState(state);
-          setProgress(calcProgress(state));
-          renderSectionsList(state);
-
-          logTerminal("IA OK. Seção preenchida.");
-        } catch (e){
-          logTerminal("ERRO ao chamar o Worker:\n" + (e?.message || String(e)));
-        } finally {
-          el.btnGenerateSection.disabled = false;
-        }
-      });
-
-      // Attachments
-      el.fileInput.addEventListener("change", () => {
-        const files = Array.from(el.fileInput.files || []);
-        if (!files.length) return;
-
-        for (const f of files){
-          state.attachments.push({
-            name: f.name,
-            type: f.type,
-            size: f.size,
-            addedAt: Date.now(),
-          });
-        }
-        el.fileInput.value = "";
-        saveState(state);
-        renderAttachments(state);
-        logTerminal(`${files.length} anexo(s) adicionado(s).`);
-      });
-
-      // Export
-      el.btnExportPDF.addEventListener("click", () => exportPDF(state));
-      el.btnExportDOCX.addEventListener("click", () => exportDOCX(state));
-
-      // Menu save config
-      el.btnSaveConfig.addEventListener("click", () => {
-        state.config.workerEndpoint = normalizeEndpoint(el.workerEndpointMenu.value);
-        state.meta.projectTitle = (el.projectTitleMenu.value || "").trim();
-        state.meta.authorName = (el.authorNameMenu.value || "").trim();
-        state.meta.institutionName = (el.institutionNameMenu.value || "").trim();
-
-        saveState(state);
-        applyMetaToInputs(state);
-        setDrawer(false);
-        logTerminal("Configurações salvas.");
-      });
-
-      el.btnResetConfig.addEventListener("click", () => {
-        const fresh = structuredClone(DEFAULT_STATE);
-        // preserva textos do usuário
-        fresh.sections = state.sections;
-        fresh.attachments = state.attachments;
-        fresh.selectedSectionId = state.selectedSectionId;
-
-        saveState(fresh);
-        location.reload();
-      });
-    }
-
-    init();
+    // Initial render
+    renderSections();
+    syncEditor();
+    syncConfigUI();
+    setProgress();
   </script>
 </body>
 </html>
