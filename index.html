@@ -1,301 +1,287 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
- <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width,initial-scale=1" />
- <title>Orientador de TCC Digital - Premium</title>
- 
- <link rel="preconnect" href="https://fonts.googleapis.com">
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
- 
- <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
- 
- <style>
-  :root {
-    --bg: #0b1020; --bg-panel: rgba(255,255,255,0.05);
-    --card: rgba(255,255,255,0.08); --line: rgba(255,255,255,0.12);
-    --text: #eef3ff; --muted: #b9c6f3;
-    --p1: #7c5cff; --p2: #33d69f; --danger: #ff5c7c;
-    --shadow: 0 12px 40px rgba(0,0,0,0.4);
-   }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Orientador de TCC Digital</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-   * { box-sizing: border-box; }
-  body {
-    margin: 0; font-family: 'Inter', sans-serif; color: var(--text);
-    background: radial-gradient(1000px 600px at 10% 0%, rgba(124,92,255,0.3), transparent 70%), var(--bg);
-    height: 100vh; overflow: hidden;
-   }
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-panel: #f8fafc;
+            --line: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+            --p1: #2563eb; /* Azul Profissional */
+            --p2: #16a34a; /* Verde */
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-  .topbar {
-    height: 64px; display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; border-bottom: 1px solid var(--line);
-    backdrop-filter: blur(10px); background: rgba(11,16,32,0.8);
-   }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: 'Inter', system-ui, sans-serif; 
+            color: var(--text); background-color: var(--bg);
+            height: 100vh; overflow: hidden;
+        }
 
-  .status-badge { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffd15c; }
-  .dot.ok { background: var(--p2); box-shadow: 0 0 10px var(--p2); }
+        .topbar {
+            height: 64px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; border-bottom: 1px solid var(--line); background: #fff;
+        }
 
-  .layout {
-    display: grid; grid-template-columns: 320px 1fr; gap: 15px;
-    height: calc(100vh - 64px); padding: 15px;
-   }
+        .layout {
+            display: grid; grid-template-columns: 300px 1fr; gap: 15px;
+            height: calc(100vh - 64px); padding: 15px;
+        }
 
-  .panel {
-    background: var(--bg-panel); border: 1px solid var(--line);
-    border-radius: 20px; display: flex; flex-direction: column; overflow: hidden;
-    box-shadow: var(--shadow);
-   }
+        .panel {
+            background: var(--bg-panel); border: 1px solid var(--line);
+            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: var(--shadow);
+        }
 
-  .scroll { overflow-y: auto; padding: 15px; flex: 1; }
-   
-  .section-item {
-    width: 100%; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.03);
-    border: 1px solid transparent; color: var(--text); text-align: left;
-    margin-bottom: 8px; cursor: pointer; transition: 0.3s;
-   }
-  .section-item:hover { background: rgba(124,92,255,0.1); }
-  .section-item.active { background: rgba(124,92,255,0.2); border-color: var(--p1); }
+        .scroll { overflow-y: auto; padding: 20px; flex: 1; }
 
-  textarea {
-    width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--line);
-    border-radius: 12px; color: white; padding: 12px; font-family: inherit;
-    font-size: 14px; line-height: 1.6; resize: none; margin-bottom: 15px;
-   }
+        .section-item {
+            width: 100%; padding: 12px; border-radius: 8px; background: #fff;
+            border: 1px solid var(--line); color: var(--text); text-align: left;
+            margin-bottom: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .section-item:hover { border-color: var(--p1); background: #f1f5f9; }
+        .section-item.active { border-color: var(--p1); background: #eff6ff; font-weight: 600; }
 
-  .btn {
-    padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line);
-    cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s;
-   }
-  .btn-primary { background: var(--p1); color: white; border: none; }
-  .btn-ghost { background: transparent; color: var(--muted); }
+        textarea {
+            width: 100%; background: #fff; border: 1px solid var(--line);
+            border-radius: 8px; color: var(--text); padding: 12px; font-family: inherit;
+            font-size: 14px; line-height: 1.6; resize: none; margin-bottom: 15px;
+        }
 
-  .terminal {
-    background: #050814; padding: 12px; border-radius: 10px;
-    font-family: monospace; font-size: 12px; color: #33d69f;
-    border: 1px solid var(--line); min-height: 60px;
-   }
+        .btn {
+            padding: 10px 20px; border-radius: 8px; border: 1px solid var(--line);
+            cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: var(--p1); color: white; border: none; }
+        .btn-success { background: var(--p2); color: white; border: none; }
+        .btn-ghost { background: #fff; color: var(--muted); }
 
-  #drawer {
-    position: fixed; right: -400px; top: 0; width: 350px; height: 100%;
-    background: #0b1020; border-left: 1px solid var(--line);
-    z-index: 1000; transition: 0.4s; padding: 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-   }
-  #drawer.open { right: 0; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 999; }
- </style>
+        .terminal {
+            background: #f1f5f9; padding: 12px; border-radius: 8px;
+            font-family: monospace; font-size: 12px; color: var(--text);
+            border-left: 4px solid var(--p1); min-height: 50px;
+        }
+
+        #drawer {
+            position: fixed; right: -400px; top: 0; width: 350px; height: 100%;
+            background: #fff; border-left: 1px solid var(--line);
+            z-index: 1000; transition: 0.4s; padding: 25px; box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+        }
+        #drawer.open { right: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); display: none; z-index: 999; }
+    </style>
 </head>
 <body>
 
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 
 <header class="topbar">
- <div style="display:flex; align-items:center; gap:12px">
-   <div style="font-weight:900; font-size:22px; color:var(--p1)">Orientador Digital</div>
-   <div class="status-badge"><span class="dot ok"></span> <span id="statusTxt">Sistema Ativo</span></div>
- </div>
- <div style="display:flex; gap:10px">
-   <button class="btn btn-ghost" onclick="toggleDrawer(true)">⚙️ Config</button>
-   <button class="btn btn-primary" onclick="exportWord()">📥 Baixar Word (.docx)</button>
- </div>
+    <div style="font-weight:800; font-size:20px; color:var(--p1)">Orientador Digital</div>
+    <div style="display:flex; gap:10px">
+        <button class="btn btn-ghost" onclick="toggleDrawer(true)">⚙️ Configurar</button>
+        <button class="btn btn-primary" onclick="exportWord()">📥 Baixar Word</button>
+    </div>
 </header>
 
 <div class="layout">
- <aside class="panel">
-   <div style="padding:15px; border-bottom:1px solid var(--line)"><h4>Sumário do TCC</h4></div>
-   <div class="scroll" id="stepsList"></div>
- </aside>
+    <aside class="panel">
+        <div style="padding:15px; background:#fff; border-bottom:1px solid var(--line)"><strong>ESTRUTURA TCC</strong></div>
+        <div class="scroll" id="stepsList"></div>
+    </aside>
 
- <main class="panel">
-   <div class="scroll">
-     <h2 id="sectionTitle">Selecione uma etapa</h2>
-     
-     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-       <div>
-         <label style="font-size:12px; color:var(--muted)">Briefing para a IA (O que escrever aqui?)</label>
-         <textarea id="briefingInput" style="height:140px" placeholder="Ex: Escreva uma introdução acadêmica citando Kotler..."></textarea>
-         <button class="btn btn-primary" id="btnIA" onclick="callIA()" style="width:100%">✨ Gerar Texto com IA</button>
-       </div>
-       <div>
-         <label style="font-size:12px; color:var(--muted)">Evidências / PDFs Anexados</label>
-         <textarea id="evidenceInput" style="height:140px" placeholder="Texto extraído do PDF aparecerá aqui..."></textarea>
-         <div style="display:flex; gap:5px">
-            <input type="file" id="pdfFile" accept=".pdf" style="display:none" onchange="extractPDF()">
-            <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('pdfFile').click()">📄 Anexar Artigo PDF</button>
-         </div>
-       </div>
-     </div>
+    <main class="panel">
+        <div class="scroll">
+            <h2 id="sectionTitle" style="margin-top:0">Selecione uma etapa</h2>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label style="font-size:12px; font-weight:bold; color:var(--muted)">ORIENTAÇÕES DA IA (BRIEFING)</label>
+                    <textarea id="briefingInput" style="height:150px" placeholder="O que você quer que a IA escreva ou corrija nesta seção?"></textarea>
+                    <button class="btn btn-primary" id="btnIA" onclick="callIA()" style="width:100%">✨ Gerar com Inteligência Artificial</button>
+                </div>
+                <div>
+                    <label style="font-size:12px; font-weight:bold; color:var(--muted)">BASE DE DADOS / PDF</label>
+                    <textarea id="evidenceInput" style="height:150px" placeholder="Cole aqui trechos de livros ou o texto extraído do seu PDF..."></textarea>
+                    <input type="file" id="pdfFile" accept=".pdf" style="display:none" onchange="extractPDF()">
+                    <button class="btn btn-ghost" style="width:100%" onclick="document.getElementById('pdfFile').click()">📄 Importar Texto de PDF</button>
+                </div>
+            </div>
 
-     <h4 style="margin-top:25px">Conteúdo Final da Seção</h4>
-     <textarea id="mainContent" style="height:320px" oninput="saveCurrentData()" placeholder="O texto final do seu TCC fica aqui..."></textarea>
-
-     <div class="terminal" id="terminal">Pronto para começar sua orientação acadêmica.</div>
-   </div>
- </main>
+            <h3 style="margin-top:30px; border-bottom: 2px solid var(--line); padding-bottom:10px">Conteúdo da Seção</h3>
+            <textarea id="mainContent" style="height:350px" oninput="saveCurrentData()" placeholder="Escreva aqui ou use a IA para gerar..."></textarea>
+            
+            <div class="terminal" id="terminal">Pronto para iniciar sua orientação.</div>
+        </div>
+    </main>
 </div>
 
 <div id="drawer">
- <h3>Configurações</h3>
- <label style="font-size:12px">Link do seu Worker IA</label>
- <input type="text" id="workerUrl" style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid var(--line); background:#000; color:white;">
- 
- <label style="font-size:12px">Título do seu TCC</label>
- <input type="text" id="workTitle" style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid var(--line); background:#000; color:white;">
- 
- <button class="btn btn-primary" style="width:100%; margin-top:20px" onclick="saveConfig()">Salvar Alterações</button>
- <button class="btn btn-ghost" style="width:100%; margin-top:10px" onclick="toggleDrawer(false)">Fechar</button>
+    <h3>Configurações</h3>
+    <label style="display:block; margin-bottom:5px">Link do Worker (Cloudflare)</label>
+    <input type="text" id="workerUrl" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid var(--line); border-radius:5px;">
+    
+    <label style="display:block; margin-bottom:5px">Título do Projeto</label>
+    <input type="text" id="workTitle" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid var(--line); border-radius:5px;">
+    
+    <button class="btn btn-primary" style="width:100%" onclick="saveConfig()">Salvar e Fechar</button>
 </div>
 
 <script>
- pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js";
+    // Configurações e Estrutura
+    const STRUCTURE = [
+        { id: 'capa', title: 'Capa e Folha de Rosto' },
+        { id: 'resumo', title: 'Resumo' },
+        { id: 'intro', title: '1. Introdução' },
+        { id: 'prob', title: '2. Problema de Pesquisa' },
+        { id: 'obj', title: '3. Objetivos' },
+        { id: 'just', title: '4. Justificativa' },
+        { id: 'ref', title: '5. Referencial Teórico' },
+        { id: 'meto', title: '6. Metodologia' },
+        { id: 'concl', title: '7. Conclusão' },
+        { id: 'refere', title: '8. Referências' }
+    ];
 
- const STRUCTURE = [
-    { id: 'intro', title: '1. Introdução' },
-    { id: 'prob', title: '2. Problema de Pesquisa' },
-    { id: 'obj', title: '3. Objetivos' },
-    { id: 'just', title: '4. Justificativa' },
-    { id: 'ref', title: '5. Referencial Teórico' },
-    { id: 'meto', title: '6. Metodologia' },
-    { id: 'concl', title: '7. Conclusão' },
-    { id: 'refere', title: '8. Referências' }
-  ];
+    let state = JSON.parse(localStorage.getItem('tcc_white_v1')) || {
+        config: { worker: "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist", title: "Meu TCC de Administração" },
+        activeId: 'intro',
+        data: {}
+    };
 
-  let state = JSON.parse(localStorage.getItem('tcc_pro_v3')) || {
-    config: { worker: "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist", title: "Meu TCC de Administração" },
-    activeId: 'intro',
-    data: {}
-  };
-
- function init() {
-   renderSteps();
-   loadStep(state.activeId);
-   document.getElementById('workerUrl').value = state.config.worker;
-   document.getElementById('workTitle').value = state.config.title;
-  }
-
- function renderSteps() {
-   const list = document.getElementById('stepsList');
-   list.innerHTML = "";
-   STRUCTURE.forEach(s => {
-     const btn = document.createElement('button');
-     btn.className = `section-item ${state.activeId === s.id ? 'active' : ''}`;
-     btn.innerHTML = `<strong>${s.title}</strong>`;
-     btn.onclick = () => loadStep(s.id);
-     list.appendChild(btn);
-   });
-  }
-
- function loadStep(id) {
-   state.activeId = id;
-   const s = STRUCTURE.find(x => x.id === id);
-   document.getElementById('sectionTitle').innerText = s.title;
-   document.getElementById('mainContent').value = state.data[id]?.content || "";
-   document.getElementById('evidenceInput').value = state.data[id]?.evidence || "";
-   renderSteps();
-   localStorage.setItem('tcc_pro_v3', JSON.stringify(state));
-  }
-
- function saveCurrentData() {
-   if(!state.data[state.activeId]) state.data[state.activeId] = {};
-   state.data[state.activeId].content = document.getElementById('mainContent').value;
-   state.data[state.activeId].evidence = document.getElementById('evidenceInput').value;
-   localStorage.setItem('tcc_pro_v3', JSON.stringify(state));
-  }
-
- async function callIA() {
-   const briefing = document.getElementById('briefingInput').value;
-   const terminal = document.getElementById('terminal');
-   const btn = document.getElementById('btnIA');
-
-   if(!briefing) return terminal.innerText = "Aviso: Digite o briefing primeiro!";
-
-   btn.disabled = true;
-   btn.innerText = "IA pensando...";
-   terminal.innerText = "Consultando orientador digital...";
-
-   try {
-       const response = await fetch(state.config.worker, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-               prompt: briefing,
-               etapa: state.activeId,
-               evidencia: document.getElementById('evidenceInput').value,
-               meta: { titulo: state.config.title }
-           })
-       });
-
-       const data = await response.json();
-       const aiText = data.text || data.answer || data.resultado || data.response || data.output;
-
-       if (aiText) {
-           document.getElementById('mainContent').value = aiText;
-           saveCurrentData();
-           terminal.innerText = "Sucesso: Conteúdo gerado!";
-       } else {
-           terminal.innerText = "Erro: Resposta vazia da IA.";
-       }
-    } catch (e) {
-       terminal.innerText = "Erro de Conexão: Verifique o link do Worker.";
-    } finally {
-       btn.disabled = false;
-       btn.innerText = "✨ Gerar Texto com IA";
+    function init() {
+        renderSteps();
+        loadStep(state.activeId);
+        document.getElementById('workerUrl').value = state.config.worker;
+        document.getElementById('workTitle').value = state.config.title;
     }
-  }
 
- async function extractPDF() {
-   const file = document.getElementById('pdfFile').files[0];
-   const terminal = document.getElementById('terminal');
-   if(!file) return;
+    function renderSteps() {
+        const list = document.getElementById('stepsList');
+        list.innerHTML = "";
+        STRUCTURE.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = `section-item ${state.activeId === s.id ? 'active' : ''}`;
+            btn.innerText = s.title;
+            btn.onclick = () => loadStep(s.id);
+            list.appendChild(btn);
+        });
+    }
 
-   terminal.innerText = "Extraindo texto do PDF...";
-   const reader = new FileReader();
-   reader.onload = async function() {
-       const pdf = await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
-       let text = "";
-       for(let i=1; i<=pdf.numPages; i++) {
-         const page = await pdf.getPage(i);
-         const content = await page.getTextContent();
-         text += content.items.map(it => it.str).join(" ") + " ";
-       }
-       document.getElementById('evidenceInput').value = text;
-       saveCurrentData();
-       terminal.innerText = "Sucesso: PDF extraído!";
-   };
-   reader.readAsArrayBuffer(file);
-  }
+    function loadStep(id) {
+        state.activeId = id;
+        const s = STRUCTURE.find(x => x.id === id);
+        document.getElementById('sectionTitle').innerText = s.title;
+        document.getElementById('mainContent').value = state.data[id]?.content || "";
+        document.getElementById('evidenceInput').value = state.data[id]?.evidence || "";
+        renderSteps();
+    }
 
- function toggleDrawer(open) {
-   document.getElementById('drawer').className = open ? 'open' : '';
-   document.getElementById('overlay').style.display = open ? 'block' : 'none';
-  }
+    function saveCurrentData() {
+        if(!state.data[state.activeId]) state.data[state.activeId] = {};
+        state.data[state.activeId].content = document.getElementById('mainContent').value;
+        state.data[state.activeId].evidence = document.getElementById('evidenceInput').value;
+        localStorage.setItem('tcc_white_v1', JSON.stringify(state));
+    }
 
- function saveConfig() {
-   state.config.worker = document.getElementById('workerUrl').value;
-   state.config.title = document.getElementById('workTitle').value;
-   localStorage.setItem('tcc_pro_v3', JSON.stringify(state));
-   toggleDrawer(false);
-  }
+    async function callIA() {
+        const briefing = document.getElementById('briefingInput').value;
+        const terminal = document.getElementById('terminal');
+        const btn = document.getElementById('btnIA');
 
- async function exportWord() {
-   const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
-   const children = [new Paragraph({ text: state.config.title, heading: HeadingLevel.TITLE, alignment: "CENTER" })];
+        if(!briefing) return terminal.innerText = "Erro: Digite o briefing!";
+        
+        btn.disabled = true;
+        terminal.innerText = "Conectando ao Orientador Digital... (IA processando)";
 
-   STRUCTURE.forEach(s => {
-     if(state.data[s.id]?.content) {
-       children.push(new Paragraph({ text: s.title, heading: HeadingLevel.HEADING_1, spacing: { before: 400 } }));
-       children.push(new Paragraph({ children: [new TextRun(state.data[s.id].content)] }));
-     }
-   });
+        try {
+            const response = await fetch(state.config.worker, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: briefing, // Nome padrão que o Worker espera
+                    etapa: state.activeId,
+                    evidencias: document.getElementById('evidenceInput').value
+                })
+            });
+            const data = await response.json();
+            const aiText = data.text || data.resultado || data.answer;
+            
+            if(aiText) {
+                document.getElementById('mainContent').value = aiText;
+                saveCurrentData();
+                terminal.innerText = "Sucesso! IA gerou o conteúdo.";
+            } else {
+                terminal.innerText = "Erro: IA respondeu, mas o texto veio vazio.";
+            }
+        } catch (e) {
+            terminal.innerText = "Erro de Conexão: Verifique o link do Worker ou CORS.";
+        } finally {
+            btn.disabled = false;
+        }
+    }
 
-   const doc = new Document({ sections: [{ children }] });
-   const blob = await Packer.toBlob(doc);
-   saveAs(blob, "Meu_TCC_Completo.docx");
-  }
+    async function extractPDF() {
+        const file = document.getElementById('pdfFile').files[0];
+        if(!file) return;
+        document.getElementById('terminal').innerText = "Lendo PDF... aguarde.";
+        const reader = new FileReader();
+        reader.onload = async function() {
+            const pdf = await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
+            let text = "";
+            for(let i=1; i<=pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(it => it.str).join(" ") + "\n";
+            }
+            document.getElementById('evidenceInput').value = text;
+            saveCurrentData();
+            document.getElementById('terminal').innerText = "PDF Extraído!";
+        };
+        reader.readAsArrayBuffer(file);
+    }
 
- init();
+    function toggleDrawer(open) {
+        document.getElementById('drawer').className = open ? 'open' : '';
+        document.getElementById('overlay').style.display = open ? 'block' : 'none';
+    }
+
+    function saveConfig() {
+        state.config.worker = document.getElementById('workerUrl').value;
+        state.config.title = document.getElementById('workTitle').value;
+        localStorage.setItem('tcc_white_v1', JSON.stringify(state));
+        toggleDrawer(false);
+    }
+
+    async function exportWord() {
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+        const children = [new Paragraph({ text: state.config.title, heading: HeadingLevel.TITLE, alignment: "CENTER" })];
+
+        STRUCTURE.forEach(s => {
+            if(state.data[s.id]?.content) {
+                children.push(new Paragraph({ text: s.title, heading: HeadingLevel.HEADING_1, spacing: { before: 400 } }));
+                children.push(new Paragraph({ children: [new TextRun(state.data[s.id].content)] }));
+            }
+        });
+
+        const doc = new Document({ sections: [{ children }] });
+        const blob = await Packer.toBlob(doc);
+        saveAs(blob, "Trabalho_TCC.docx");
+    }
+
+    init();
 </script>
 </body>
 </html>
