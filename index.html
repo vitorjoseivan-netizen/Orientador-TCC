@@ -825,6 +825,223 @@ Possíveis causas:
     syncEditor();
     syncConfigUI();
     setProgress();
-  </script>
+ <script>
+  function normalizeWorkerEndpoint(raw) {
+    const s = (raw || "").trim().replace(/\/+$/, "");
+    if (!s) return "";
+    return s.endsWith("/assist") ? s : (s + "/assist");
+  }
+
+  function showToast(msg) {
+    alert(msg);
+  }
+
+  async function gerarComIA() {
+    try {
+      const rawEndpoint =
+        (document.querySelector("#workerEndpoint")?.value) ||
+        (localStorage.getItem("workerEndpoint") || "");
+
+      const workerEndpoint = normalizeWorkerEndpoint(rawEndpoint);
+
+      if (!workerEndpoint) {
+        showToast("Informe o Endpoint do Worker nas Configurações e salve.");
+        return;
+      }
+
+      const briefingEl = document.querySelector("#briefing");
+      const briefing = (briefingEl?.value || "").trim();
+
+      if (!briefing) {
+        showToast("Escreva o briefing antes de gerar.");
+        return;
+      }
+
+      const sectionId = window.selectedSectionId || "";
+
+      const projectTitle = (document.querySelector("#projectTitle")?.value || "").trim();
+      const authorName   = (document.querySelector("#authorName")?.value || "").trim();
+      const institution  = (document.querySelector("#institutionName")?.value || "").trim();
+
+      const payload = {
+        prompt: briefing,
+        section: sectionId || null,
+        meta: { projectTitle, authorName, institution }
+      };
+
+      const res = await fetch(workerEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await res.text();
+
+      if (!res.ok) {
+        showToast(`Erro do Worker (${res.status}): ${text}`);
+        return;
+      }
+
+      let data;
+      try { data = JSON.parse(text); } catch { data = { result: text }; }
+
+      const generated = data?.result || data?.text || text;
+
+      const contentEl = document.querySelector("#sectionContent");
+      if (contentEl) {
+        contentEl.value = generated;
+        contentEl.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      showToast("Texto gerado e aplicado na seção.");
+    } catch (err) {
+      showToast(`Falha ao gerar: ${err?.message || err}`);
+    }
+  }
+<<script>
+  function normalizeWorkerEndpoint(raw) {
+    const s = (raw || "").trim().replace(/\/+$/, "");
+    if (!s) return "";
+    return s.endsWith("/assist") ? s : (s + "/assist");
+  }
+
+  function showToast(msg) {
+    alert(msg);
+  }
+
+  async function gerarComIA() {
+    try {
+      const rawEndpoint =
+        (document.querySelector("#workerEndpoint")?.value) ||
+        (localStorage.getItem("workerEndpoint") || "");
+
+      const workerEndpoint = normalizeWorkerEndpoint(rawEndpoint);
+
+      if (!workerEndpoint) {
+        showToast("Informe o Endpoint do Worker nas Configurações e salve.");
+        return;
+      }
+
+      const briefingEl = document.querySelector("#briefing");
+      const briefing = (briefingEl?.value || "").trim();
+
+      if (!briefing) {
+        showToast("Escreva o briefing antes de gerar.");
+        return;
+      }
+
+      const sectionId = window.selectedSectionId || "";
+
+      const projectTitle = (document.querySelector("#projectTitle")?.value || "").trim();
+      const authorName   = (document.querySelector("#authorName")?.value || "").trim();
+      const institution  = (document.querySelector("#institutionName")?.value || "").trim();
+
+      const payload = {
+        prompt: briefing,
+        section: sectionId || null,
+        meta: { projectTitle, authorName, institution }
+      };
+
+      const res = await fetch(workerEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await res.text();
+
+      if (!res.ok) {
+        showToast(`Erro do Worker (${res.status}): ${text}`);
+        return;
+      }
+
+      let data;
+      try { data = JSON.parse(text); } catch { data = { result: text }; }
+
+      const generated = data?.result || data?.text || text;
+
+      const contentEl = document.querySelector("#sectionContent");
+      if (contentEl) {
+        contentEl.value = generated;
+        contentEl.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      showToast("Texto gerado e aplicado na seção.");
+    } catch (err) {
+      showToast(`Falha ao gerar: ${err?.message || err}`);
+    }
+  }
+<function normalizeWorkerEndpoint(raw) {
+    const s = (raw || "").trim().replace(/\/+$/, "");
+    if (!s) return "";
+    return s.endsWith("/assist") ? s : (s + "/assist");
+  }
+
+  function showToast(msg) {
+    alert(msg);
+  }
+
+  async function gerarComIA() {
+    try {
+      const rawEndpoint =
+        (document.querySelector("#workerEndpoint")?.value) ||
+        (localStorage.getItem("workerEndpoint") || "");
+
+      const workerEndpoint = normalizeWorkerEndpoint(rawEndpoint);
+
+      if (!workerEndpoint) {
+        showToast("Informe o Endpoint do Worker nas Configurações e salve.");
+        return;
+      }
+
+      const briefingEl = document.querySelector("#briefing");
+      const briefing = (briefingEl?.value || "").trim();
+
+      if (!briefing) {
+        showToast("Escreva o briefing antes de gerar.");
+        return;
+      }
+
+      const sectionId = window.selectedSectionId || "";
+
+      const projectTitle = (document.querySelector("#projectTitle")?.value || "").trim();
+      const authorName   = (document.querySelector("#authorName")?.value || "").trim();
+      const institution  = (document.querySelector("#institutionName")?.value || "").trim();
+
+      const payload = {
+        prompt: briefing,
+        section: sectionId || null,
+        meta: { projectTitle, authorName, institution }
+      };
+
+      const res = await fetch(workerEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await res.text();
+
+      if (!res.ok) {
+        showToast(Erro do Worker (${res.status}): ${text});
+        return;
+      }
+
+      let data;
+      try { data = JSON.parse(text); } catch { data = { result: text }; }
+
+      const generated = data?.result || data?.text || text;
+
+      const contentEl = document.querySelector("#sectionContent");
+      if (contentEl) {
+        contentEl.value = generated;
+        contentEl.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      showToast("Texto gerado e aplicado na seção.");
+    } catch (err) {
+      showToast(Falha ao gerar: ${err?.message || err});
+    }
+  }>
 </body>
 </html>
