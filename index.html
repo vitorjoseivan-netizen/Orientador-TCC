@@ -792,18 +792,51 @@
      IA CALL
   ========================== */
   async function callIA(){
-    const briefing = document.getElementById("briefingInput").value.trim();
-    const evidence = document.getElementById("evidenceInput").value;
-    const btn = document.getElementById("btnIA");
+  const briefing = document.getElementById("briefingInput").value.trim();
+  const evidence = document.getElementById("evidenceInput").value;
+  const btn = document.getElementById("btnIA");
 
-    if(!briefing){
-      logTerminal("bad", "Digite o briefing antes de gerar.");
+  if(!briefing){
+    logTerminal("bad", "Digite o briefing antes de gerar.");
+    return;
+  }
+  if(!state.config.worker || state.config.worker.includes("SEU-WORKER-AQUI")){
+    logTerminal("warn", "Configure a URL do Worker em Configurações.");
+    toggleDrawer(true);
+    return;
+  }
+
+  btn.disabled = true;
+  logTerminal("warn", "Enviando solicitação ao Worker...");
+
+  try {
+    const response = await fetch(state.config.worker, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: briefing,
+        etapa: state.activeId,
+        evidencias: evidence
+      })
+    });
+
+    const data = await response.json();
+    const aiText = data.text; // o Worker sempre retorna "text"
+
+    if (!aiText) {
+      logTerminal("bad", "O Worker respondeu, mas o texto veio vazio.");
       return;
     }
-    if(!state.config.worker || state.config.worker.includes("SEU-WORKER-AQUI")){
-      logTerminal("warn", "Configure a URL do Worker em Configurações.");
-      toggleDrawer(true);
-      return;
+
+    document.getElementById("mainContent").value = aiText;
+    saveCurrentData();
+    logTerminal("ok", "Conteúdo gerado com sucesso.");
+  } catch (e) {
+    logTerminal("bad", "Erro de conexão com o Worker.");
+  } finally {
+    btn.disabled = false;
+  }
+
     }
 
     btn.disabled = true;
