@@ -791,7 +791,7 @@
   /* =========================
      IA CALL
   ========================== */
-  async function callIA(){
+  async function callIA() {
   const briefing = document.getElementById("briefingInput").value.trim();
   const evidence = document.getElementById("evidenceInput").value;
   const btn = document.getElementById("btnIA");
@@ -821,7 +821,7 @@
     });
 
     const data = await response.json();
-    const aiText = data.text; // o Worker sempre retorna "text"
+    const aiText = data.text;
 
     if (!aiText) {
       logTerminal("bad", "O Worker respondeu, mas o texto veio vazio.");
