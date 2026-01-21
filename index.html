@@ -31,15 +31,14 @@
       --line:#e2e8f0;
       --text:#0f172a;
       --muted:#64748b;
-      --p1:#2563eb;  /* azul */
-      --p2:#16a34a;  /* verde */
-      --p3:#f59e0b;  /* âmbar */
+      --p1:#2563eb;
+      --p2:#16a34a;
+      --p3:#f59e0b;
       --danger:#ef4444;
       --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
       --shadow2: 0 6px 14px rgba(15, 23, 42, 0.08);
       --radius: 14px;
     }
-
     *{ box-sizing:border-box; }
     html, body{ height:100%; }
     body{
@@ -50,7 +49,6 @@
       overflow:hidden;
     }
 
-    /* Topbar */
     .topbar{
       height:68px;
       display:flex;
@@ -64,33 +62,20 @@
       top:0;
       z-index:50;
     }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-    }
+    .brand{ display:flex; align-items:center; gap:12px; }
     .logo{
       width:40px; height:40px; border-radius:12px;
       background: linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(22,163,74,1) 100%);
       box-shadow: var(--shadow2);
     }
     .brand h1{
-      margin:0;
-      font-size:16px;
-      font-weight:900;
-      letter-spacing:0.2px;
-      line-height:1.1;
+      margin:0; font-size:16px; font-weight:900; letter-spacing:0.2px; line-height:1.1;
     }
     .brand .sub{
-      margin:0;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:600;
+      margin:0; color:var(--muted); font-size:12px; font-weight:600;
     }
+    .top-actions{ display:flex; gap:10px; align-items:center; }
 
-    .top-actions{
-      display:flex; gap:10px; align-items:center;
-    }
-
-    /* Layout */
     .layout{
       height: calc(100vh - 68px);
       display:grid;
@@ -98,7 +83,6 @@
       gap: 14px;
       padding: 14px;
     }
-
     .panel{
       background: var(--panel);
       border: 1px solid var(--line);
@@ -109,7 +93,6 @@
       flex-direction:column;
       min-height:0;
     }
-
     .panel-head{
       padding: 14px 14px;
       background: #fff;
@@ -119,14 +102,12 @@
       justify-content:space-between;
       gap: 10px;
     }
-
     .panel-title{
       font-size: 13px;
       font-weight: 900;
       letter-spacing: 0.4px;
       color: var(--text);
     }
-
     .scroll{
       overflow:auto;
       padding: 14px;
@@ -134,7 +115,6 @@
       flex:1;
     }
 
-    /* Buttons */
     .btn{
       appearance:none;
       border: 1px solid var(--line);
@@ -164,7 +144,6 @@
 
     .btn-slim{ padding:8px 10px; border-radius:10px; font-size:12px; }
 
-    /* Inputs */
     .input, textarea, select{
       width:100%;
       border: 1px solid var(--line);
@@ -177,10 +156,7 @@
       line-height: 1.55;
       outline: none;
     }
-    textarea{
-      resize:none;
-      min-height:140px;
-    }
+    textarea{ resize:none; min-height:140px; }
     .input:focus, textarea:focus, select:focus{
       border-color: rgba(37,99,235,0.65);
       box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
@@ -205,7 +181,6 @@
       letter-spacing:0;
     }
 
-    /* Sidebar steps */
     .searchbox{ display:flex; gap:10px; }
     .step-list{ display:flex; flex-direction:column; gap:8px; }
     .step{
@@ -223,7 +198,6 @@
     .step .t{ font-weight: 900; font-size: 13px; margin-bottom: 3px; }
     .step .m{ font-weight: 700; font-size: 12px; color: var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
 
-    /* Main */
     .main-head{
       display:flex;
       flex-direction:column;
@@ -238,12 +212,8 @@
       justify-content:space-between;
       gap:10px;
     }
-    .main-title{
-      margin:0;
-      font-size: 18px;
-      font-weight: 950;
-      letter-spacing:0.2px;
-    }
+    .main-title{ margin:0; font-size: 18px; font-weight: 950; letter-spacing:0.2px; }
+
     .meta-row{
       display:flex; gap:10px; flex-wrap:wrap;
       color: var(--muted);
@@ -259,10 +229,7 @@
       align-items:center;
       gap:8px;
     }
-    .dot{
-      width:10px; height:10px; border-radius: 999px;
-      background: var(--p2);
-    }
+    .dot{ width:10px; height:10px; border-radius: 999px; background: var(--p2); }
     .dot.warn{ background: var(--p3); }
     .dot.bad{ background: var(--danger); }
 
@@ -284,7 +251,6 @@
       padding: 14px;
       box-shadow: 0 6px 14px rgba(15,23,42,0.06);
     }
-
     .row-actions{
       display:flex; gap:10px; flex-wrap:wrap;
       align-items:center;
@@ -308,7 +274,6 @@
     .terminal .warn{ color:#fde68a; font-weight:800; }
     .terminal .bad{ color:#fca5a5; font-weight:800; }
 
-    /* Drawer */
     .overlay{
       position:fixed;
       inset:0;
@@ -348,9 +313,7 @@
       padding: 16px;
       overflow:auto;
     }
-
     .sep{ height:1px; background: var(--line); margin: 14px 0; }
-
     .small{
       font-size: 11px;
       color: var(--muted);
@@ -439,7 +402,7 @@
               <span>ORIENTAÇÕES DA IA (BRIEFING)</span>
               <span class="hint">O que a IA deve produzir nesta seção</span>
             </div>
-            <textarea id="briefingInput" placeholder="Ex.: Escreva a introdução delimitando contexto, lacuna, objetivo e estrutura do artigo/TCC..." oninput="saveCurrentDataDebounced()"></textarea>
+            <textarea id="briefingInput" placeholder="Ex.: Escreva a introdução delimitando contexto, lacuna, objetivo e estrutura..." oninput="saveCurrentDataDebounced()"></textarea>
             <div class="row-actions">
               <button class="btn btn-primary" id="btnIA" onclick="callIA()">Gerar com IA</button>
               <button class="btn btn-ghost" onclick="appendToContentFromBriefing()">Adicionar briefing ao conteúdo</button>
@@ -451,7 +414,7 @@
               <span>EVIDÊNCIAS / BASE (PDF/REFERÊNCIAS)</span>
               <span class="hint">Cole trechos ou extraia do PDF</span>
             </div>
-            <textarea id="evidenceInput" placeholder="Cole trechos de livros, artigos, citações, dados, etc." oninput="saveCurrentDataDebounced()"></textarea>
+            <textarea id="evidenceInput" placeholder="Cole trechos de livros, artigos, citações..." oninput="saveCurrentDataDebounced()"></textarea>
 
             <div class="row-actions">
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -487,7 +450,7 @@
         </div>
 
         <div style="margin-top: 14px;">
-          <div class="terminal" id="terminal">Pronto para iniciar. Configure o Worker em “Configurações” se necessário.</div>
+          <div class="terminal" id="terminal">Pronto. Selecione uma seção e utilize IA, importação e exportação.</div>
         </div>
       </div>
     </main>
@@ -506,9 +469,10 @@
       <div class="sep"></div>
 
       <div class="label">URL do Worker (Cloudflare)</div>
-      <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev/assist" />
+      <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev" />
       <div class="small" style="margin-top:8px;">
-        O front envia <strong>prompt</strong>, <strong>etapa</strong> e <strong>evidencias</strong>. O Worker deve retornar JSON com <strong>{ "text": "..." }</strong>.
+        Use a URL do <strong>Worker</strong> (normalmente <strong>.workers.dev</strong> ou rota API no seu domínio).
+        O front envia <strong>POST</strong> com JSON { prompt, etapa, evidencias } e espera { text }.
       </div>
 
       <div class="sep"></div>
@@ -568,12 +532,12 @@
 
   const defaultState = {
     config: {
-      worker: "https://SEU-WORKER-AQUI.workers.dev/assist",
+      worker: "https://SEU-WORKER-AQUI.workers.dev",
       title: "Meu Projeto",
     },
-    mode: "tcc",        // "tcc" | "artigo"
+    mode: "tcc",
     activeId: "intro",
-    data: {}            // { [sectionId]: { content, evidence, briefing, updatedAt } }
+    data: {}
   };
 
   let state = loadState();
@@ -585,7 +549,6 @@
       if(!raw) return structuredClone(defaultState);
       const parsed = JSON.parse(raw);
 
-      // Migração defensiva
       const s = { ...structuredClone(defaultState), ...parsed };
       s.config = { ...structuredClone(defaultState.config), ...(parsed.config || {}) };
       if(!["tcc","artigo"].includes(s.mode)) s.mode = "tcc";
@@ -597,13 +560,9 @@
     }
   }
 
-  function persist(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
+  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-  function getStructure(){
-    return state.mode === "artigo" ? STRUCTURE_ARTIGO : STRUCTURE_TCC;
-  }
+  function getStructure(){ return state.mode === "artigo" ? STRUCTURE_ARTIGO : STRUCTURE_TCC; }
 
   function ensureSection(id){
     if(!state.data[id]) state.data[id] = { content:"", evidence:"", briefing:"", updatedAt: null };
@@ -613,6 +572,12 @@
   /* =========================
      UI HELPERS
   ========================== */
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (m)=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
   function logTerminal(kind, message){
     const t = document.getElementById("terminal");
     const stamp = new Date().toLocaleString("pt-BR");
@@ -625,12 +590,6 @@
     const line = `[${stamp}] ${prefix}: ${message}`;
     t.innerHTML = `${t.innerHTML}\n<span class="${cls}">${escapeHtml(line)}</span>`;
     t.scrollTop = t.scrollHeight;
-  }
-
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, (m)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
   }
 
   function setSaveState(status){
@@ -665,7 +624,6 @@
     document.getElementById("structureMode").value = state.mode;
 
     const structure = getStructure();
-    // Garantir activeId válido
     if(!structure.some(s => s.id === state.activeId)){
       state.activeId = structure[0]?.id || "intro";
     }
@@ -674,9 +632,6 @@
     loadStep(state.activeId);
     updateStructureInfo();
     setSaveState("saved");
-
-    // terminal limpo e pronto
-    document.getElementById("terminal").textContent = "Pronto. Selecione uma seção e utilize IA, importação e exportação.";
   }
 
   function updateStructureInfo(){
@@ -745,10 +700,12 @@
   function switchStructure(){
     const mode = document.getElementById("structureMode").value;
     state.mode = mode;
+
     const structure = getStructure();
     if(!structure.some(s => s.id === state.activeId)){
       state.activeId = structure[0]?.id || "intro";
     }
+
     persist();
     renderSteps();
     loadStep(state.activeId);
@@ -778,9 +735,7 @@
   function saveCurrentDataDebounced(){
     setSaveState("saving");
     if(saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      saveCurrentData();
-    }, 250);
+    saveTimer = setTimeout(() => { saveCurrentData(); }, 250);
   }
 
   function onContentInput(){
@@ -789,54 +744,23 @@
   }
 
   /* =========================
-     IA CALL
+     IA CALL (CORRIGIDO)
+     - Envia: { prompt, etapa, evidencias }
+     - Espera: { text }
   ========================== */
-  async function callIA() {
-  const briefing = document.getElementById("briefingInput").value.trim();
-  const evidence = document.getElementById("evidenceInput").value;
-  const btn = document.getElementById("btnIA");
+  async function callIA(){
+    const briefing = document.getElementById("briefingInput").value.trim();
+    const evidence = document.getElementById("evidenceInput").value;
+    const btn = document.getElementById("btnIA");
 
-  if(!briefing){
-    logTerminal("bad", "Digite o briefing antes de gerar.");
-    return;
-  }
-  if(!state.config.worker || state.config.worker.includes("SEU-WORKER-AQUI")){
-    logTerminal("warn", "Configure a URL do Worker em Configurações.");
-    toggleDrawer(true);
-    return;
-  }
-
-  btn.disabled = true;
-  logTerminal("warn", "Enviando solicitação ao Worker...");
-
-  try {
-    const response = await fetch(state.config.worker, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: briefing,
-        etapa: state.activeId,
-        evidencias: evidence
-      })
-    });
-
-    const data = await response.json();
-    const aiText = data.text;
-
-    if (!aiText) {
-      logTerminal("bad", "O Worker respondeu, mas o texto veio vazio.");
+    if(!briefing){
+      logTerminal("bad", "Digite o briefing antes de gerar.");
       return;
     }
-
-    document.getElementById("mainContent").value = aiText;
-    saveCurrentData();
-    logTerminal("ok", "Conteúdo gerado com sucesso.");
-  } catch (e) {
-    logTerminal("bad", "Erro de conexão com o Worker.");
-  } finally {
-    btn.disabled = false;
-  }
-
+    if(!state.config.worker || state.config.worker.includes("SEU-WORKER-AQUI")){
+      logTerminal("warn", "Configure a URL do Worker em Configurações.");
+      toggleDrawer(true);
+      return;
     }
 
     btn.disabled = true;
@@ -853,15 +777,24 @@
         })
       });
 
-      const data = await res.json().catch(()=> ({}));
+      // Tenta JSON, mas se não for, loga texto
+      let data = {};
+      const contentType = res.headers.get("content-type") || "";
+      if(contentType.includes("application/json")){
+        data = await res.json();
+      } else {
+        const raw = await res.text();
+        data = { text: raw };
+      }
+
       if(!res.ok){
         const msg = data?.text || data?.error || `HTTP ${res.status}`;
         logTerminal("bad", `Falha no Worker/OpenAI: ${msg}`);
         return;
       }
 
-      const aiText = data.text || data.answer || data.resultado || data.response || "";
-      if(!aiText.trim()){
+      const aiText = (data?.text || "").trim();
+      if(!aiText){
         logTerminal("bad", "O Worker respondeu, mas o texto veio vazio.");
         return;
       }
@@ -933,7 +866,6 @@
         return;
       }
 
-      // Importa no conteúdo da seção atual (sobrescreve)
       document.getElementById("mainContent").value = text;
       updateCounters();
       saveCurrentData();
@@ -948,6 +880,10 @@
   /* =========================
      EXPORT WORD (DOCX)
   ========================== */
+  function sanitizeFileName(name){
+    return String(name).trim().replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 80) || "arquivo";
+  }
+
   async function exportWordCurrent(){
     const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
     const structure = getStructure();
@@ -1089,10 +1025,6 @@
   /* =========================
      UTIL ACTIONS
   ========================== */
-  function sanitizeFileName(name){
-    return String(name).trim().replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 80) || "arquivo";
-  }
-
   function copyContent(){
     const text = document.getElementById("mainContent").value || "";
     navigator.clipboard?.writeText(text);
@@ -1131,7 +1063,6 @@
     const t = sec?.title || state.activeId;
 
     const templates = {
-      // templates simples (você pode expandir)
       intro: "Apresente o contexto, delimite a lacuna, indique relevância e finalize com objetivo e estrutura do trabalho.\n",
       meto: "Descreva delineamento, procedimentos, população/amostra, instrumentos, análise de dados e aspectos éticos (se aplicável).\n",
       metodos: "Descreva delineamento, materiais, procedimentos e método de análise.\n",
@@ -1156,7 +1087,8 @@
 
   function clearCurrentSection(){
     const id = state.activeId;
-    if(!confirm("Limpar conteúdo, briefing e evidências desta seção?")) return;
+    const ok = confirm("Limpar conteúdo, briefing e evidências desta seção?");
+    if(!ok) return;
 
     ensureSection(id);
     state.data[id].content = "";
@@ -1174,7 +1106,7 @@
   }
 
   /* =========================
-     CONFIG / DRAWER
+     CONFIG / DRAWER (CORRIGIDO)
   ========================== */
   function toggleDrawer(open){
     const drawer = document.getElementById("drawer");
@@ -1185,15 +1117,25 @@
   }
 
   function saveConfig(){
-    state.config.worker = (document.getElementById("workerUrl").value || "").trim();
+    let url = (document.getElementById("workerUrl").value || "").trim();
+    url = url.replace(/\/+$/, ""); // remove barras no final
+
+    state.config.worker = url;
     state.config.title = (document.getElementById("workTitle").value || "").trim() || "Meu Projeto";
+
     persist();
     toggleDrawer(false);
-    logTerminal("ok", "Configurações salvas.");
+
+    if(url.includes(".pages.dev")){
+      logTerminal("bad", "Essa URL parece Cloudflare Pages (.pages.dev). Para IA, use o endpoint do Worker (.workers.dev) ou rota API.");
+    } else {
+      logTerminal("ok", "Configurações salvas.");
+    }
   }
 
   function resetAll(){
-    if(!confirm("Isso apagará TODOS os dados salvos no navegador. Continuar?")) return;
+    const ok = confirm("Isso apagará TODOS os dados salvos no navegador. Continuar?");
+    if(!ok) return;
     localStorage.removeItem(STORAGE_KEY);
     state = structuredClone(defaultState);
     persist();
