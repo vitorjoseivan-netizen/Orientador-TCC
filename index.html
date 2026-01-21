@@ -24,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
+    /* (SEU CSS INTACTO) */
     :root{
       --bg:#ffffff;
       --panel:#f8fafc;
@@ -48,7 +49,6 @@
       background:var(--bg);
       overflow:hidden;
     }
-
     .topbar{
       height:68px;
       display:flex;
@@ -68,12 +68,8 @@
       background: linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(22,163,74,1) 100%);
       box-shadow: var(--shadow2);
     }
-    .brand h1{
-      margin:0; font-size:16px; font-weight:900; letter-spacing:0.2px; line-height:1.1;
-    }
-    .brand .sub{
-      margin:0; color:var(--muted); font-size:12px; font-weight:600;
-    }
+    .brand h1{ margin:0; font-size:16px; font-weight:900; letter-spacing:0.2px; line-height:1.1; }
+    .brand .sub{ margin:0; color:var(--muted); font-size:12px; font-weight:600; }
     .top-actions{ display:flex; gap:10px; align-items:center; }
 
     .layout{
@@ -108,12 +104,7 @@
       letter-spacing: 0.4px;
       color: var(--text);
     }
-    .scroll{
-      overflow:auto;
-      padding: 14px;
-      min-height:0;
-      flex:1;
-    }
+    .scroll{ overflow:auto; padding: 14px; min-height:0; flex:1; }
 
     .btn{
       appearance:none;
@@ -135,13 +126,11 @@
     .btn:hover{ border-color: rgba(37,99,235,0.45); box-shadow: 0 6px 14px rgba(15,23,42,0.08); }
     .btn:active{ transform: translateY(1px); }
     .btn:disabled{ opacity:0.6; cursor:not-allowed; box-shadow:none; }
-
     .btn-primary{ background: var(--p1); color:#fff; border: none; }
     .btn-success{ background: var(--p2); color:#fff; border: none; }
     .btn-warn{ background: var(--p3); color:#111827; border: none; }
     .btn-ghost{ background:#fff; color: var(--muted); }
     .btn-danger{ background: var(--danger); color:#fff; border:none; }
-
     .btn-slim{ padding:8px 10px; border-radius:10px; font-size:12px; }
 
     .input, textarea, select{
@@ -173,13 +162,7 @@
       justify-content:space-between;
       gap:10px;
     }
-    .hint{
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 700;
-      text-transform:none;
-      letter-spacing:0;
-    }
+    .hint{ font-size: 11px; color: var(--muted); font-weight: 700; text-transform:none; letter-spacing:0; }
 
     .searchbox{ display:flex; gap:10px; }
     .step-list{ display:flex; flex-direction:column; gap:8px; }
@@ -213,13 +196,7 @@
       gap:10px;
     }
     .main-title{ margin:0; font-size: 18px; font-weight: 950; letter-spacing:0.2px; }
-
-    .meta-row{
-      display:flex; gap:10px; flex-wrap:wrap;
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 12px;
-    }
+    .meta-row{ display:flex; gap:10px; flex-wrap:wrap; color: var(--muted); font-weight: 700; font-size: 12px; }
     .badge{
       border: 1px solid var(--line);
       background: #fff;
@@ -243,7 +220,6 @@
       body{ overflow:auto; }
       .grid-2{ grid-template-columns: 1fr; }
     }
-
     .card{
       background:#fff;
       border: 1px solid var(--line);
@@ -257,7 +233,6 @@
       justify-content:space-between;
       margin-top: 10px;
     }
-
     .terminal{
       background: #0b1220;
       color: #e5e7eb;
@@ -304,22 +279,10 @@
       justify-content:space-between;
       gap:10px;
     }
-    .drawer-head h3{
-      margin:0;
-      font-size: 14px;
-      font-weight: 950;
-    }
-    .drawer-body{
-      padding: 16px;
-      overflow:auto;
-    }
+    .drawer-head h3{ margin:0; font-size: 14px; font-weight: 950; }
+    .drawer-body{ padding: 16px; overflow:auto; }
     .sep{ height:1px; background: var(--line); margin: 14px 0; }
-    .small{
-      font-size: 11px;
-      color: var(--muted);
-      font-weight:700;
-      line-height:1.45;
-    }
+    .small{ font-size: 11px; color: var(--muted); font-weight:700; line-height:1.45; }
   </style>
 </head>
 <body>
@@ -402,7 +365,7 @@
               <span>ORIENTAÇÕES DA IA (BRIEFING)</span>
               <span class="hint">O que a IA deve produzir nesta seção</span>
             </div>
-            <textarea id="briefingInput" placeholder="Ex.: Escreva a introdução delimitando contexto, lacuna, objetivo e estrutura..." oninput="saveCurrentDataDebounced()"></textarea>
+            <textarea id="briefingInput" placeholder="Ex.: Escreva a introdução delimitando contexto, lacuna, objetivo e estrutura do artigo/TCC..." oninput="saveCurrentDataDebounced()"></textarea>
             <div class="row-actions">
               <button class="btn btn-primary" id="btnIA" onclick="callIA()">Gerar com IA</button>
               <button class="btn btn-ghost" onclick="appendToContentFromBriefing()">Adicionar briefing ao conteúdo</button>
@@ -414,7 +377,7 @@
               <span>EVIDÊNCIAS / BASE (PDF/REFERÊNCIAS)</span>
               <span class="hint">Cole trechos ou extraia do PDF</span>
             </div>
-            <textarea id="evidenceInput" placeholder="Cole trechos de livros, artigos, citações..." oninput="saveCurrentDataDebounced()"></textarea>
+            <textarea id="evidenceInput" placeholder="Cole trechos de livros, artigos, citações, dados, etc." oninput="saveCurrentDataDebounced()"></textarea>
 
             <div class="row-actions">
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -450,7 +413,7 @@
         </div>
 
         <div style="margin-top: 14px;">
-          <div class="terminal" id="terminal">Pronto. Selecione uma seção e utilize IA, importação e exportação.</div>
+          <div class="terminal" id="terminal">Pronto para iniciar. Configure o Worker em “Configurações” se necessário.</div>
         </div>
       </div>
     </main>
@@ -469,10 +432,9 @@
       <div class="sep"></div>
 
       <div class="label">URL do Worker (Cloudflare)</div>
-      <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev" />
+      <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev/assist" />
       <div class="small" style="margin-top:8px;">
-        Use a URL do <strong>Worker</strong> (normalmente <strong>.workers.dev</strong> ou rota API no seu domínio).
-        O front envia <strong>POST</strong> com JSON { prompt, etapa, evidencias } e espera { text }.
+        O front envia <strong>prompt</strong>, <strong>etapa</strong> e <strong>evidencias</strong>. O Worker deve retornar JSON com <strong>{ "text": "..." }</strong>.
       </div>
 
       <div class="sep"></div>
@@ -492,6 +454,11 @@
   </div>
 
 <script>
+  // FIX 1: fallback para structuredClone (evita quebrar o JS e "sumir estrutura")
+  const _clone = (typeof structuredClone === "function")
+    ? (obj) => structuredClone(obj)
+    : (obj) => JSON.parse(JSON.stringify(obj));
+
   /* =========================
      ESTRUTURAS: TCC e ARTIGO
   ========================== */
@@ -532,7 +499,7 @@
 
   const defaultState = {
     config: {
-      worker: "https://SEU-WORKER-AQUI.workers.dev",
+      worker: "https://SEU-WORKER-AQUI.workers.dev/assist",
       title: "Meu Projeto",
     },
     mode: "tcc",
@@ -546,23 +513,29 @@
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return structuredClone(defaultState);
+      if(!raw) return _clone(defaultState);              // FIX 2: usa _clone
       const parsed = JSON.parse(raw);
 
-      const s = { ...structuredClone(defaultState), ...parsed };
-      s.config = { ...structuredClone(defaultState.config), ...(parsed.config || {}) };
+      const s = { ..._clone(defaultState), ...parsed }; // FIX 2: usa _clone
+      s.config = { ..._clone(defaultState.config), ...(parsed.config || {}) };
+
       if(!["tcc","artigo"].includes(s.mode)) s.mode = "tcc";
       if(!s.data || typeof s.data !== "object") s.data = {};
       if(!s.activeId) s.activeId = "intro";
+
       return s;
     }catch{
-      return structuredClone(defaultState);
+      return _clone(defaultState);                      // FIX 2: usa _clone
     }
   }
 
-  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function persist(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
 
-  function getStructure(){ return state.mode === "artigo" ? STRUCTURE_ARTIGO : STRUCTURE_TCC; }
+  function getStructure(){
+    return state.mode === "artigo" ? STRUCTURE_ARTIGO : STRUCTURE_TCC;
+  }
 
   function ensureSection(id){
     if(!state.data[id]) state.data[id] = { content:"", evidence:"", briefing:"", updatedAt: null };
@@ -572,12 +545,6 @@
   /* =========================
      UI HELPERS
   ========================== */
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, (m)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
-  }
-
   function logTerminal(kind, message){
     const t = document.getElementById("terminal");
     const stamp = new Date().toLocaleString("pt-BR");
@@ -592,9 +559,17 @@
     t.scrollTop = t.scrollHeight;
   }
 
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (m)=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
   function setSaveState(status){
     const dot = document.getElementById("saveDot");
     const label = document.getElementById("saveState");
+
+    // FIX 3: agora "saved" é aceito (você chamava "saved" no init)
     if(status === "saving"){
       dot.className = "dot warn";
       label.textContent = "Salvando...";
@@ -605,6 +580,7 @@
       label.textContent = "Erro ao salvar";
       return;
     }
+    // "saved" (ou qualquer outro) cai aqui
     dot.className = "dot";
     label.textContent = "Salvo";
   }
@@ -632,6 +608,9 @@
     loadStep(state.activeId);
     updateStructureInfo();
     setSaveState("saved");
+
+    document.getElementById("terminal").textContent =
+      "Pronto. Selecione uma seção e utilize IA, importação e exportação.";
   }
 
   function updateStructureInfo(){
@@ -700,12 +679,10 @@
   function switchStructure(){
     const mode = document.getElementById("structureMode").value;
     state.mode = mode;
-
     const structure = getStructure();
     if(!structure.some(s => s.id === state.activeId)){
       state.activeId = structure[0]?.id || "intro";
     }
-
     persist();
     renderSteps();
     loadStep(state.activeId);
@@ -735,7 +712,9 @@
   function saveCurrentDataDebounced(){
     setSaveState("saving");
     if(saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => { saveCurrentData(); }, 250);
+    saveTimer = setTimeout(() => {
+      saveCurrentData();
+    }, 250);
   }
 
   function onContentInput(){
@@ -744,9 +723,7 @@
   }
 
   /* =========================
-     IA CALL (CORRIGIDO)
-     - Envia: { prompt, etapa, evidencias }
-     - Espera: { text }
+     IA CALL
   ========================== */
   async function callIA(){
     const briefing = document.getElementById("briefingInput").value.trim();
@@ -777,24 +754,15 @@
         })
       });
 
-      // Tenta JSON, mas se não for, loga texto
-      let data = {};
-      const contentType = res.headers.get("content-type") || "";
-      if(contentType.includes("application/json")){
-        data = await res.json();
-      } else {
-        const raw = await res.text();
-        data = { text: raw };
-      }
-
+      const data = await res.json().catch(()=> ({}));
       if(!res.ok){
         const msg = data?.text || data?.error || `HTTP ${res.status}`;
         logTerminal("bad", `Falha no Worker/OpenAI: ${msg}`);
         return;
       }
 
-      const aiText = (data?.text || "").trim();
-      if(!aiText){
+      const aiText = data.text || data.answer || data.resultado || data.response || "";
+      if(!aiText.trim()){
         logTerminal("bad", "O Worker respondeu, mas o texto veio vazio.");
         return;
       }
@@ -880,10 +848,6 @@
   /* =========================
      EXPORT WORD (DOCX)
   ========================== */
-  function sanitizeFileName(name){
-    return String(name).trim().replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 80) || "arquivo";
-  }
-
   async function exportWordCurrent(){
     const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
     const structure = getStructure();
@@ -1025,6 +989,10 @@
   /* =========================
      UTIL ACTIONS
   ========================== */
+  function sanitizeFileName(name){
+    return String(name).trim().replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 80) || "arquivo";
+  }
+
   function copyContent(){
     const text = document.getElementById("mainContent").value || "";
     navigator.clipboard?.writeText(text);
@@ -1087,8 +1055,7 @@
 
   function clearCurrentSection(){
     const id = state.activeId;
-    const ok = confirm("Limpar conteúdo, briefing e evidências desta seção?");
-    if(!ok) return;
+    if(!confirm("Limpar conteúdo, briefing e evidências desta seção?")) return;
 
     ensureSection(id);
     state.data[id].content = "";
@@ -1106,7 +1073,7 @@
   }
 
   /* =========================
-     CONFIG / DRAWER (CORRIGIDO)
+     CONFIG / DRAWER
   ========================== */
   function toggleDrawer(open){
     const drawer = document.getElementById("drawer");
@@ -1117,6 +1084,7 @@
   }
 
   function saveConfig(){
+    // FIX 4: normaliza URL e confirma no terminal o que foi salvo
     let url = (document.getElementById("workerUrl").value || "").trim();
     url = url.replace(/\/+$/, ""); // remove barras no final
 
@@ -1125,19 +1093,13 @@
 
     persist();
     toggleDrawer(false);
-
-    if(url.includes(".pages.dev")){
-      logTerminal("bad", "Essa URL parece Cloudflare Pages (.pages.dev). Para IA, use o endpoint do Worker (.workers.dev) ou rota API.");
-    } else {
-      logTerminal("ok", "Configurações salvas.");
-    }
+    logTerminal("ok", `Configurações salvas. Worker: ${state.config.worker || "(vazio)"} | Título: ${state.config.title}`);
   }
 
   function resetAll(){
-    const ok = confirm("Isso apagará TODOS os dados salvos no navegador. Continuar?");
-    if(!ok) return;
+    if(!confirm("Isso apagará TODOS os dados salvos no navegador. Continuar?")) return;
     localStorage.removeItem(STORAGE_KEY);
-    state = structuredClone(defaultState);
+    state = _clone(defaultState); // FIX 2: usa _clone
     persist();
     location.reload();
   }
