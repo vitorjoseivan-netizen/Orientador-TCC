@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -523,6 +524,24 @@
       if(!s.data || typeof s.data !== "object") s.data = {};
       if(!s.activeId) s.activeId = "intro";
 
+      // FIX 5 (migração): versões antigas salvavam por id puro (ex.: "intro"),
+      // sem separar TCC de Artigo. Migra essas entradas para o namespace do
+      // modo salvo, preservando o conteúdo já existente do usuário.
+      const migrated = {};
+      let didMigrate = false;
+      for(const k of Object.keys(s.data)){
+        if(k.includes(":")){
+          migrated[k] = s.data[k];
+        }else{
+          migrated[`${s.mode}:${k}`] = s.data[k];
+          didMigrate = true;
+        }
+      }
+      s.data = migrated;
+      if(didMigrate){
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch{}
+      }
+
       return s;
     }catch{
       return _clone(defaultState);                      // FIX 2: usa _clone
@@ -537,9 +556,16 @@
     return state.mode === "artigo" ? STRUCTURE_ARTIGO : STRUCTURE_TCC;
   }
 
+  // FIX 5: chave composta por modo+id evita que TCC e Artigo compartilhem
+  // conteúdo quando usam o mesmo identificador de seção (ex.: 'intro', 'refs').
+  function sectionKey(id){
+    return `${state.mode}:${id}`;
+  }
+
   function ensureSection(id){
-    if(!state.data[id]) state.data[id] = { content:"", evidence:"", briefing:"", updatedAt: null };
-    return state.data[id];
+    const key = sectionKey(id);
+    if(!state.data[key]) state.data[key] = { content:"", evidence:"", briefing:"", updatedAt: null };
+    return state.data[key];
   }
 
   /* =========================
@@ -615,7 +641,7 @@
 
   function updateStructureInfo(){
     const structure = getStructure();
-    const filled = structure.filter(s => (state.data[s.id]?.content || "").trim().length > 0).length;
+    const filled = structure.filter(s => (state.data[sectionKey(s.id)]?.content || "").trim().length > 0).length;
     document.getElementById("structureInfo").textContent =
       `${structure.length} seções • ${filled} com conteúdo`;
   }
@@ -666,9 +692,9 @@
     document.getElementById("sectionTitle").textContent = s ? s.title : "Seção";
     document.getElementById("sectionIdLabel").textContent = id;
 
-    document.getElementById("mainContent").value = state.data[id]?.content || "";
-    document.getElementById("evidenceInput").value = state.data[id]?.evidence || "";
-    document.getElementById("briefingInput").value = state.data[id]?.briefing || "";
+    document.getElementById("mainContent").value = state.data[sectionKey(id)]?.content || "";
+    document.getElementById("evidenceInput").value = state.data[sectionKey(id)]?.evidence || "";
+    document.getElementById("briefingInput").value = state.data[sectionKey(id)]?.briefing || "";
 
     updateCounters();
     renderSteps();
@@ -696,10 +722,11 @@
     try{
       const id = state.activeId;
       ensureSection(id);
-      state.data[id].content = document.getElementById("mainContent").value || "";
-      state.data[id].evidence = document.getElementById("evidenceInput").value || "";
-      state.data[id].briefing = document.getElementById("briefingInput").value || "";
-      state.data[id].updatedAt = Date.now();
+      const key = sectionKey(id);
+      state.data[key].content = document.getElementById("mainContent").value || "";
+      state.data[key].evidence = document.getElementById("evidenceInput").value || "";
+      state.data[key].briefing = document.getElementById("briefingInput").value || "";
+      state.data[key].updatedAt = Date.now();
 
       persist();
       setSaveState("saved");
@@ -743,6 +770,12 @@
     btn.disabled = true;
     logTerminal("warn", "Enviando solicitação ao Worker...");
 
+    // FIX 9: tempo-limite de 45s — evita que a interface fique presa
+    // indefinidamente se o Worker/IA não responder nem der erro explícito.
+    const AI_TIMEOUT_MS = 45000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+
     try{
       const res = await fetch(state.config.worker, {
         method: "POST",
@@ -751,7 +784,8 @@
           prompt: briefing,
           etapa: state.activeId,
           evidencias: evidence
-        })
+        }),
+        signal: controller.signal,
       });
 
       const data = await res.json().catch(()=> ({}));
@@ -772,8 +806,13 @@
       saveCurrentData();
       logTerminal("ok", "Conteúdo gerado e salvo na seção atual.");
     }catch(e){
-      logTerminal("bad", "Erro de conexão: verifique URL do Worker e CORS.");
+      if(e?.name === "AbortError"){
+        logTerminal("bad", `Tempo limite excedido (${AI_TIMEOUT_MS / 1000}s). O Worker pode estar sobrecarregado ou indisponível.`);
+      }else{
+        logTerminal("bad", "Erro de conexão: verifique URL do Worker e CORS.");
+      }
     }finally{
+      clearTimeout(timeoutId);
       btn.disabled = false;
     }
   }
@@ -787,20 +826,49 @@
 
     logTerminal("warn", `Lendo PDF: ${file.name}`);
     try{
-      const reader = new FileReader();
-      reader.onload = async function(){
-        const pdf = await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
-        let text = "";
-        for(let i=1; i<=pdf.numPages; i++){
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          text += content.items.map(it => it.str).join(" ") + "\n";
-        }
-        document.getElementById("evidenceInput").value = text.trim();
-        saveCurrentData();
-        logTerminal("ok", `PDF extraído (${pdf.numPages} páginas) e salvo em Evidências.`);
-      };
-      reader.readAsArrayBuffer(file);
+      // FIX 10: o FileReader é assíncrono por eventos e não era aguardado,
+      // então extractPDF() "terminava" antes da extração de fato concluir.
+      // Envolver em Promise garante que quem chama extractPDF() (inclusive
+      // testes automatizados) só segue adiante depois que o texto foi
+      // realmente processado.
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(reader.error || new Error("Falha ao ler o arquivo"));
+        reader.onload = async function(){
+          try{
+            const pdf = await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
+            let text = "";
+            for(let i=1; i<=pdf.numPages; i++){
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              text += content.items.map(it => it.str).join(" ") + "\n";
+            }
+            text = text.trim();
+
+            // FIX 6: PDF sem camada de texto (ex.: digitalizado como imagem) não pode
+            // ser confundido com sucesso — avisa em vez de salvar vazio silenciosamente.
+            if(!text){
+              logTerminal("bad", `Nenhum texto extraído de "${file.name}". O PDF pode ser digitalizado (imagem) e exigir OCR, que este sistema não realiza.`);
+              resolve();
+              return;
+            }
+
+            // FIX 7: acrescenta ao conteúdo já existente em vez de substituí-lo,
+            // permitindo reunir evidências de múltiplos PDFs na mesma seção.
+            const evidenceField = document.getElementById("evidenceInput");
+            const existing = evidenceField.value.trim();
+            const sep = existing ? `\n\n--- ${file.name} ---\n` : "";
+            evidenceField.value = existing + sep + text;
+
+            saveCurrentData();
+            logTerminal("ok", `PDF "${file.name}" extraído (${pdf.numPages} páginas) e acrescentado às Evidências.`);
+            resolve();
+          }catch(err){
+            reject(err);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
     }catch(e){
       logTerminal("bad", "Falha ao extrair PDF. Tente outro arquivo.");
     }finally{
@@ -846,10 +914,45 @@
   }
 
   /* =========================
-     EXPORT WORD (DOCX)
+     EXPORT WORD (DOCX) — FIX 8: formatação ABNT
+     Fonte Times New Roman 12, espaçamento 1,5, recuo de primeira linha,
+     alinhamento justificado, margens 3-2-3-2cm e numeração de página.
   ========================== */
+  const ABNT_FONT = "Times New Roman";
+  const ABNT_MARGIN = { top: 1701, bottom: 1134, left: 1701, right: 1134 }; // 3cm/2cm/3cm/2cm
+  const ABNT_HEADING_IDS = new Set(["refs"]); // referências não levam recuo de 1ª linha
+
+  function abntBodyParagraphs(sectionId, text){
+    const { Paragraph, TextRun, AlignmentType } = window.docx;
+    const noIndent = ABNT_HEADING_IDS.has(sectionId);
+    const blocks = String(text).split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+    if(blocks.length === 0) blocks.push(text.trim());
+
+    return blocks.map(block => new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { line: 360, after: 200 }, // 1,5 entrelinhas
+      indent: noIndent ? undefined : { firstLine: 709 }, // 1,25cm
+      children: [new TextRun({ text: block, font: ABNT_FONT, size: 24 })],
+    }));
+  }
+
+  function abntSectionProperties(){
+    const { Footer, Paragraph, TextRun, AlignmentType, PageNumber } = window.docx;
+    return {
+      page: { margin: ABNT_MARGIN },
+      footers: {
+        default: new Footer({
+          children: [new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            children: [new TextRun({ children: [PageNumber.CURRENT], font: ABNT_FONT, size: 24 })],
+          })],
+        }),
+      },
+    };
+  }
+
   async function exportWordCurrent(){
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
     const structure = getStructure();
     const sec = structure.find(s => s.id === state.activeId);
     const title = state.config.title || "Projeto";
@@ -861,33 +964,53 @@
     }
 
     const children = [];
-    children.push(new Paragraph({ text: title, heading: HeadingLevel.TITLE, alignment: "CENTER" }));
-    children.push(new Paragraph({ text: sec?.title || state.activeId, heading: HeadingLevel.HEADING_1, spacing: { before: 400, after: 180 } }));
-    children.push(new Paragraph({ children: [new TextRun(content)] }));
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [new TextRun({ text: title, font: ABNT_FONT, size: 32, bold: true })],
+    }));
+    children.push(new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      spacing: { before: 300, after: 200 },
+      children: [new TextRun({ text: (sec?.title || state.activeId).toUpperCase(), font: ABNT_FONT, size: 28, bold: true })],
+    }));
+    children.push(...abntBodyParagraphs(state.activeId, content));
 
-    const doc = new Document({ sections: [{ children }] });
+    const doc = new Document({ sections: [{ properties: abntSectionProperties(), children }] });
     const blob = await Packer.toBlob(doc);
     saveAs(blob, `${sanitizeFileName(title)}_${state.activeId}.docx`);
-    logTerminal("ok", "Word da seção exportado.");
+    logTerminal("ok", "Word da seção exportado (formatação ABNT aplicada).");
   }
 
   async function exportWordAll(){
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
     const title = state.config.title || "Projeto";
     const structure = getStructure();
 
     const children = [
-      new Paragraph({ text: title, heading: HeadingLevel.TITLE, alignment: "CENTER" }),
-      new Paragraph({ text: `Estrutura: ${state.mode.toUpperCase()}`, spacing: { before: 200, after: 400 } })
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 300 },
+        children: [new TextRun({ text: title, font: ABNT_FONT, size: 32, bold: true })],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 },
+        children: [new TextRun({ text: `Estrutura: ${state.mode.toUpperCase()}`, font: ABNT_FONT, size: 24, italics: true })],
+      }),
     ];
 
     let any = false;
     structure.forEach(s => {
-      const content = (state.data[s.id]?.content || "").trim();
+      const content = (state.data[sectionKey(s.id)]?.content || "").trim();
       if(content){
         any = true;
-        children.push(new Paragraph({ text: s.title, heading: HeadingLevel.HEADING_1, spacing: { before: 400, after: 180 } }));
-        children.push(new Paragraph({ children: [new TextRun(content)] }));
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 200 },
+          children: [new TextRun({ text: s.title.toUpperCase(), font: ABNT_FONT, size: 28, bold: true })],
+        }));
+        children.push(...abntBodyParagraphs(s.id, content));
       }
     });
 
@@ -896,10 +1019,10 @@
       return;
     }
 
-    const doc = new Document({ sections: [{ children }] });
+    const doc = new Document({ sections: [{ properties: abntSectionProperties(), children }] });
     const blob = await Packer.toBlob(doc);
     saveAs(blob, `${sanitizeFileName(title)}_${state.mode}.docx`);
-    logTerminal("ok", "Word completo exportado.");
+    logTerminal("ok", "Word completo exportado (formatação ABNT aplicada).");
   }
 
   /* =========================
@@ -964,7 +1087,7 @@
 
     let any = false;
     for(const s of structure){
-      const content = (state.data[s.id]?.content || "").trim();
+      const content = (state.data[sectionKey(s.id)]?.content || "").trim();
       if(!content) continue;
       any = true;
 
@@ -1058,10 +1181,11 @@
     if(!confirm("Limpar conteúdo, briefing e evidências desta seção?")) return;
 
     ensureSection(id);
-    state.data[id].content = "";
-    state.data[id].evidence = "";
-    state.data[id].briefing = "";
-    state.data[id].updatedAt = Date.now();
+    const key = sectionKey(id);
+    state.data[key].content = "";
+    state.data[key].evidence = "";
+    state.data[key].briefing = "";
+    state.data[key].updatedAt = Date.now();
     persist();
 
     document.getElementById("mainContent").value = "";
@@ -1109,5 +1233,6 @@
   ========================== */
   init();
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"93e78bbfbf18420d8a53a555ab3b2b35","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
