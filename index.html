@@ -452,6 +452,7 @@
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-primary" style="flex:1;" onclick="saveConfig()">Salvar</button>
+        <button class="btn btn-ghost" style="flex:1; border:1px solid var(--danger);" onclick="newProject()">Novo Projeto</button>
         <button class="btn btn-danger" style="flex:1;" onclick="resetAll()">Resetar tudo</button>
       </div>
     </div>
@@ -501,9 +502,16 @@
   ========================== */
   const STORAGE_KEY = "orientador_robusto_v2";
 
+  // FIX 13: URL do Worker fixa por padrão, para que alunos/visitantes
+  // consigam usar a IA sem precisar configurar nada manualmente. Isso expõe
+  // publicamente o endereço do Worker no código-fonte da página (não a
+  // chave de API, que continua protegida no servidor) — recomenda-se
+  // configurar rate limiting no painel da Cloudflare para mitigar abuso.
+  const DEFAULT_WORKER_URL = "https://orientador-tcc-api.vitorjoseivan.workers.dev/assist";
+
   const defaultState = {
     config: {
-      worker: "https://SEU-WORKER-AQUI.workers.dev/assist",
+      worker: DEFAULT_WORKER_URL,
       title: "Meu Projeto",
     },
     mode: "tcc",
@@ -523,6 +531,16 @@
       const s = { ..._clone(defaultState), ...parsed }; // FIX 2: usa _clone
       s.config = { ..._clone(defaultState.config), ...(parsed.config || {}) };
 
+      // FIX 13 (migração): quem já usava o site antes de existir uma URL
+      // padrão pode ter o placeholder antigo salvo ("SEU-WORKER-AQUI") ou o
+      // campo vazio. Atualiza automaticamente para o Worker padrão atual,
+      // sem sobrescrever a URL de quem já configurou a própria.
+      let configUpgraded = false;
+      if(!s.config.worker || s.config.worker.includes("SEU-WORKER-AQUI")){
+        s.config.worker = DEFAULT_WORKER_URL;
+        configUpgraded = true;
+      }
+
       if(!["tcc","artigo"].includes(s.mode)) s.mode = "tcc";
       if(!s.data || typeof s.data !== "object") s.data = {};
       if(!s.activeId) s.activeId = "intro";
@@ -541,7 +559,7 @@
         }
       }
       s.data = migrated;
-      if(didMigrate){
+      if(didMigrate || configUpgraded){
         try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch{}
       }
 
@@ -1243,11 +1261,31 @@
   }
 
   function resetAll(){
-    if(!confirm("Isso apagará TODOS os dados salvos no navegador. Continuar?")) return;
+    if(!confirm("Isso apagará TODOS os dados salvos no navegador, incluindo a configuração do Worker. Continuar?")) return;
     localStorage.removeItem(STORAGE_KEY);
     state = _clone(defaultState); // FIX 2: usa _clone
     persist();
     location.reload();
+  }
+
+  // FIX 12: "Novo Projeto" resolve um problema real de uso — como o sistema
+  // guarda só um conjunto de dados por vez no navegador, conteúdo de um
+  // projeto anterior (ex.: um TCC de outro autor/tema) pode continuar salvo
+  // e reaparecer em exportações futuras, mesmo sem nenhum bug técnico
+  // envolvido. Diferente de resetAll(), aqui preservamos a configuração do
+  // Worker e do título, limpando apenas o conteúdo escrito (texto,
+  // evidências e briefings) de todas as seções, nas duas estruturas.
+  function newProject(){
+    const msg = "Isso vai limpar o conteúdo de TODAS as seções deste projeto (texto, evidências e briefings), nas estruturas TCC e Artigo. A configuração do Worker e o título serão mantidos. Deseja continuar?";
+    if(!confirm(msg)) return;
+
+    state.data = {};
+    state.activeId = getStructure()[0]?.id || "intro";
+
+    persist();
+    renderSteps();
+    loadStep(state.activeId);
+    logTerminal("ok", "Novo projeto iniciado. Conteúdo anterior removido; configuração do Worker mantida.");
   }
 
   /* =========================
