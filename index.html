@@ -434,6 +434,9 @@
 
       <div class="label">URL do Worker (Cloudflare)</div>
       <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev/assist" />
+      <div class="small" style="margin-top:8px; color:#b45309;">
+        ⚠️ Cole a URL completa, começando com <strong>https://</strong>. Se você esquecer, o sistema tenta corrigir automaticamente ao salvar, mas confira o aviso no terminal para garantir que ficou certo.
+      </div>
       <div class="small" style="margin-top:8px;">
         O front envia <strong>prompt</strong>, <strong>etapa</strong> e <strong>evidencias</strong>. O Worker deve retornar JSON com <strong>{ "text": "..." }</strong>.
       </div>
@@ -763,6 +766,14 @@
     }
     if(!state.config.worker || state.config.worker.includes("SEU-WORKER-AQUI")){
       logTerminal("warn", "Configure a URL do Worker em Configurações.");
+      toggleDrawer(true);
+      return;
+    }
+    // FIX 11 (defesa extra): garante que o worker salvo tem esquema http(s)://
+    // mesmo que tenha entrado no state por outro caminho que não o saveConfig
+    // (ex.: dado antigo migrado de uma versão anterior sem essa validação).
+    if(!/^https?:\/\//i.test(state.config.worker)){
+      logTerminal("bad", `URL do Worker inválida ("${state.config.worker}"). Ela precisa começar com https://. Abra Configurações e salve novamente.`);
       toggleDrawer(true);
       return;
     }
@@ -1211,6 +1222,17 @@
     // FIX 4: normaliza URL e confirma no terminal o que foi salvo
     let url = (document.getElementById("workerUrl").value || "").trim();
     url = url.replace(/\/+$/, ""); // remove barras no final
+
+    // FIX 11: sem "http(s)://" na frente, o navegador trata a URL como
+    // caminho relativo à própria página (inclusive relativo a um arquivo
+    // local, gerando erros bizarros tipo file:///C:/.../seu-worker.dev).
+    // Aqui detectamos isso e completamos com https:// automaticamente,
+    // avisando o usuário do que foi ajustado.
+    if(url && !/^https?:\/\//i.test(url)){
+      const original = url;
+      url = "https://" + url;
+      logTerminal("warn", `URL do Worker sem "https://"; ajustada automaticamente de "${original}" para "${url}".`);
+    }
 
     state.config.worker = url;
     state.config.title = (document.getElementById("workTitle").value || "").trim() || "Meu Projeto";
