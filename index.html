@@ -434,8 +434,11 @@
 
       <div class="label">URL do Worker (Cloudflare)</div>
       <input type="text" id="workerUrl" class="input" placeholder="https://seu-worker.workers.dev/assist" />
+      <div class="small" style="margin-top:8px;">
+        Este campo já vem preenchido com o Worker padrão do sistema — a maioria dos usuários não precisa alterar nada aqui.
+      </div>
       <div class="small" style="margin-top:8px; color:#b45309;">
-        ⚠️ Cole a URL completa, começando com <strong>https://</strong>. Se você esquecer, o sistema tenta corrigir automaticamente ao salvar, mas confira o aviso no terminal para garantir que ficou certo.
+        ⚠️ Só troque se for usar seu próprio Worker. Nesse caso, cole a URL completa, começando com <strong>https://</strong>. Se esquecer, o sistema tenta corrigir automaticamente ao salvar — confira o aviso no terminal para garantir que ficou certo.
       </div>
       <div class="small" style="margin-top:8px;">
         O front envia <strong>prompt</strong>, <strong>etapa</strong> e <strong>evidencias</strong>. O Worker deve retornar JSON com <strong>{ "text": "..." }</strong>.
